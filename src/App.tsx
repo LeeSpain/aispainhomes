@@ -20,6 +20,7 @@ import Register from "./pages/Register";
 import PasswordRecovery from "./pages/PasswordRecovery";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import PreDeployment from "./pages/PreDeployment";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import Forbidden from "./pages/Forbidden";
@@ -75,6 +76,7 @@ const App = () => {
                 <Route path="/password-recovery" element={<PasswordRecovery />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/pre-deployment" element={<PreDeployment />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/property/:id" element={<PropertyDetails />} />
