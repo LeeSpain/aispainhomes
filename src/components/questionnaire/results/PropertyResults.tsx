@@ -16,6 +16,7 @@ interface PropertyResultsProps {
   showAuthForms: boolean;
   authTab: 'login' | 'register';
   subscriptionTier: {
+    id: string;
     title: string;
     price: number;
     description: string;

@@ -44,7 +44,6 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     
     if (!user) {
       toast({
-        title: "Authentication required",
         description: "Please login to save favorites",
         variant: "destructive"
       });

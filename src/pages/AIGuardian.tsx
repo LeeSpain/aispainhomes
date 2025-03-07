@@ -8,7 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { ShieldCheck, Calendar, FileText, Passport, Landmark, Banknote, Users, School, Building, MessageSquare } from 'lucide-react';
+import { 
+  ShieldCheck, Calendar, FileText, Landmark, 
+  Banknote, Users, School, Building, 
+  MessageSquare, Check, CreditCard 
+} from 'lucide-react';
 
 const AIGuardian = () => {
   const { user } = useAuth();
@@ -110,7 +114,7 @@ const AIGuardian = () => {
                     
                     <Card>
                       <CardHeader>
-                        <Passport className="h-5 w-5 text-primary mb-2" />
+                        <CreditCard className="h-5 w-5 text-primary mb-2" />
                         <CardTitle>Visa & Residency</CardTitle>
                         <CardDescription>Navigate Spanish immigration requirements</CardDescription>
                       </CardHeader>

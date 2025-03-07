@@ -1,3 +1,4 @@
+
 import { Helmet } from 'react-helmet';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
@@ -57,6 +58,7 @@ const featuredProperties: Property[] = [
 
 // Updated subscription tier - single €9.99 option with comprehensive services
 const subscriptionTier = {
+  id: 'premium',
   title: 'Premium Access',
   price: 9.99,
   description: 'Complete access to all property search and relocation services',
