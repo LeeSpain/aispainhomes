@@ -1,107 +1,60 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Sun, Palmtree } from 'lucide-react';
-
-// Placeholder images until we have real ones
-const placeholderBackgrounds = [
-  'linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)',
-  'linear-gradient(90deg, hsla(24, 100%, 83%, 1) 0%, hsla(341, 91%, 68%, 1) 100%)',
-  'linear-gradient(to right, #ee9ca7, #ffdde1)'
-];
-
-// Spanish themed hero image
-const heroImage = '/assets/spanish-villa.jpg';
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Search } from "lucide-react";
 
 const Hero = () => {
-  const [currentImage, setCurrentImage] = useState(0);
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % placeholderBackgrounds.length);
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="relative min-h-[85vh] flex items-center overflow-hidden">
-      {/* Background Images */}
-      <div className="absolute inset-0 z-0">
-        {placeholderBackgrounds.map((gradient, index) => (
-          <div
-            key={index}
-            className="absolute inset-0 transition-opacity duration-1000"
-            style={{
-              opacity: currentImage === index ? 1 : 0,
-              background: gradient,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-background/70" />
-      </div>
-
-      {/* Content */}
-      <div className="container mx-auto px-4 py-20 relative z-10 mt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          <div>
-            <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary animate-fade-in">
-              <Sun className="w-4 h-4 mr-2" />
-              <span className="text-xs font-medium uppercase tracking-wider">Spanish Sunshine Awaits</span>
+    <div className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/10 overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(155,135,245,0.05),transparent_70%)]"></div>
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom_left,rgba(155,135,245,0.05),transparent_70%)]"></div>
+      
+      <div className="container mx-auto px-4 z-10 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
+              <Search className="w-4 h-4 mr-2" />
+              <span className="text-xs font-medium uppercase tracking-wider">AI-Powered Property Search</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-balance animate-slide-in-left">
-              Find Your Perfect Home <br />Under the Spanish Sun
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
+              Find Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Perfect Spanish Home</span> with AI
             </h1>
             
-            <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl text-balance animate-slide-in-left" style={{ animationDelay: '150ms' }}>
-              AISpainHomes.com helps you discover ideal properties in sunny Spain and guides you through the entire relocation process, from beachfront villas to mountain retreats.
+            <p className="text-xl text-muted-foreground mb-8 text-balance">
+              Our AI matches you with your ideal Spanish property and guides you through every step of relocation with personalized recommendations.
             </p>
             
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-slide-in-left" style={{ animationDelay: '300ms' }}>
-              <Button 
-                size="lg" 
-                className="group bg-gradient-to-r from-primary to-accent"
-                onClick={() => navigate('/questionnaire')}
-              >
-                <Search className="mr-2 h-5 w-5" />
-                Start Your Search
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => navigate('/about')}
-                className="border-primary/30 hover:bg-primary/10"
-              >
-                Learn More
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/questionnaire">
+                <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent w-full sm:w-auto">
+                  Find My Dream Home
+                </Button>
+              </Link>
+              <Link to="/about">
+                <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto">
+                  Learn More
+                </Button>
+              </Link>
             </div>
           </div>
-
-          {/* Hero Image */}
-          <div className="hidden lg:flex justify-end animate-slide-in-right">
-            <div className="relative rounded-lg overflow-hidden shadow-2xl border-4 border-white/20 max-w-md">
+          
+          <div className="hidden lg:flex justify-end">
+            <div className="relative w-full max-w-lg">
+              {/* Image with decorative elements */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl opacity-50 transform rotate-6"></div>
               <img 
-                src={heroImage} 
-                alt="Beautiful Spanish villa with coastal view" 
-                className="w-full h-auto object-cover"
+                src="/assets/spanish-villa.jpg" 
+                alt="Beautiful Spanish villa with white walls and terracotta roof" 
+                className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3] border border-white/10"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+              <div className="absolute -bottom-4 -right-4 bg-white dark:bg-black p-3 rounded-lg shadow-lg">
+                <div className="text-xs font-medium text-muted-foreground">Mediterranean Villa</div>
+                <div className="text-base font-bold">€495,000</div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Shaped gradient at bottom with sun-inspired elements */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <div className="h-32 bg-gradient-to-t from-background to-transparent" />
-        <div className="absolute bottom-12 right-12 text-primary/20 hidden lg:block">
-          <Palmtree className="h-32 w-32" />
         </div>
       </div>
     </div>
