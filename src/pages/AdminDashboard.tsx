@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -66,6 +65,16 @@ const AdminDashboard = () => {
     { title: 'Active Subscriptions', value: 2, icon: BarChart3 },
     { title: 'Pending Documents', value: 5, icon: FileText },
   ];
+  
+  // Helper function to safely display location
+  const getLocationDisplay = (location: string | any) => {
+    if (typeof location === 'string') {
+      return location;
+    }
+    
+    // Handle case where location might be an object but without city property
+    return location?.city || 'Unknown location';
+  };
   
   return (
     <>
@@ -206,11 +215,7 @@ const AdminDashboard = () => {
                               <TableRow key={property.id}>
                                 <TableCell className="font-medium">{property.id.substring(0, 8)}</TableCell>
                                 <TableCell>{property.title}</TableCell>
-                                <TableCell>
-                                  {typeof property.location === 'string' 
-                                    ? property.location 
-                                    : property.location.city}
-                                </TableCell>
+                                <TableCell>{getLocationDisplay(property.location)}</TableCell>
                                 <TableCell>€{property.price.toLocaleString()}</TableCell>
                                 <TableCell>{property.type}</TableCell>
                                 <TableCell className="text-right">
