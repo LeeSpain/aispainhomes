@@ -1,5 +1,38 @@
-
 import { Property } from '@/components/properties/PropertyCard';
+
+// In a real application, these would come from a database
+// This structure prepares for backend integration
+const samplePropertyImages: Record<string, string[]> = {
+  '1': [
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200',
+    'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=1200',
+    'https://images.unsplash.com/photo-1600607688969-a5bfcd646154?q=80&w=1200'
+  ],
+  '2': [
+    'https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1200',
+    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1200'
+  ],
+  '3': [
+    'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=1200',
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200'
+  ],
+  '4': [
+    'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?q=80&w=1200',
+    'https://images.unsplash.com/photo-1602343168117-bb8a12d7c180?q=80&w=1200'
+  ],
+  '5': [
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200',
+    'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200'
+  ],
+  '6': [
+    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?q=80&w=1200',
+    'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200'
+  ],
+  '7': [
+    'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?q=80&w=1200',
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200'
+  ]
+};
 
 // This would be replaced by API calls in a real application
 const sampleProperties: Property[] = [
@@ -103,6 +136,13 @@ const sampleProperties: Property[] = [
   }
 ];
 
+// Update all properties to use the image arrays instead of single imageUrl
+sampleProperties.forEach(property => {
+  const images = samplePropertyImages[property.id] || ['/placeholder.svg'];
+  property.imageUrl = images[0]; // For backward compatibility
+  property.images = images;
+});
+
 export const PropertyService = {
   // Get all properties
   getAllProperties: async (): Promise<Property[]> => {
@@ -116,6 +156,13 @@ export const PropertyService = {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
     return sampleProperties.find(property => property.id === id) || null;
+  },
+  
+  // Get property images by ID
+  getPropertyImages: async (id: string): Promise<string[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return samplePropertyImages[id] || ['/placeholder.svg'];
   },
   
   // Get properties with filters
@@ -178,5 +225,23 @@ export const PropertyService = {
     // In a real app, this would fetch user-specific favorites
     // For demo, return a random subset
     return sampleProperties.filter((_, i) => i % 2 === 0);
+  },
+  
+  // Add a new method to prepare for backend integration
+  addPropertyToFavorites: async (userId: string, propertyId: string): Promise<boolean> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // In a real app, this would add to a user_favorites table in the database
+    console.log(`Added property ${propertyId} to favorites for user ${userId}`);
+    return true;
+  },
+  
+  // Remove property from favorites
+  removePropertyFromFavorites: async (userId: string, propertyId: string): Promise<boolean> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // In a real app, this would remove from a user_favorites table in the database
+    console.log(`Removed property ${propertyId} from favorites for user ${userId}`);
+    return true;
   }
 };

@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import { useState } from 'react';
+import { Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { Bed, Bath, SquareIcon, MapPin, Heart } from 'lucide-react';
-import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export interface Property {
   id: string;
@@ -18,27 +19,26 @@ export interface Property {
   bathrooms: number;
   area: number;
   imageUrl: string;
+  images?: string[]; // Array of image URLs
   features: string[];
-  isForRent?: boolean;
+  isForRent: boolean;
+  description?: string;
 }
 
 interface PropertyCardProps {
   property: Property;
+  showFavoriteButton?: boolean;
 }
 
-const PropertyCard = ({ property }: PropertyCardProps) => {
+const PropertyCard = ({ property, showFavoriteButton = true }: PropertyCardProps) => {
   const { user, userPreferences, addToFavorites, removeFromFavorites } = useAuth();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const navigate = useNavigate();
-  
-  // Check if property is in favorites when component mounts or when userPreferences changes
-  useEffect(() => {
-    if (userPreferences && property.id) {
-      setIsFavorite(userPreferences.favorites.includes(property.id));
-    }
-  }, [userPreferences, property.id]);
-  
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const [isFavorite, setIsFavorite] = useState(() => {
+    if (!user || !userPreferences?.favorites) return false;
+    return userPreferences.favorites.includes(property.id);
+  });
+
+  const handleFavoriteToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     
     if (!user) {
@@ -54,111 +54,56 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     
     setIsFavorite(!isFavorite);
   };
-  
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const handleViewDetails = () => {
-    navigate(`/property/${property.id}`);
-  };
 
   return (
-    <div className="glass-panel rounded-xl overflow-hidden card-hover cursor-pointer" onClick={handleViewDetails}>
-      {/* Property Image */}
-      <div className="relative">
-        <AspectRatio ratio={16 / 9}>
-          <img 
-            src={property.imageUrl || '/placeholder.svg'} 
+    <Card className="overflow-hidden transition-all hover:shadow-md">
+      <Link to={`/property/${property.id}`} className="block">
+        <div className="relative">
+          <img
+            src={property.imageUrl}
             alt={property.title}
-            className="object-cover w-full h-full"
+            className="w-full h-48 object-cover"
           />
-        </AspectRatio>
-        
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-          <Badge variant="secondary" className="bg-white/90 text-foreground">
-            {property.type}
+          {showFavoriteButton && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className={`absolute top-2 right-2 h-8 w-8 rounded-full ${
+                isFavorite ? 'bg-white text-red-500' : 'bg-white/70 text-gray-600 hover:bg-white'
+              }`}
+              onClick={handleFavoriteToggle}
+            >
+              <Heart className={isFavorite ? 'fill-current' : ''} size={16} />
+            </Button>
+          )}
+          <Badge 
+            variant={property.isForRent ? "secondary" : "default"}
+            className="absolute top-2 left-2"
+          >
+            {property.isForRent ? 'For Rent' : 'For Sale'}
           </Badge>
-          {property.isForRent ? (
-            <Badge className="bg-primary">For Rent</Badge>
-          ) : (
-            <Badge className="bg-primary">For Sale</Badge>
-          )}
         </div>
         
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`absolute top-3 right-3 rounded-full bg-white/80 hover:bg-white ${
-            isFavorite ? 'text-destructive' : 'text-muted-foreground'
-          }`}
-          onClick={toggleFavorite}
-        >
-          <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
-        </Button>
-      </div>
-      
-      {/* Property Details */}
-      <div className="p-5">
-        <div className="flex items-start justify-between">
-          <h3 className="font-semibold text-lg line-clamp-1">{property.title}</h3>
-        </div>
-        
-        <div className="flex items-center text-muted-foreground mt-1 mb-3">
-          <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-          <span className="text-sm line-clamp-1">{property.location}</span>
-        </div>
-        
-        <div className="flex items-center gap-4 my-3">
-          <div className="flex items-center">
-            <Bed className="h-4 w-4 mr-1 text-muted-foreground" />
-            <span className="text-sm">{property.bedrooms}</span>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-1">
+            <h3 className="font-semibold line-clamp-1">{property.title}</h3>
           </div>
-          <div className="flex items-center">
-            <Bath className="h-4 w-4 mr-1 text-muted-foreground" />
-            <span className="text-sm">{property.bathrooms}</span>
+          <p className="text-sm text-muted-foreground mb-2">{property.location}</p>
+          <div className="font-semibold">
+            {property.currency === 'EUR' ? '€' : '$'}{property.price.toLocaleString()}
+            {property.isForRent && <span className="text-xs text-muted-foreground ml-1">/month</span>}
           </div>
-          <div className="flex items-center">
-            <SquareIcon className="h-4 w-4 mr-1 text-muted-foreground" />
-            <span className="text-sm">{property.area} m²</span>
-          </div>
-        </div>
+        </CardContent>
         
-        {/* Features */}
-        <div className="flex flex-wrap gap-2 my-3">
-          {property.features.slice(0, 3).map((feature, index) => (
-            <Badge variant="outline" key={index} className="bg-secondary/50">
-              {feature}
-            </Badge>
-          ))}
-          {property.features.length > 3 && (
-            <Badge variant="outline" className="bg-secondary/50">
-              +{property.features.length - 3} more
-            </Badge>
-          )}
-        </div>
-        
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-          <div>
-            <div className="text-lg font-bold">
-              {formatPrice(property.price, property.currency)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {property.isForRent ? 'per month' : 'for sale'}
-            </div>
+        <CardFooter className="p-4 pt-0 border-t border-border mt-1">
+          <div className="flex justify-between w-full text-sm text-muted-foreground">
+            <div>{property.bedrooms} beds</div>
+            <div>{property.bathrooms} baths</div>
+            <div>{property.area} m²</div>
           </div>
-          
-          <Button size="sm" onClick={(e) => {
-            e.stopPropagation();
-            handleViewDetails();
-          }}>View Details</Button>
-        </div>
-      </div>
-    </div>
+        </CardFooter>
+      </Link>
+    </Card>
   );
 };
 

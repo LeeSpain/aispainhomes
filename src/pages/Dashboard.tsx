@@ -1,89 +1,83 @@
 
-import { Helmet } from "react-helmet";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import Navbar from "@/components/common/Navbar";
-import Footer from "@/components/common/Footer";
-import { TabsContent } from "@/components/ui/tabs";
-import { PropertyService } from "@/services/PropertyService";
-import { Property } from "@/components/properties/PropertyCard";
-
-// Import dashboard components
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardTabs from "@/components/dashboard/DashboardTabs";
-import PropertiesTab from "@/components/dashboard/PropertiesTab";
-import FavoritesTab from "@/components/dashboard/FavoritesTab";
-import AlertsTab from "@/components/dashboard/AlertsTab";
-import DocumentsTab from "@/components/dashboard/DocumentsTab";
-import ServiceProviderTab from "@/components/dashboard/ServiceProviderTab";
-import SettingsTab from "@/components/dashboard/SettingsTab";
-import sampleServiceProviders from "@/components/dashboard/serviceProvidersData";
+import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '@/components/common/Navbar';
+import Footer from '@/components/common/Footer';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardTabs from '@/components/dashboard/DashboardTabs';
+import PropertiesTab from '@/components/dashboard/PropertiesTab';
+import FavoritesTab from '@/components/dashboard/FavoritesTab';
+import AlertsTab from '@/components/dashboard/AlertsTab';
+import DocumentsTab from '@/components/dashboard/DocumentsTab';
+import ServiceProviderTab from '@/components/dashboard/ServiceProviderTab';
+import SettingsTab from '@/components/dashboard/SettingsTab';
+import { useAuth } from '@/contexts/AuthContext';
+import { Property } from '@/components/properties/PropertyCard';
+import { PropertyService } from '@/services/PropertyService';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
-  const { user, userPreferences, isLoading, logout } = useAuth();
+  const { user, userPreferences, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("properties");
+  const [activeTab, setActiveTab] = useState('properties');
   const [properties, setProperties] = useState<Property[]>([]);
-  const [favorites, setFavorites] = useState<Property[]>([]);
-  const [isLoadingProperties, setIsLoadingProperties] = useState(true);
-  const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
+  const [favoriteProperties, setFavoriteProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    if (!isLoading && !user) {
-      navigate("/login");
+    if (!user) {
+      navigate('/login');
+      return;
     }
-  }, [user, isLoading, navigate]);
-  
-  useEffect(() => {
-    const fetchProperties = async () => {
-      if (!user) return;
-      
-      setIsLoadingProperties(true);
+    
+    const loadUserData = async () => {
+      setIsLoading(true);
       try {
-        const propertiesData = await PropertyService.getAllProperties();
-        setProperties(propertiesData);
+        // Load recommended properties
+        const propertiesData = await PropertyService.getFilteredProperties({});
+        setProperties(propertiesData.slice(0, 4)); // Show only 4 recommendations
+        
+        // Load favorite properties
+        if (userPreferences?.favorites && userPreferences.favorites.length > 0) {
+          const promises = userPreferences.favorites.map(id => 
+            PropertyService.getPropertyById(id)
+          );
+          
+          const results = await Promise.all(promises);
+          const validResults = results.filter(item => item !== null) as Property[];
+          setFavoriteProperties(validResults);
+        } else {
+          setFavoriteProperties([]);
+        }
       } catch (error) {
-        console.error("Error fetching properties:", error);
+        console.error("Error loading data:", error);
+        toast.error("Failed to load data. Please try again.");
       } finally {
-        setIsLoadingProperties(false);
+        setIsLoading(false);
       }
     };
     
-    const fetchFavorites = async () => {
-      if (!user) return;
-      
-      setIsLoadingFavorites(true);
-      try {
-        const favoritesData = await PropertyService.getUserFavorites(user.id);
-        setFavorites(favoritesData);
-      } catch (error) {
-        console.error("Error fetching favorites:", error);
-      } finally {
-        setIsLoadingFavorites(false);
-      }
-    };
-    
-    fetchProperties();
-    fetchFavorites();
-  }, [user, userPreferences?.favorites]);
+    loadUserData();
+  }, [user, navigate, userPreferences?.favorites]);
   
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
+  // Handle tab change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
   
-  if (!user) {
-    return null;
-  }
-
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+  
+  if (!user) return null;
+  
   return (
     <>
       <Helmet>
-        <title>Your Dashboard | SunnyHomeFinder</title>
+        <title>Dashboard | SunnyHomeFinder</title>
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -91,69 +85,40 @@ const Dashboard = () => {
         
         <main className="flex-1 pt-28 pb-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <DashboardHeader user={user} />
+            <DashboardHeader user={user} />
+            
+            <div className="mt-8">
+              <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange} />
               
-              <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab}>
-                <TabsContent value="properties">
-                  <PropertiesTab properties={properties} isLoading={isLoadingProperties} />
-                </TabsContent>
+              <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                {activeTab === 'properties' && (
+                  <PropertiesTab properties={properties} isLoading={isLoading} />
+                )}
                 
-                <TabsContent value="favorites">
-                  <FavoritesTab favorites={favorites} isLoading={isLoadingFavorites} />
-                </TabsContent>
+                {activeTab === 'favorites' && (
+                  <FavoritesTab favorites={favoriteProperties} isLoading={isLoading} />
+                )}
                 
-                <TabsContent value="alerts">
+                {activeTab === 'alerts' && (
                   <AlertsTab />
-                </TabsContent>
+                )}
                 
-                <TabsContent value="lawyers">
-                  <ServiceProviderTab 
-                    title="Recommended Legal Services" 
-                    providers={sampleServiceProviders.lawyers} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="utilities">
-                  <ServiceProviderTab 
-                    title="TV & Utility Providers" 
-                    providers={sampleServiceProviders.utilities} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="movers">
-                  <ServiceProviderTab 
-                    title="Moving Companies" 
-                    providers={sampleServiceProviders.movers} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="schools">
-                  <ServiceProviderTab 
-                    title="Schools & Education" 
-                    providers={sampleServiceProviders.schools} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="healthcare">
-                  <ServiceProviderTab 
-                    title="Healthcare Providers" 
-                    providers={sampleServiceProviders.healthcare} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="documents">
+                {activeTab === 'documents' && (
                   <DocumentsTab />
-                </TabsContent>
+                )}
                 
-                <TabsContent value="settings">
-                  <SettingsTab 
-                    user={user} 
+                {activeTab === 'service-providers' && (
+                  <ServiceProviderTab />
+                )}
+                
+                {activeTab === 'settings' && (
+                  <SettingsTab
+                    user={user}
                     userPreferences={userPreferences}
-                    onLogout={logout} 
+                    onLogout={handleLogout}
                   />
-                </TabsContent>
-              </DashboardTabs>
+                )}
+              </div>
             </div>
           </div>
         </main>
