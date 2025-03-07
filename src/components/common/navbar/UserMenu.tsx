@@ -11,13 +11,16 @@ import {
 import { Button } from '@/components/ui/button';
 
 interface UserMenuProps {
-  user: { name: string } | null;
+  user: { name: string; email?: string } | null;
   onLogout: () => void;
   minimal?: boolean;
 }
 
 const UserMenu = ({ user, onLogout, minimal = false }: UserMenuProps) => {
   const navigate = useNavigate();
+  
+  // Check if user is admin (for demo, we'll consider admin@example.com as admin)
+  const isAdmin = user?.email === 'admin@example.com';
   
   if (!user) {
     return minimal ? null : (
@@ -51,6 +54,11 @@ const UserMenu = ({ user, onLogout, minimal = false }: UserMenuProps) => {
         <DropdownMenuItem onClick={() => navigate('/dashboard')}>
           Dashboard
         </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => navigate('/admin')}>
+            Admin Dashboard
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={onLogout}>
           Logout
         </DropdownMenuItem>

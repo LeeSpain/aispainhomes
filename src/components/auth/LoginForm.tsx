@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -140,7 +139,7 @@ const LoginForm = () => {
                 </span>
               </Label>
               <Link 
-                to="/reset-password" 
+                to="/password-recovery" 
                 className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded-sm"
               >
                 Forgot password?

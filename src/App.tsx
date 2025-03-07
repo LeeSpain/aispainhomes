@@ -19,6 +19,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PasswordRecovery from "./pages/PasswordRecovery";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import Forbidden from "./pages/Forbidden";
@@ -73,6 +74,7 @@ const App = () => {
                 <Route path="/register" element={<Register />} />
                 <Route path="/password-recovery" element={<PasswordRecovery />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/property/:id" element={<PropertyDetails />} />
