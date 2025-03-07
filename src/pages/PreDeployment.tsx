@@ -1,24 +1,59 @@
 
 import { Helmet } from "react-helmet";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import PreDeploymentChecklist from "@/components/admin/PreDeploymentChecklist";
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clipboard, ClipboardCheck, ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { useState, useEffect } from "react";
+import { ChecklistCategory } from "@/components/admin/checklist/types";
+import { useChecklist } from "@/components/admin/checklist/useChecklist";
+
+// Status indicator component
+const StatusIndicator = ({ status }: { status: 'completed' | 'in-progress' | 'pending' }) => {
+  const colors = {
+    'completed': 'bg-green-500',
+    'in-progress': 'bg-yellow-500',
+    'pending': 'bg-red-500'
+  };
+  
+  return (
+    <div className={`w-3 h-3 rounded-full ${colors[status]}`}></div>
+  );
+};
 
 const PreDeployment = () => {
   const navigate = useNavigate();
-  const [deploymentProgress, setDeploymentProgress] = useState(42);
+  const [isLoading, setIsLoading] = useState(true);
   
+  const {
+    getProgress,
+    getCompletionByCategory,
+    getHighPriorityIncomplete
+  } = useChecklist();
+  
+  // Calculate deployment readiness
+  const deploymentProgress = getProgress();
+  const highPriorityItems = getHighPriorityIncomplete();
+  
+  // Determine readiness status
+  const getReadinessStatus = (category: ChecklistCategory) => {
+    const completion = getCompletionByCategory(category);
+    if (completion >= 80) return 'completed';
+    if (completion >= 40) return 'in-progress';
+    return 'pending';
+  };
+  
+  // Simulate loading state
   useEffect(() => {
-    // Simulate progress calculation
     const timer = setTimeout(() => {
-      setDeploymentProgress(47);
-    }, 1000);
+      setIsLoading(false);
+    }, 800);
     
     return () => clearTimeout(timer);
   }, []);
@@ -44,7 +79,29 @@ const PreDeployment = () => {
             </Button>
             
             <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2">Pre-Deployment Checklist</h1>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-3xl font-bold">Pre-Deployment Checklist</h1>
+                {!isLoading && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={`ml-2 px-3 py-1 text-xs font-semibold rounded-full 
+                          ${deploymentProgress < 50 
+                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
+                            : deploymentProgress < 80 
+                              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' 
+                              : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          }`}>
+                          {deploymentProgress}% Complete
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Overall completion status</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <p className="text-muted-foreground mb-4 max-w-3xl">
                 This checklist outlines all items that need to be completed before the site can go live.
                 Track your progress and ensure all critical items are addressed.
@@ -52,39 +109,94 @@ const PreDeployment = () => {
               
               <Card className="mb-6">
                 <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center">
-                      <Clipboard className="h-5 w-5 mr-2 text-primary" />
-                      <span>Overall Deployment Readiness</span>
-                    </div>
-                    <span className="text-sm font-medium">{deploymentProgress}%</span>
-                  </div>
-                  <Progress value={deploymentProgress} className="h-2" />
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                    <div className="flex items-center">
-                      <div className={`w-3 h-3 rounded-full ${deploymentProgress < 30 ? 'bg-red-500' : 'bg-green-500'} mr-2`}></div>
-                      <span className="text-sm">Content Ready</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className={`w-3 h-3 rounded-full ${deploymentProgress < 50 ? 'bg-red-500' : 'bg-yellow-500'} mr-2`}></div>
-                      <span className="text-sm">Functionality Tested</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className={`w-3 h-3 rounded-full ${deploymentProgress < 70 ? 'bg-yellow-500' : 'bg-green-500'} mr-2`}></div>
-                      <span className="text-sm">Technical Review</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className={`w-3 h-3 rounded-full ${deploymentProgress < 90 ? 'bg-red-500' : 'bg-green-500'} mr-2`}></div>
-                      <span className="text-sm">Legal Compliance</span>
-                    </div>
-                  </div>
+                  {isLoading ? (
+                    <>
+                      <div className="mb-4">
+                        <Skeleton className="h-4 w-3/4 mb-2" />
+                        <Skeleton className="h-2 w-full" />
+                      </div>
+                      <Skeleton className="h-2 w-full mb-6" />
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        {[...Array(5)].map((_, i) => (
+                          <Skeleton key={i} className="h-20 w-full" />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <ClipboardCheck className="h-5 w-5 mr-2 text-primary" />
+                          <span>Overall Deployment Readiness</span>
+                        </div>
+                        <span className="text-sm font-medium">{deploymentProgress}%</span>
+                      </div>
+                      <Progress value={deploymentProgress} className="h-2 mb-6" />
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <DeploymentStatusCard 
+                          category="Content" 
+                          completion={getCompletionByCategory('content')}
+                          status={getReadinessStatus('content')}
+                        />
+                        <DeploymentStatusCard 
+                          category="Functionality" 
+                          completion={getCompletionByCategory('functionality')}
+                          status={getReadinessStatus('functionality')}
+                        />
+                        <DeploymentStatusCard 
+                          category="Technical" 
+                          completion={getCompletionByCategory('technical')}
+                          status={getReadinessStatus('technical')}
+                        />
+                        <DeploymentStatusCard 
+                          category="Integration" 
+                          completion={getCompletionByCategory('integration')}
+                          status={getReadinessStatus('integration')}
+                        />
+                        <DeploymentStatusCard 
+                          category="Legal" 
+                          completion={getCompletionByCategory('legal')}
+                          status={getReadinessStatus('legal')}
+                        />
+                      </div>
+                      
+                      {highPriorityItems.length > 0 && (
+                        <div className="mt-6 text-red-600 dark:text-red-400 text-sm font-medium">
+                          {highPriorityItems.length} high priority {highPriorityItems.length === 1 ? 'item' : 'items'} pending
+                        </div>
+                      )}
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
             
             <div className="max-w-5xl mx-auto">
-              <PreDeploymentChecklist />
+              {isLoading ? (
+                <Card>
+                  <CardContent className="py-6">
+                    <Skeleton className="h-8 w-3/4 mb-6" />
+                    <Skeleton className="h-4 w-full mb-4" />
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="mb-6">
+                        <Skeleton className="h-6 w-1/3 mb-4" />
+                        {[...Array(3)].map((_, j) => (
+                          <div key={j} className="flex gap-2 mb-4">
+                            <Skeleton className="h-4 w-4" />
+                            <div className="flex-1">
+                              <Skeleton className="h-4 w-full mb-2" />
+                              <Skeleton className="h-3 w-5/6" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              ) : (
+                <PreDeploymentChecklist />
+              )}
               
               <div className="flex justify-end mt-8">
                 <Button 
@@ -103,6 +215,38 @@ const PreDeployment = () => {
         <Footer />
       </div>
     </>
+  );
+};
+
+// Status card component
+const DeploymentStatusCard = ({ 
+  category, 
+  completion, 
+  status 
+}: { 
+  category: string;
+  completion: number;
+  status: 'completed' | 'in-progress' | 'pending';
+}) => {
+  const statusText = {
+    'completed': 'Ready',
+    'in-progress': 'In Progress',
+    'pending': 'Needs Attention'
+  };
+
+  return (
+    <div className="col-span-1">
+      <Card className="h-full">
+        <CardContent className="p-4 text-center flex flex-col items-center justify-center">
+          <div className="text-2xl font-bold mb-1">{completion}%</div>
+          <div className="text-sm font-medium mb-2">{category}</div>
+          <div className="flex items-center text-xs text-muted-foreground">
+            <StatusIndicator status={status} />
+            <span className="ml-1.5">{statusText[status]}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
