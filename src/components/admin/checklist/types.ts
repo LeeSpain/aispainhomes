@@ -11,3 +11,5 @@ export interface ChecklistItem {
 }
 
 export type ChecklistCategory = ChecklistItem['category'];
+
+export type CategoryStatus = 'completed' | 'in-progress' | 'pending';

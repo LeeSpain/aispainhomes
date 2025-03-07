@@ -2,12 +2,14 @@
 import { Helmet } from "react-helmet";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, ClipboardCheck, RocketLaunch, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import PreDeploymentChecklist from "@/components/admin/PreDeploymentChecklist";
@@ -30,23 +32,37 @@ const StatusIndicator = ({ status }: { status: 'completed' | 'in-progress' | 'pe
 const PreDeployment = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeploying, setIsDeploying] = useState(false);
   
   const {
     getProgress,
     getCompletionByCategory,
-    getHighPriorityIncomplete
+    getHighPriorityIncomplete,
+    getCategoryStatus,
+    isDeploymentReady
   } = useChecklist();
   
   // Calculate deployment readiness
   const deploymentProgress = getProgress();
   const highPriorityItems = getHighPriorityIncomplete();
+  const readyForDeployment = isDeploymentReady();
   
-  // Determine readiness status
-  const getReadinessStatus = (category: ChecklistCategory) => {
-    const completion = getCompletionByCategory(category);
-    if (completion >= 80) return 'completed';
-    if (completion >= 40) return 'in-progress';
-    return 'pending';
+  // Handle deployment action
+  const handleDeploy = () => {
+    if (!readyForDeployment) {
+      toast.error("Cannot deploy until all high priority items are completed");
+      return;
+    }
+    
+    setIsDeploying(true);
+    
+    // Simulate deployment process
+    setTimeout(() => {
+      setIsDeploying(false);
+      toast.success("Site successfully deployed! 🚀");
+      // Redirect to admin dashboard after successful deployment
+      navigate('/admin');
+    }, 3000);
   };
   
   // Simulate loading state
@@ -101,6 +117,13 @@ const PreDeployment = () => {
                     </Tooltip>
                   </TooltipProvider>
                 )}
+                
+                {!isLoading && readyForDeployment && (
+                  <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+                    <CheckCircle2 className="mr-1 h-3 w-3" />
+                    Ready for Deployment
+                  </Badge>
+                )}
               </div>
               <p className="text-muted-foreground mb-4 max-w-3xl">
                 This checklist outlines all items that need to be completed before the site can go live.
@@ -131,39 +154,52 @@ const PreDeployment = () => {
                         </div>
                         <span className="text-sm font-medium">{deploymentProgress}%</span>
                       </div>
-                      <Progress value={deploymentProgress} className="h-2 mb-6" />
+                      <Progress 
+                        value={deploymentProgress} 
+                        className={`h-2 mb-6 ${
+                          deploymentProgress >= 90 
+                            ? 'bg-green-100 [&>div]:bg-green-500' 
+                            : 'bg-secondary [&>div]:bg-primary'
+                        }`} 
+                      />
                       
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <DeploymentStatusCard 
                           category="Content" 
                           completion={getCompletionByCategory('content')}
-                          status={getReadinessStatus('content')}
+                          status={getCategoryStatus('content')}
                         />
                         <DeploymentStatusCard 
                           category="Functionality" 
                           completion={getCompletionByCategory('functionality')}
-                          status={getReadinessStatus('functionality')}
+                          status={getCategoryStatus('functionality')}
                         />
                         <DeploymentStatusCard 
                           category="Technical" 
                           completion={getCompletionByCategory('technical')}
-                          status={getReadinessStatus('technical')}
+                          status={getCategoryStatus('technical')}
                         />
                         <DeploymentStatusCard 
                           category="Integration" 
                           completion={getCompletionByCategory('integration')}
-                          status={getReadinessStatus('integration')}
+                          status={getCategoryStatus('integration')}
                         />
                         <DeploymentStatusCard 
                           category="Legal" 
                           completion={getCompletionByCategory('legal')}
-                          status={getReadinessStatus('legal')}
+                          status={getCategoryStatus('legal')}
                         />
                       </div>
                       
-                      {highPriorityItems.length > 0 && (
-                        <div className="mt-6 text-red-600 dark:text-red-400 text-sm font-medium">
+                      {highPriorityItems.length > 0 ? (
+                        <div className="mt-6 text-red-600 dark:text-red-400 text-sm font-medium flex items-center">
+                          <AlertTriangle className="h-4 w-4 mr-1" />
                           {highPriorityItems.length} high priority {highPriorityItems.length === 1 ? 'item' : 'items'} pending
+                        </div>
+                      ) : (
+                        <div className="mt-6 text-green-600 dark:text-green-400 text-sm font-medium flex items-center">
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          All high priority items completed
                         </div>
                       )}
                     </>
@@ -198,14 +234,33 @@ const PreDeployment = () => {
                 <PreDeploymentChecklist />
               )}
               
-              <div className="flex justify-end mt-8">
+              <div className="flex justify-between mt-8">
                 <Button 
-                  variant="default" 
+                  variant="outline" 
                   className="gap-2"
                   onClick={() => navigate('/admin')}
                 >
+                  <ArrowLeft className="h-4 w-4" />
                   Return to Dashboard
-                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                
+                <Button 
+                  variant={readyForDeployment ? "default" : "outline"}
+                  className="gap-2"
+                  disabled={!readyForDeployment || isDeploying}
+                  onClick={handleDeploy}
+                >
+                  {isDeploying ? (
+                    <>
+                      <RocketLaunch className="h-4 w-4 animate-pulse" />
+                      Deploying...
+                    </>
+                  ) : (
+                    <>
+                      <RocketLaunch className="h-4 w-4" />
+                      Deploy to Production
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -234,9 +289,18 @@ const DeploymentStatusCard = ({
     'pending': 'Needs Attention'
   };
 
+  const getBgColor = () => {
+    switch(status) {
+      case 'completed': return 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800/50';
+      case 'in-progress': return 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800/50';
+      case 'pending': return 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50';
+      default: return '';
+    }
+  };
+
   return (
     <div className="col-span-1">
-      <Card className="h-full">
+      <Card className={`h-full border ${getBgColor()}`}>
         <CardContent className="p-4 text-center flex flex-col items-center justify-center">
           <div className="text-2xl font-bold mb-1">{completion}%</div>
           <div className="text-sm font-medium mb-2">{category}</div>
