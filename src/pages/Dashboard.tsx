@@ -16,6 +16,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
 import { toast } from 'sonner';
+import { TabsContent } from '@/components/ui/tabs';
+import { ServiceProvider } from '@/components/dashboard/ServiceProviderList';
+
+// Import mock service provider data
+import { 
+  lawyers, 
+  utilities, 
+  movers, 
+  schools, 
+  healthcare 
+} from '@/components/dashboard/serviceProvidersData';
 
 const Dashboard = () => {
   const { user, userPreferences, logout } = useAuth();
@@ -88,37 +99,71 @@ const Dashboard = () => {
             <DashboardHeader user={user} />
             
             <div className="mt-8">
-              <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange} />
-              
-              <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
-                {activeTab === 'properties' && (
-                  <PropertiesTab properties={properties} isLoading={isLoading} />
-                )}
+              <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>
+                <TabsContent value="properties">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <PropertiesTab properties={properties} isLoading={isLoading} />
+                  </div>
+                </TabsContent>
                 
-                {activeTab === 'favorites' && (
-                  <FavoritesTab favorites={favoriteProperties} isLoading={isLoading} />
-                )}
+                <TabsContent value="favorites">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <FavoritesTab favorites={favoriteProperties} isLoading={isLoading} />
+                  </div>
+                </TabsContent>
                 
-                {activeTab === 'alerts' && (
-                  <AlertsTab />
-                )}
+                <TabsContent value="alerts">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <AlertsTab />
+                  </div>
+                </TabsContent>
                 
-                {activeTab === 'documents' && (
-                  <DocumentsTab />
-                )}
+                <TabsContent value="lawyers">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <ServiceProviderTab title="Legal Services" providers={lawyers} />
+                  </div>
+                </TabsContent>
                 
-                {activeTab === 'service-providers' && (
-                  <ServiceProviderTab />
-                )}
+                <TabsContent value="utilities">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <ServiceProviderTab title="Utility Services" providers={utilities} />
+                  </div>
+                </TabsContent>
                 
-                {activeTab === 'settings' && (
-                  <SettingsTab
-                    user={user}
-                    userPreferences={userPreferences}
-                    onLogout={handleLogout}
-                  />
-                )}
-              </div>
+                <TabsContent value="movers">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <ServiceProviderTab title="Moving Services" providers={movers} />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="schools">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <ServiceProviderTab title="Education Services" providers={schools} />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="healthcare">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <ServiceProviderTab title="Healthcare Services" providers={healthcare} />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="documents">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <DocumentsTab />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="settings">
+                  <div className="mt-6 bg-background rounded-lg p-4 sm:p-6 border">
+                    <SettingsTab
+                      user={user}
+                      userPreferences={userPreferences}
+                      onLogout={handleLogout}
+                    />
+                  </div>
+                </TabsContent>
+              </DashboardTabs>
             </div>
           </div>
         </main>
