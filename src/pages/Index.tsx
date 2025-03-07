@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
@@ -54,48 +53,24 @@ const sampleProperties = [
   }
 ];
 
-// Sample subscription tiers
-const subscriptionTiers = [
-  {
-    title: 'Free',
-    price: 0,
-    description: 'Basic access to get you started',
-    features: [
-      'View 5 property matches',
-      'Basic property search',
-      'Single language support'
-    ],
-    buttonText: 'Get Started'
-  },
-  {
-    title: 'Premium',
-    price: 9.99,
-    description: 'Full access for serious property hunters',
-    features: [
-      'Unlimited property matches',
-      'Weekly email alerts',
-      'Multilingual support',
-      'Detailed property analytics',
-      'Save favorite properties'
-    ],
-    isPopular: true,
-    buttonText: 'Try Premium'
-  },
-  {
-    title: 'Relocation Pro',
-    price: 19.99,
-    description: 'Complete package for your move to Spain',
-    features: [
-      'All Premium features',
-      'Lawyer recommendations',
-      'Utility setup guides',
-      'School & healthcare finder',
-      'Personalized relocation assistance',
-      'Priority support'
-    ],
-    buttonText: 'Go Pro'
-  }
-];
+// Updated subscription tier - single €9.99 option
+const subscriptionTier = {
+  title: 'Premium Access',
+  price: 9.99,
+  description: 'Complete access to all property search and relocation services',
+  features: [
+    'Unlimited property matches',
+    'Daily email alerts for new properties',
+    'Multilingual support (6+ languages)',
+    'Lawyer and service provider searches',
+    'TV and utility setup assistance',
+    'School & healthcare finder',
+    'Moving company recommendations',
+    'Personalized relocation guides'
+  ],
+  isPopular: true,
+  buttonText: 'Start Your Journey'
+};
 
 const Index = () => {
   return (
@@ -137,25 +112,30 @@ const Index = () => {
             </div>
           </section>
           
-          {/* Subscription Plans */}
+          {/* Subscription Plan */}
           <section className="py-20 bg-secondary/30">
             <div className="container mx-auto px-4">
               <div className="text-center max-w-3xl mx-auto mb-16">
                 <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
-                  <span className="text-xs font-medium uppercase tracking-wider">Plans & Pricing</span>
+                  <span className="text-xs font-medium uppercase tracking-wider">Premium Service</span>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
-                  Choose the Plan That Fits Your Needs
+                  Complete Property & Relocation Support
                 </h2>
                 <p className="mt-4 text-xl text-muted-foreground text-balance">
-                  Whether you're just browsing or planning a complete relocation, we have the right package for you.
+                  One simple plan that gives you access to all our property finding and relocation services.
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                {subscriptionTiers.map((tier, index) => (
-                  <SubscriptionCard key={index} tier={tier} />
-                ))}
+              <div className="max-w-md mx-auto">
+                <SubscriptionCard tier={subscriptionTier} />
+              </div>
+              
+              <div className="mt-12 text-center max-w-2xl mx-auto">
+                <p className="text-sm text-muted-foreground">
+                  Our premium subscription includes unlimited property searches, daily alerts, lawyer and service provider recommendations, 
+                  plus comprehensive relocation support - all for one affordable monthly price.
+                </p>
               </div>
             </div>
           </section>
