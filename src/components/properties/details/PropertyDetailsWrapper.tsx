@@ -6,13 +6,15 @@ import { toast } from 'sonner';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { PropertyService } from '@/services/PropertyService';
 import { Property } from '@/components/properties/PropertyCard';
 import { useAuth } from '@/contexts/AuthContext';
 import PropertyDetailsContent from './PropertyDetailsContent';
 import PropertyDetailsSidebar from './PropertyDetailsSidebar';
 import PropertyDetailsLoading from './PropertyDetailsLoading';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
+import SocialShare from '@/components/common/SocialShare';
 
 const PropertyDetailsWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -92,6 +94,10 @@ const PropertyDetailsWrapper = () => {
       toast.success("Link copied to clipboard");
     }
   };
+
+  const handlePrint = () => {
+    window.print();
+  };
   
   if (isLoading) {
     return <PropertyDetailsLoading />;
@@ -106,22 +112,42 @@ const PropertyDetailsWrapper = () => {
         <meta name="description" content={property.description} />
       </Helmet>
       
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col print-content">
         <Navbar />
         
         <main className="flex-1 pt-28 pb-16">
           <div className="container mx-auto px-4">
-            <Button 
-              variant="ghost" 
-              className="mb-4 pl-0" 
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to listings
-            </Button>
+            <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+              <Button 
+                variant="ghost" 
+                className="pl-0 no-print" 
+                onClick={() => navigate(-1)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to listings
+              </Button>
+              
+              <div className="flex space-x-2 no-print">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrint}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print
+                </Button>
+                
+                <SocialShare 
+                  title={`${property.title} - AI Spain Homes`}
+                  description={`${property.bedrooms} bed, ${property.bathrooms} bath ${property.type} in ${property.location} for ${property.isForRent ? 'rent' : 'sale'} at ${property.currency}${property.price.toLocaleString()}`}
+                />
+              </div>
+            </div>
+            
+            <Breadcrumbs />
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 property-details">
                 <PropertyDetailsContent 
                   property={property} 
                   similarProperties={similarProperties} 

@@ -3,6 +3,9 @@ import { Helmet } from "react-helmet";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import LoginForm from "@/components/auth/LoginForm";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { KeyRound } from "lucide-react";
 
 const Login = () => {
   return (
@@ -19,6 +22,15 @@ const Login = () => {
         <main className="flex-1 pt-20 sm:pt-28 pb-12 sm:pb-16 flex items-center justify-center px-4 sm:px-6">
           <div className="container mx-auto">
             <LoginForm />
+            
+            <div className="mt-4 text-center">
+              <Link to="/password-recovery">
+                <Button variant="link" className="text-sm font-medium">
+                  <KeyRound className="mr-1 h-3.5 w-3.5" />
+                  Forgot your password?
+                </Button>
+              </Link>
+            </div>
           </div>
         </main>
         

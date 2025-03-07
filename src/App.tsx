@@ -11,10 +11,13 @@ import ScrollToTop from "./components/common/ScrollToTop";
 import GlobalLoading from "./components/common/GlobalLoading";
 import OfflineNotice from "./components/common/OfflineNotice";
 import BrowserCompatibilityNotice from "./components/common/BrowserCompatibilityNotice";
+import CookieConsent from "./components/common/CookieConsent";
+import PrintStyles from "./components/common/PrintStyles";
 import Index from "./pages/Index";
 import Questionnaire from "./pages/Questionnaire";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import PasswordRecovery from "./pages/PasswordRecovery";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
@@ -61,11 +64,14 @@ const App = () => {
               <ScrollToTop />
               <OfflineNotice />
               <BrowserCompatibilityNotice />
+              <CookieConsent />
+              <PrintStyles />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/password-recovery" element={<PasswordRecovery />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/terms" element={<TermsAndConditions />} />

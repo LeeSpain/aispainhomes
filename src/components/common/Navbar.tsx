@@ -8,6 +8,7 @@ import BrandLogo from './navbar/BrandLogo';
 import NavLinks from './navbar/NavLinks';
 import UserMenu from './navbar/UserMenu';
 import MobileMenu from './navbar/MobileMenu';
+import GlobalSearch from './GlobalSearch';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,12 +44,14 @@ const Navbar = () => {
         <NavLinks user={user} />
         
         <div className="hidden md:flex items-center space-x-4">
+          <GlobalSearch />
           <LanguageSelector />
           <UserMenu user={user} onLogout={logout} />
         </div>
         
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center space-x-4">
+          <GlobalSearch />
           <LanguageSelector minimal={true} />
           
           <UserMenu user={user} onLogout={logout} minimal={true} />
