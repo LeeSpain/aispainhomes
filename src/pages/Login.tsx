@@ -8,7 +8,7 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>Login | SunnyHomeFinder</title>
+        <title>Login | AISpainHomes.com</title>
         <meta name="description" content="Login to access your property matches, saved favorites, and relocation services." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
       </Helmet>

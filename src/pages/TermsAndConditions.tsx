@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
@@ -7,7 +6,7 @@ const TermsAndConditions = () => {
   return (
     <>
       <Helmet>
-        <title>Terms and Conditions | SunnyHomeFinder</title>
+        <title>Terms and Conditions | AISpainHomes.com</title>
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -21,14 +20,14 @@ const TermsAndConditions = () => {
               
               <h2>1. Introduction</h2>
               <p>
-                Welcome to SunnyHomeFinder. These Terms and Conditions govern your use of our website and services. 
+                Welcome to AISpainHomes.com. These Terms and Conditions govern your use of our website and services. 
                 By accessing or using our platform, you agree to be bound by these Terms. If you disagree with any part of the terms, 
                 you may not access the service.
               </p>
               
               <h2>2. Definitions</h2>
               <p>
-                <strong>"Service"</strong> refers to the SunnyHomeFinder website and platform.<br />
+                <strong>"Service"</strong> refers to the AISpainHomes.com website and platform.<br />
                 <strong>"User"</strong> refers to individuals who access or use the Service.<br />
                 <strong>"Subscription"</strong> refers to the paid access to premium features of the Service.<br />
                 <strong>"Content"</strong> refers to property listings, images, text, and other materials available on the Service.
@@ -49,7 +48,7 @@ const TermsAndConditions = () => {
                 Some parts of the Service are billed on a subscription basis. You will be billed in advance on a recurring basis, depending on the type of subscription plan you select.
               </p>
               <p>
-                At the end of each billing period, your subscription will automatically renew under the same conditions unless you cancel it or SunnyHomeFinder cancels it.
+                At the end of each billing period, your subscription will automatically renew under the same conditions unless you cancel it or AISpainHomes.com cancels it.
               </p>
               <p>
                 You may cancel your subscription at any time through your account settings or by contacting our customer support team.
@@ -57,7 +56,7 @@ const TermsAndConditions = () => {
               
               <h2>5. Property Listings</h2>
               <p>
-                SunnyHomeFinder provides property listings as an informational service. We do not guarantee the accuracy, completeness, or quality of any listings. 
+                AISpainHomes.com provides property listings as an informational service. We do not guarantee the accuracy, completeness, or quality of any listings. 
                 The information is provided by third parties and we are not responsible for verifying its accuracy.
               </p>
               <p>
@@ -66,11 +65,11 @@ const TermsAndConditions = () => {
               
               <h2>6. Intellectual Property</h2>
               <p>
-                The Service and its original content, features, and functionality are and will remain the exclusive property of SunnyHomeFinder and its licensors. 
+                The Service and its original content, features, and functionality are and will remain the exclusive property of AISpainHomes.com and its licensors. 
                 The Service is protected by copyright, trademark, and other laws.
               </p>
               <p>
-                Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of SunnyHomeFinder.
+                Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of AISpainHomes.com.
               </p>
               
               <h2>7. User Conduct</h2>
@@ -80,13 +79,13 @@ const TermsAndConditions = () => {
               <ul>
                 <li>In any way that violates any applicable national or international law or regulation.</li>
                 <li>To transmit, or procure the sending of, any advertising or promotional material, including any "junk mail", "chain letter," "spam," or any other similar solicitation.</li>
-                <li>To impersonate or attempt to impersonate SunnyHomeFinder, a SunnyHomeFinder employee, another user, or any other person or entity.</li>
-                <li>To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the Service, or which may harm SunnyHomeFinder or users of the Service.</li>
+                <li>To impersonate or attempt to impersonate AISpainHomes.com, a AISpainHomes.com employee, another user, or any other person or entity.</li>
+                <li>To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the Service, or which may harm AISpainHomes.com or users of the Service.</li>
               </ul>
               
               <h2>8. Limitation of Liability</h2>
               <p>
-                In no event shall SunnyHomeFinder, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, 
+                In no event shall AISpainHomes.com, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, 
                 including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:
               </p>
               <ul>
@@ -120,7 +119,7 @@ const TermsAndConditions = () => {
               
               <h2>12. Contact Us</h2>
               <p>
-                If you have any questions about these Terms, please contact us at legal@sunnyhomefinder.com.
+                If you have any questions about these Terms, please contact us at legal@AISpainHomes.com.
               </p>
             </div>
           </div>

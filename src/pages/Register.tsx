@@ -8,8 +8,8 @@ const Register = () => {
   return (
     <>
       <Helmet>
-        <title>Create Account | SunnyHomeFinder</title>
-        <meta name="description" content="Sign up for SunnyHomeFinder to find your perfect property in Spain and access our relocation services." />
+        <title>Create Account | AISpainHomes.com</title>
+        <meta name="description" content="Sign up for AISpainHomes.com to find your perfect property in Spain and access our relocation services." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
       </Helmet>
       

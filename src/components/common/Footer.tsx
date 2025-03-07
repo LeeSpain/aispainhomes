@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -11,9 +10,9 @@ const Footer = () => {
           <div>
             <Link to="/" className="inline-flex items-center mb-4">
               <span className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-md mr-2">
-                SH
+                AI
               </span>
-              <span className="text-xl font-semibold">SunnyHomeFinder</span>
+              <span className="text-xl font-semibold">AISpainHomes.com</span>
             </Link>
             <p className="text-muted-foreground mt-2 max-w-xs">
               Your AI-powered assistant for finding the perfect property and relocating to sunny Spain.
@@ -65,7 +64,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} SunnyHomeFinder. All rights reserved.
+            © {currentYear} AISpainHomes.com. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <span className="text-muted-foreground text-sm">

@@ -8,8 +8,8 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About Us | SunnyHomeFinder</title>
-        <meta name="description" content="Learn about SunnyHomeFinder and our mission to help you find your dream property in sunny Spain." />
+        <title>About Us | AISpainHomes.com</title>
+        <meta name="description" content="Learn about AISpainHomes.com and our mission to help you find your dream property in sunny Spain." />
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -45,7 +45,7 @@ const About = () => {
                     From Expats to Experts
                   </h2>
                   <p className="text-lg text-muted-foreground mb-6">
-                    Founded in 2023 by a team of expats who experienced the challenges of relocating to Spain firsthand, SunnyHomeFinder was born from a simple idea: make the property search and relocation process as smooth as the Spanish lifestyle.
+                    Founded in 2023 by a team of expats who experienced the challenges of relocating to Spain firsthand, AISpainHomes.com was born from a simple idea: make the property search and relocation process as smooth as the Spanish lifestyle.
                   </p>
                   <p className="text-lg text-muted-foreground">
                     After navigating bureaucracy, language barriers, and confusing property markets ourselves, we built the service we wish we'd had. Our AI-powered tools combine with our lived experience to guide you through every step of finding your place in the sun.

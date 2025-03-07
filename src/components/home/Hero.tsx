@@ -55,7 +55,7 @@ const Hero = () => {
           </h1>
           
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl text-balance animate-slide-in-left" style={{ animationDelay: '150ms' }}>
-            Our AI helps you discover ideal properties in sunny Spain and guides you through the entire relocation process, from beachfront villas to mountain retreats.
+            AISpainHomes.com helps you discover ideal properties in sunny Spain and guides you through the entire relocation process, from beachfront villas to mountain retreats.
           </p>
           
           <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-slide-in-left" style={{ animationDelay: '300ms' }}>
