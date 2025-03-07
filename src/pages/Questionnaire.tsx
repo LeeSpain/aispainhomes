@@ -1,11 +1,15 @@
+
 import { Helmet } from 'react-helmet';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
 import QuestionnaireLayout from '@/components/questionnaire/QuestionnaireLayout';
 import QuestionnaireStep from '@/components/questionnaire/QuestionnaireStep';
 import PropertyGrid from '@/components/properties/PropertyGrid';
+import LoginForm from '@/components/auth/LoginForm';
+import RegisterForm from '@/components/auth/RegisterForm';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Property } from '@/components/properties/PropertyCard';
 
 const cities = [
@@ -133,8 +138,11 @@ const subscriptionTiers = [
 
 const Questionnaire = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [showResults, setShowResults] = useState(false);
+  const [showAuthForms, setShowAuthForms] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
   const totalSteps = 5;
   
   const [formData, setFormData] = useState({
@@ -208,6 +216,15 @@ const Questionnaire = () => {
     buttonText: 'Start Your Journey'
   };
   
+  const handleContinueToAuth = () => {
+    setShowAuthForms(true);
+  };
+  
+  // After authentication, redirect to dashboard
+  const handleAuthSuccess = () => {
+    navigate('/dashboard');
+  };
+  
   if (showResults) {
     return (
       <>
@@ -224,34 +241,72 @@ const Questionnaire = () => {
                 <h1 className="text-3xl font-bold mb-2">Your Top Property Matches</h1>
                 <p className="text-muted-foreground mb-8">
                   Based on your preferences, we've found these properties that might interest you. 
-                  We'll email you these results for easy reference.
+                  {user ? "We'll email you these results for easy reference." : "Create an account to see all matches and receive email updates."}
                 </p>
                 
                 <div className="mb-12">
-                  <PropertyGrid properties={sampleProperties.slice(0, 5)} />
+                  <PropertyGrid properties={sampleProperties.slice(0, user ? sampleProperties.length : 5)} />
                 </div>
                 
-                <div className="glass-panel rounded-xl p-8 mb-12">
-                  <h2 className="text-2xl font-bold mb-4">Unlock All Your Property Matches & Relocation Services</h2>
-                  <p className="text-muted-foreground mb-8">
-                    We've found more properties that match your criteria. Subscribe to our Premium plan to see all results, 
-                    get daily email alerts with your top 10 matches, and access our complete suite of relocation services.
-                  </p>
-                  
-                  <div className="max-w-xl mx-auto">
-                    <SubscriptionCard tier={subscriptionTier} />
+                {!user && (
+                  <>
+                    {!showAuthForms ? (
+                      <div className="glass-panel rounded-xl p-8 mb-12">
+                        <h2 className="text-2xl font-bold mb-4">Unlock All Your Property Matches & Relocation Services</h2>
+                        <p className="text-muted-foreground mb-8">
+                          We've found more properties that match your criteria. Create an account to see all results, 
+                          get daily email alerts with your top 10 matches, and access our complete suite of relocation services.
+                        </p>
+                        
+                        <div className="flex flex-col md:flex-row gap-6 justify-center">
+                          <Button 
+                            size="lg" 
+                            onClick={handleContinueToAuth}
+                            className="px-8 py-6 text-lg"
+                          >
+                            Create Free Account
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => navigate('/')}
+                            className="px-8 py-6 text-lg"
+                          >
+                            Return to Home
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="glass-panel rounded-xl p-8 mb-12">
+                        <Tabs defaultValue={authTab} onValueChange={(value) => setAuthTab(value as 'login' | 'register')}>
+                          <TabsList className="grid w-full grid-cols-2 mb-8">
+                            <TabsTrigger value="login">Login</TabsTrigger>
+                            <TabsTrigger value="register">Create Account</TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="login">
+                            <LoginForm />
+                          </TabsContent>
+                          
+                          <TabsContent value="register">
+                            <RegisterForm />
+                          </TabsContent>
+                        </Tabs>
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                {user && (
+                  <div className="flex justify-between">
+                    <Button variant="outline" onClick={() => navigate('/dashboard')}>
+                      Go to Dashboard
+                    </Button>
+                    
+                    <Button onClick={() => navigate('/')}>
+                      Back to Home
+                    </Button>
                   </div>
-                </div>
-                
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={() => setShowResults(false)}>
-                    Refine Search
-                  </Button>
-                  
-                  <Button onClick={() => navigate('/')}>
-                    Back to Home
-                  </Button>
-                </div>
+                )}
               </div>
             </div>
           </main>
