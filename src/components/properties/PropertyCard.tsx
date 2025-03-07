@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -43,8 +42,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     e.stopPropagation();
     
     if (!user) {
-      toast({
-        description: "Please login to save favorites",
+      toast("Please login to save favorites", {
         variant: "destructive"
       });
       return;

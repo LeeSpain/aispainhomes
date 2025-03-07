@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +17,6 @@ import GuardianServiceStep from './steps/GuardianServiceStep';
 import PropertyResults from './results/PropertyResults';
 import { Property } from '@/components/properties/PropertyCard';
 
-// Data constants
 const cities = [
   'Barcelona', 'Madrid', 'Valencia', 'Malaga', 'Alicante', 
   'Marbella', 'Ibiza', 'Mallorca', 'Tenerife', 'Gran Canaria'
@@ -107,6 +105,7 @@ const sampleProperties: Property[] = [
 ];
 
 const subscriptionTier = {
+  id: 'premium',
   title: 'Premium Access',
   price: 9.99,
   description: 'Complete access to all property search and relocation services',
