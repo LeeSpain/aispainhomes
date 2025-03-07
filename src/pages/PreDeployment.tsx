@@ -1,8 +1,7 @@
-
 import { Helmet } from "react-helmet";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ClipboardCheck, RocketLaunch, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ArrowRight, ClipboardCheck, Rocket, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -16,7 +15,6 @@ import PreDeploymentChecklist from "@/components/admin/PreDeploymentChecklist";
 import { ChecklistCategory } from "@/components/admin/checklist/types";
 import { useChecklist } from "@/components/admin/checklist/useChecklist";
 
-// Status indicator component
 const StatusIndicator = ({ status }: { status: 'completed' | 'in-progress' | 'pending' }) => {
   const colors = {
     'completed': 'bg-green-500',
@@ -42,12 +40,10 @@ const PreDeployment = () => {
     isDeploymentReady
   } = useChecklist();
   
-  // Calculate deployment readiness
   const deploymentProgress = getProgress();
   const highPriorityItems = getHighPriorityIncomplete();
   const readyForDeployment = isDeploymentReady();
   
-  // Handle deployment action
   const handleDeploy = () => {
     if (!readyForDeployment) {
       toast.error("Cannot deploy until all high priority items are completed");
@@ -56,16 +52,13 @@ const PreDeployment = () => {
     
     setIsDeploying(true);
     
-    // Simulate deployment process
     setTimeout(() => {
       setIsDeploying(false);
       toast.success("Site successfully deployed! 🚀");
-      // Redirect to admin dashboard after successful deployment
       navigate('/admin');
     }, 3000);
   };
   
-  // Simulate loading state
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -252,12 +245,12 @@ const PreDeployment = () => {
                 >
                   {isDeploying ? (
                     <>
-                      <RocketLaunch className="h-4 w-4 animate-pulse" />
+                      <Rocket className="h-4 w-4 animate-pulse" />
                       Deploying...
                     </>
                   ) : (
                     <>
-                      <RocketLaunch className="h-4 w-4" />
+                      <Rocket className="h-4 w-4" />
                       Deploy to Production
                     </>
                   )}
@@ -273,7 +266,6 @@ const PreDeployment = () => {
   );
 };
 
-// Status card component
 const DeploymentStatusCard = ({ 
   category, 
   completion, 
