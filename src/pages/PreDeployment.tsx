@@ -1,10 +1,10 @@
+
 import { Helmet } from "react-helmet";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ClipboardCheck, Rocket, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Rocket, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -12,20 +12,8 @@ import { toast } from "sonner";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import PreDeploymentChecklist from "@/components/admin/PreDeploymentChecklist";
-import { ChecklistCategory } from "@/components/admin/checklist/types";
 import { useChecklist } from "@/components/admin/checklist/useChecklist";
-
-const StatusIndicator = ({ status }: { status: 'completed' | 'in-progress' | 'pending' }) => {
-  const colors = {
-    'completed': 'bg-green-500',
-    'in-progress': 'bg-yellow-500',
-    'pending': 'bg-red-500'
-  };
-  
-  return (
-    <div className={`w-3 h-3 rounded-full ${colors[status]}`}></div>
-  );
-};
+import DeploymentSummary from "@/components/admin/checklist/DeploymentSummary";
 
 const PreDeployment = () => {
   const navigate = useNavigate();
@@ -123,88 +111,19 @@ const PreDeployment = () => {
                 Track your progress and ensure all critical items are addressed.
               </p>
               
-              <Card className="mb-6">
-                <CardContent className="pt-6">
-                  {isLoading ? (
-                    <>
-                      <div className="mb-4">
-                        <Skeleton className="h-4 w-3/4 mb-2" />
-                        <Skeleton className="h-2 w-full" />
-                      </div>
-                      <Skeleton className="h-2 w-full mb-6" />
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        {[...Array(5)].map((_, i) => (
-                          <Skeleton key={i} className="h-20 w-full" />
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <ClipboardCheck className="h-5 w-5 mr-2 text-primary" />
-                          <span>Overall Deployment Readiness</span>
-                        </div>
-                        <span className="text-sm font-medium">{deploymentProgress}%</span>
-                      </div>
-                      <Progress 
-                        value={deploymentProgress} 
-                        className={`h-2 mb-6 ${
-                          deploymentProgress >= 90 
-                            ? 'bg-green-100 [&>div]:bg-green-500' 
-                            : 'bg-secondary [&>div]:bg-primary'
-                        }`} 
-                      />
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <DeploymentStatusCard 
-                          category="Content" 
-                          completion={getCompletionByCategory('content')}
-                          status={getCategoryStatus('content')}
-                        />
-                        <DeploymentStatusCard 
-                          category="Functionality" 
-                          completion={getCompletionByCategory('functionality')}
-                          status={getCategoryStatus('functionality')}
-                        />
-                        <DeploymentStatusCard 
-                          category="Technical" 
-                          completion={getCompletionByCategory('technical')}
-                          status={getCategoryStatus('technical')}
-                        />
-                        <DeploymentStatusCard 
-                          category="Integration" 
-                          completion={getCompletionByCategory('integration')}
-                          status={getCategoryStatus('integration')}
-                        />
-                        <DeploymentStatusCard 
-                          category="Legal" 
-                          completion={getCompletionByCategory('legal')}
-                          status={getCategoryStatus('legal')}
-                        />
-                      </div>
-                      
-                      {highPriorityItems.length > 0 ? (
-                        <div className="mt-6 text-red-600 dark:text-red-400 text-sm font-medium flex items-center">
-                          <AlertTriangle className="h-4 w-4 mr-1" />
-                          {highPriorityItems.length} high priority {highPriorityItems.length === 1 ? 'item' : 'items'} pending
-                        </div>
-                      ) : (
-                        <div className="mt-6 text-green-600 dark:text-green-400 text-sm font-medium flex items-center">
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
-                          All high priority items completed
-                        </div>
-                      )}
-                    </>
-                  )}
-                </CardContent>
-              </Card>
+              <DeploymentSummary 
+                isLoading={isLoading}
+                deploymentProgress={deploymentProgress}
+                getCompletionByCategory={getCompletionByCategory}
+                getCategoryStatus={getCategoryStatus}
+                highPriorityItems={highPriorityItems}
+              />
             </div>
             
             <div className="max-w-5xl mx-auto">
               {isLoading ? (
                 <Card>
-                  <CardContent className="py-6">
+                  <div className="py-6 px-6">
                     <Skeleton className="h-8 w-3/4 mb-6" />
                     <Skeleton className="h-4 w-full mb-4" />
                     {[...Array(5)].map((_, i) => (
@@ -221,7 +140,7 @@ const PreDeployment = () => {
                         ))}
                       </div>
                     ))}
-                  </CardContent>
+                  </div>
                 </Card>
               ) : (
                 <PreDeploymentChecklist />
@@ -263,46 +182,6 @@ const PreDeployment = () => {
         <Footer />
       </div>
     </>
-  );
-};
-
-const DeploymentStatusCard = ({ 
-  category, 
-  completion, 
-  status 
-}: { 
-  category: string;
-  completion: number;
-  status: 'completed' | 'in-progress' | 'pending';
-}) => {
-  const statusText = {
-    'completed': 'Ready',
-    'in-progress': 'In Progress',
-    'pending': 'Needs Attention'
-  };
-
-  const getBgColor = () => {
-    switch(status) {
-      case 'completed': return 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800/50';
-      case 'in-progress': return 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800/50';
-      case 'pending': return 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50';
-      default: return '';
-    }
-  };
-
-  return (
-    <div className="col-span-1">
-      <Card className={`h-full border ${getBgColor()}`}>
-        <CardContent className="p-4 text-center flex flex-col items-center justify-center">
-          <div className="text-2xl font-bold mb-1">{completion}%</div>
-          <div className="text-sm font-medium mb-2">{category}</div>
-          <div className="flex items-center text-xs text-muted-foreground">
-            <StatusIndicator status={status} />
-            <span className="ml-1.5">{statusText[status]}</span>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
   );
 };
 
