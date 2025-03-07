@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,9 +8,10 @@ import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
 import { Property } from '@/components/properties/PropertyCard';
+import { PropertyService } from '@/services/PropertyService';
 
 interface PropertyResultsProps {
-  properties: Property[];
+  properties?: Property[];
   user: any;
   showAuthForms: boolean;
   authTab: 'login' | 'register';
@@ -27,7 +29,7 @@ interface PropertyResultsProps {
 }
 
 const PropertyResults = ({
-  properties,
+  properties: initialProperties,
   user,
   showAuthForms,
   authTab,
@@ -37,6 +39,30 @@ const PropertyResults = ({
   onAuthSuccess
 }: PropertyResultsProps) => {
   const navigate = useNavigate();
+  const [properties, setProperties] = useState<Property[]>(initialProperties || []);
+  const [isLoading, setIsLoading] = useState(!initialProperties);
+
+  useEffect(() => {
+    if (initialProperties) {
+      setProperties(initialProperties);
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchProperties = async () => {
+      setIsLoading(true);
+      try {
+        const propertiesData = await PropertyService.getFeaturedProperties();
+        setProperties(propertiesData);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, [initialProperties]);
 
   return (
     <div className="container mx-auto px-4">
@@ -48,7 +74,7 @@ const PropertyResults = ({
         </p>
         
         <div className="mb-12">
-          <PropertyGrid properties={properties.slice(0, 5)} />
+          <PropertyGrid properties={properties} isLoading={isLoading} />
         </div>
         
         {!user && (

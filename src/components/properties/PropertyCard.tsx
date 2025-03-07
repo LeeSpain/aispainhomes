@@ -1,9 +1,11 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Bed, Bath, SquareIcon, MapPin, Heart } from 'lucide-react';
+import { toast } from "sonner";
 
 export interface Property {
   id: string;
@@ -26,9 +28,12 @@ interface PropertyCardProps {
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
   
-  const toggleFavorite = () => {
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsFavorite(!isFavorite);
+    toast.success(isFavorite ? "Removed from favorites" : "Added to favorites");
   };
   
   const formatPrice = (price: number, currency: string) => {
@@ -39,8 +44,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     }).format(price);
   };
 
+  const handleViewDetails = () => {
+    navigate(`/property/${property.id}`);
+  };
+
   return (
-    <div className="glass-panel rounded-xl overflow-hidden card-hover">
+    <div className="glass-panel rounded-xl overflow-hidden card-hover cursor-pointer" onClick={handleViewDetails}>
       {/* Property Image */}
       <div className="relative">
         <AspectRatio ratio={16 / 9}>
@@ -124,7 +133,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           </div>
           
-          <Button size="sm">View Details</Button>
+          <Button size="sm" onClick={(e) => {
+            e.stopPropagation();
+            handleViewDetails();
+          }}>View Details</Button>
         </div>
       </div>
     </div>
