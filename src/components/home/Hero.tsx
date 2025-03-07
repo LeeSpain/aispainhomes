@@ -11,6 +11,9 @@ const placeholderBackgrounds = [
   'linear-gradient(to right, #ee9ca7, #ffdde1)'
 ];
 
+// Spanish themed hero image
+const heroImage = '/assets/spanish-villa.jpg';
+
 const Hero = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const navigate = useNavigate();
@@ -44,38 +47,52 @@ const Hero = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-20 relative z-10 mt-16">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary animate-fade-in">
-            <Sun className="w-4 h-4 mr-2" />
-            <span className="text-xs font-medium uppercase tracking-wider">Spanish Sunshine Awaits</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary animate-fade-in">
+              <Sun className="w-4 h-4 mr-2" />
+              <span className="text-xs font-medium uppercase tracking-wider">Spanish Sunshine Awaits</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-balance animate-slide-in-left">
+              Find Your Perfect Home <br />Under the Spanish Sun
+            </h1>
+            
+            <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl text-balance animate-slide-in-left" style={{ animationDelay: '150ms' }}>
+              AISpainHomes.com helps you discover ideal properties in sunny Spain and guides you through the entire relocation process, from beachfront villas to mountain retreats.
+            </p>
+            
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-slide-in-left" style={{ animationDelay: '300ms' }}>
+              <Button 
+                size="lg" 
+                className="group bg-gradient-to-r from-primary to-accent"
+                onClick={() => navigate('/questionnaire')}
+              >
+                <Search className="mr-2 h-5 w-5" />
+                Start Your Search
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => navigate('/about')}
+                className="border-primary/30 hover:bg-primary/10"
+              >
+                Learn More
+              </Button>
+            </div>
           </div>
-          
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-balance animate-slide-in-left">
-            Find Your Perfect Home <br />Under the Spanish Sun
-          </h1>
-          
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl text-balance animate-slide-in-left" style={{ animationDelay: '150ms' }}>
-            AISpainHomes.com helps you discover ideal properties in sunny Spain and guides you through the entire relocation process, from beachfront villas to mountain retreats.
-          </p>
-          
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 animate-slide-in-left" style={{ animationDelay: '300ms' }}>
-            <Button 
-              size="lg" 
-              className="group bg-gradient-to-r from-primary to-accent"
-              onClick={() => navigate('/questionnaire')}
-            >
-              <Search className="mr-2 h-5 w-5" />
-              Start Your Search
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => navigate('/about')}
-              className="border-primary/30 hover:bg-primary/10"
-            >
-              Learn More
-            </Button>
+
+          {/* Hero Image */}
+          <div className="hidden lg:flex justify-end animate-slide-in-right">
+            <div className="relative rounded-lg overflow-hidden shadow-2xl border-4 border-white/20 max-w-md">
+              <img 
+                src={heroImage} 
+                alt="Beautiful Spanish villa with coastal view" 
+                className="w-full h-auto object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+            </div>
           </div>
         </div>
       </div>
