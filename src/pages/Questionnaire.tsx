@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +16,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Property } from '@/components/properties/PropertyCard';
 
-// Sample data for presentation
 const cities = [
   'Barcelona', 'Madrid', 'Valencia', 'Malaga', 'Alicante', 
   'Marbella', 'Ibiza', 'Mallorca', 'Tenerife', 'Gran Canaria'
@@ -32,7 +30,6 @@ const amenities = [
   'Sea View', 'Mountain View', 'Security System', 'Elevator', 'Gym'
 ];
 
-// Sample properties data
 const sampleProperties: Property[] = [
   {
     id: '1',
@@ -106,7 +103,6 @@ const sampleProperties: Property[] = [
   }
 ];
 
-// Sample subscription tiers
 const subscriptionTiers = [
   {
     title: 'Free',
@@ -141,7 +137,6 @@ const Questionnaire = () => {
   const [showResults, setShowResults] = useState(false);
   const totalSteps = 5;
   
-  // Form state
   const [formData, setFormData] = useState({
     propertyType: '',
     purpose: 'buy',
@@ -153,12 +148,10 @@ const Questionnaire = () => {
     selectedAmenities: [] as string[]
   });
   
-  // Handle form changes
   const handleChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
   };
   
-  // Handle next step
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -167,7 +160,6 @@ const Questionnaire = () => {
     }
   };
   
-  // Handle back step
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -176,7 +168,6 @@ const Questionnaire = () => {
     }
   };
   
-  // Format price for display
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -185,7 +176,6 @@ const Questionnaire = () => {
     }).format(price);
   };
   
-  // Check if next button should be disabled
   const isNextDisabled = () => {
     switch (currentStep) {
       case 1:
@@ -197,6 +187,25 @@ const Questionnaire = () => {
       default:
         return false;
     }
+  };
+  
+  const subscriptionTier = {
+    title: 'Premium Access',
+    price: 9.99,
+    description: 'Complete access to all property search and relocation services',
+    features: [
+      'Unlimited property matches',
+      'Daily email alerts with top 10 new properties',
+      'Multilingual support (6+ languages)',
+      'Lawyer and service provider searches',
+      'TV and utility setup assistance',
+      'School & healthcare finder',
+      'Moving company recommendations',
+      'Personalized relocation guides',
+      'Market insights and analytics'
+    ],
+    isPopular: true,
+    buttonText: 'Start Your Journey'
   };
   
   if (showResults) {
@@ -212,27 +221,25 @@ const Questionnaire = () => {
           <main className="flex-1 pt-28 pb-16">
             <div className="container mx-auto px-4">
               <div className="max-w-5xl mx-auto">
-                <h1 className="text-3xl font-bold mb-2">Your Property Matches</h1>
+                <h1 className="text-3xl font-bold mb-2">Your Top Property Matches</h1>
                 <p className="text-muted-foreground mb-8">
-                  Based on your preferences, we've found these properties that might interest you.
+                  Based on your preferences, we've found these properties that might interest you. 
+                  We'll email you these results for easy reference.
                 </p>
                 
-                {/* Free results limit */}
                 <div className="mb-12">
                   <PropertyGrid properties={sampleProperties.slice(0, 5)} />
                 </div>
                 
-                {/* Subscription prompt */}
                 <div className="glass-panel rounded-xl p-8 mb-12">
-                  <h2 className="text-2xl font-bold mb-4">Unlock All Property Matches</h2>
+                  <h2 className="text-2xl font-bold mb-4">Unlock All Your Property Matches & Relocation Services</h2>
                   <p className="text-muted-foreground mb-8">
-                    We've found more properties that match your criteria. Subscribe to see all results and get email alerts for new listings.
+                    We've found more properties that match your criteria. Subscribe to our Premium plan to see all results, 
+                    get daily email alerts with your top 10 matches, and access our complete suite of relocation services.
                   </p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {subscriptionTiers.map((tier, index) => (
-                      <SubscriptionCard key={index} tier={tier} />
-                    ))}
+                  <div className="max-w-xl mx-auto">
+                    <SubscriptionCard tier={subscriptionTier} />
                   </div>
                 </div>
                 

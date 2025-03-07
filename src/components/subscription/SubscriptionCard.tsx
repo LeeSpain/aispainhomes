@@ -18,41 +18,47 @@ interface SubscriptionCardProps {
 const SubscriptionCard = ({ tier }: SubscriptionCardProps) => {
   return (
     <div 
-      className={`relative glass-panel rounded-xl overflow-hidden p-6 transition-all duration-300 ${
+      className={`relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 ${
         tier.isPopular ? 'ring-2 ring-primary shadow-lg' : ''
       }`}
     >
       {tier.isPopular && (
         <div className="absolute top-0 right-0">
           <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
-            Popular
+            All-Inclusive
           </div>
         </div>
       )}
       
-      <h3 className="text-xl font-bold mb-2">{tier.title}</h3>
+      <h3 className="text-2xl font-bold mb-2">{tier.title}</h3>
       <div className="mb-4">
-        <span className="text-3xl font-bold">€{tier.price}</span>
+        <span className="text-4xl font-bold">€{tier.price}</span>
         <span className="text-muted-foreground">/month</span>
       </div>
       
       <p className="text-muted-foreground mb-6">{tier.description}</p>
       
-      <ul className="space-y-3 mb-8">
-        {tier.features.map((feature, index) => (
-          <li key={index} className="flex items-start">
-            <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="border-t border-border pt-6 mb-6">
+        <h4 className="font-semibold mb-4">What's included:</h4>
+        <ul className="space-y-3 mb-8">
+          {tier.features.map((feature, index) => (
+            <li key={index} className="flex items-start">
+              <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
       
       <Button 
-        className={`w-full ${tier.isPopular ? 'bg-primary hover:bg-primary/90' : ''}`}
-        variant={tier.isPopular ? 'default' : 'outline'}
+        className="w-full bg-primary hover:bg-primary/90"
       >
         {tier.buttonText}
       </Button>
+      
+      <p className="text-xs text-center text-muted-foreground mt-4">
+        No long-term contract. Cancel anytime.
+      </p>
     </div>
   );
 };

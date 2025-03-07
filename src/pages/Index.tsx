@@ -3,12 +3,13 @@ import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';
-import PropertyGrid from '@/components/properties/PropertyGrid';
-import SubscriptionCard from '@/components/subscription/SubscriptionCard';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import PropertyCard, { Property } from '@/components/properties/PropertyCard';
+import SubscriptionCard from '@/components/subscription/SubscriptionCard';
 
-// Sample properties data for presentation
-const sampleProperties = [
+// Sample featured properties data
+const featuredProperties: Property[] = [
   {
     id: '1',
     title: 'Modern Apartment with Sea View',
@@ -53,20 +54,21 @@ const sampleProperties = [
   }
 ];
 
-// Updated subscription tier - single €9.99 option
+// Updated subscription tier - single €9.99 option with comprehensive services
 const subscriptionTier = {
   title: 'Premium Access',
   price: 9.99,
   description: 'Complete access to all property search and relocation services',
   features: [
     'Unlimited property matches',
-    'Daily email alerts for new properties',
+    'Daily email alerts with top 10 new properties',
     'Multilingual support (6+ languages)',
     'Lawyer and service provider searches',
     'TV and utility setup assistance',
     'School & healthcare finder',
     'Moving company recommendations',
-    'Personalized relocation guides'
+    'Personalized relocation guides',
+    'Market insights and analytics'
   ],
   isPopular: true,
   buttonText: 'Start Your Journey'
@@ -77,7 +79,6 @@ const Index = () => {
     <>
       <Helmet>
         <title>SunnyHomeFinder | Find Your Dream Property in Spain</title>
-        <meta name="description" content="AI-powered property search and relocation assistance for Spain" />
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -85,6 +86,7 @@ const Index = () => {
         
         <main className="flex-1">
           <Hero />
+          
           <Features />
           
           {/* Featured Properties */}
@@ -95,19 +97,25 @@ const Index = () => {
                   <span className="text-xs font-medium uppercase tracking-wider">Featured Properties</span>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
-                  Discover Stunning Properties Across Spain
+                  Discover Your Dream Spanish Property
                 </h2>
                 <p className="mt-4 text-xl text-muted-foreground text-balance">
-                  From beachfront apartments to rustic countryside homes, find the perfect property to match your lifestyle.
+                  From beachfront apartments to countryside villas, find your perfect place in the sun.
                 </p>
               </div>
               
-              <PropertyGrid properties={sampleProperties} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {featuredProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
               
-              <div className="mt-12 text-center">
-                <Button size="lg" className="group" onClick={() => window.location.href = '/questionnaire'}>
-                  Find Your Perfect Match
-                </Button>
+              <div className="text-center">
+                <Link to="/questionnaire">
+                  <Button size="lg" className="text-lg px-8">
+                    Find Your Perfect Match
+                  </Button>
+                </Link>
               </div>
             </div>
           </section>
@@ -123,20 +131,38 @@ const Index = () => {
                   Complete Property & Relocation Support
                 </h2>
                 <p className="mt-4 text-xl text-muted-foreground text-balance">
-                  One simple plan that gives you access to all our property finding and relocation services.
+                  One simple plan with everything you need for finding property and relocating to Spain.
                 </p>
               </div>
               
-              <div className="max-w-md mx-auto">
+              <div className="max-w-xl mx-auto">
                 <SubscriptionCard tier={subscriptionTier} />
               </div>
               
               <div className="mt-12 text-center max-w-2xl mx-auto">
                 <p className="text-sm text-muted-foreground">
-                  Our premium subscription includes unlimited property searches, daily alerts, lawyer and service provider recommendations, 
-                  plus comprehensive relocation support - all for one affordable monthly price.
+                  Our all-inclusive premium subscription provides unlimited property searches with AI-powered matching, 
+                  daily email alerts featuring your top 10 property matches, comprehensive relocation services including 
+                  lawyer and utility provider recommendations, and multilingual support throughout your journey to Spain.
                 </p>
               </div>
+            </div>
+          </section>
+          
+          {/* CTA Section */}
+          <section className="py-20 bg-gradient-to-br from-primary/90 to-primary text-white">
+            <div className="container mx-auto px-4 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
+                Ready to Find Your Dream Home in Spain?
+              </h2>
+              <p className="text-xl mb-10 max-w-2xl mx-auto text-white/90 text-balance">
+                Start your personalized property search today and receive AI-matched recommendations tailored to your needs.
+              </p>
+              <Link to="/questionnaire">
+                <Button size="lg" variant="secondary" className="text-lg px-8">
+                  Begin Your Journey
+                </Button>
+              </Link>
             </div>
           </section>
         </main>
