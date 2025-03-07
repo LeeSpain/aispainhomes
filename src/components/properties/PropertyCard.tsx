@@ -1,11 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Bed, Bath, SquareIcon, MapPin, Heart } from 'lucide-react';
 import { toast } from "sonner";
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface Property {
   id: string;
@@ -27,13 +28,36 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
+  const { user, userPreferences, addToFavorites, removeFromFavorites } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
   
+  // Check if property is in favorites when component mounts or when userPreferences changes
+  useEffect(() => {
+    if (userPreferences && property.id) {
+      setIsFavorite(userPreferences.favorites.includes(property.id));
+    }
+  }, [userPreferences, property.id]);
+  
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to save favorites",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (isFavorite) {
+      removeFromFavorites(property.id);
+    } else {
+      addToFavorites(property.id);
+    }
+    
     setIsFavorite(!isFavorite);
-    toast.success(isFavorite ? "Removed from favorites" : "Added to favorites");
   };
   
   const formatPrice = (price: number, currency: string) => {

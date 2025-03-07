@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SubscriptionTier {
+  id: string;
   title: string;
   price: number;
   description: string;
@@ -13,18 +14,25 @@ interface SubscriptionTier {
 
 interface SubscriptionCardProps {
   tier: SubscriptionTier;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
-const SubscriptionCard = ({ tier }: SubscriptionCardProps) => {
+const SubscriptionCard = ({ tier, isSelected = false, onSelect }: SubscriptionCardProps) => {
   return (
     <div 
-      className="relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 border border-primary/20 shadow-lg"
+      className={`relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 border border-primary/20 shadow-lg ${
+        isSelected ? 'border-primary shadow-primary/20' : ''
+      }`}
+      onClick={onSelect}
     >
-      <div className="absolute top-0 right-0">
-        <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
-          Premium Plan
+      {tier.isPopular && (
+        <div className="absolute top-0 right-0">
+          <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
+            Popular Plan
+          </div>
         </div>
-      </div>
+      )}
       
       <h3 className="text-2xl font-bold mb-2">{tier.title}</h3>
       <div className="mb-4">
@@ -47,7 +55,8 @@ const SubscriptionCard = ({ tier }: SubscriptionCardProps) => {
       </div>
       
       <Button 
-        className="w-full bg-primary hover:bg-primary/90"
+        className={`w-full ${isSelected ? 'bg-primary' : 'bg-primary/80'} hover:bg-primary/90`}
+        onClick={onSelect}
       >
         {tier.buttonText}
       </Button>

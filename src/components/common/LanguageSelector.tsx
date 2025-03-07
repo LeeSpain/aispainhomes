@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, ChevronDown, Globe } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LanguageSelectorProps {
   minimal?: boolean;
@@ -28,12 +29,22 @@ const languages: Language[] = [
 ];
 
 const LanguageSelector = ({ minimal = false }: LanguageSelectorProps) => {
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0]);
+  const { currentLanguage, setLanguage } = useLanguage();
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(
+    languages.find(lang => lang.code === currentLanguage) || languages[0]
+  );
+
+  // Update selected language when context changes
+  useEffect(() => {
+    const langObj = languages.find(lang => lang.code === currentLanguage);
+    if (langObj) {
+      setSelectedLanguage(langObj);
+    }
+  }, [currentLanguage]);
 
   const handleLanguageChange = (language: Language) => {
     setSelectedLanguage(language);
-    // In a real app, this would update the app's language context/state
-    console.log(`Language changed to ${language.name}`);
+    setLanguage(language.code as any);
   };
 
   return (
