@@ -206,7 +206,11 @@ const AdminDashboard = () => {
                               <TableRow key={property.id}>
                                 <TableCell className="font-medium">{property.id.substring(0, 8)}</TableCell>
                                 <TableCell>{property.title}</TableCell>
-                                <TableCell>{property.location.city}</TableCell>
+                                <TableCell>
+                                  {typeof property.location === 'string' 
+                                    ? property.location 
+                                    : property.location.city}
+                                </TableCell>
                                 <TableCell>€{property.price.toLocaleString()}</TableCell>
                                 <TableCell>{property.type}</TableCell>
                                 <TableCell className="text-right">
