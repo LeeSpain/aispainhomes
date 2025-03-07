@@ -2,7 +2,7 @@
 import React from "react";
 import { 
   Building2, Search, Globe, Mail, Scale, Tv, TruckIcon, 
-  GraduationCap, Heart, BellRing, BarChart3 
+  GraduationCap, Heart, BellRing, BarChart3, Sun, Palmtree 
 } from "lucide-react";
 
 const features = [
@@ -60,11 +60,12 @@ const features = [
 
 const Features = () => {
   return (
-    <div className="py-24 bg-background">
+    <div className="py-24 bg-gradient-to-b from-background to-secondary/30">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
-            <span className="text-xs font-medium uppercase tracking-wider">AI-Powered Services</span>
+            <Sun className="w-4 h-4 mr-2" />
+            <span className="text-xs font-medium uppercase tracking-wider">Mediterranean Lifestyle</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
             Everything You Need for Your Move to Spain
@@ -78,13 +79,19 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="glass-panel p-6 rounded-xl transition-all duration-300 hover:shadow-lg flex flex-col"
+              className="bg-white/80 dark:bg-black/60 backdrop-blur-sm border border-primary/10 p-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 flex flex-col"
             >
               <div className="mb-5">{feature.icon}</div>
               <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
               <p className="text-muted-foreground flex-grow">{feature.description}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-16 text-center relative">
+          <div className="absolute -top-6 right-4 text-primary/10 transform rotate-12 hidden lg:block">
+            <Palmtree className="h-24 w-24" />
+          </div>
         </div>
       </div>
     </div>

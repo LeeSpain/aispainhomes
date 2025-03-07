@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import PropertyCard, { Property } from '@/components/properties/PropertyCard';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
+import { Sun, Palmtree } from 'lucide-react';
 
 // Sample featured properties data
 const featuredProperties: Property[] = [
@@ -90,10 +91,11 @@ const Index = () => {
           <Features />
           
           {/* Featured Properties */}
-          <section className="py-20">
+          <section className="py-20 bg-gradient-to-t from-secondary/30 to-background/80">
             <div className="container mx-auto px-4">
               <div className="text-center max-w-3xl mx-auto mb-16">
                 <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                  <Sun className="w-4 h-4 mr-2" />
                   <span className="text-xs font-medium uppercase tracking-wider">Featured Properties</span>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
@@ -112,7 +114,7 @@ const Index = () => {
               
               <div className="text-center">
                 <Link to="/questionnaire">
-                  <Button size="lg" className="text-lg px-8">
+                  <Button size="lg" className="text-lg px-8 bg-gradient-to-r from-primary to-accent">
                     Find Your Perfect Match
                   </Button>
                 </Link>
@@ -121,10 +123,15 @@ const Index = () => {
           </section>
           
           {/* Subscription Plan */}
-          <section className="py-20 bg-secondary/30">
-            <div className="container mx-auto px-4">
+          <section className="py-20 bg-gradient-to-br from-accent/5 to-primary/5 relative overflow-hidden">
+            <div className="absolute -right-12 top-12 text-primary/5 hidden lg:block">
+              <Palmtree className="h-64 w-64" />
+            </div>
+            
+            <div className="container mx-auto px-4 relative z-10">
               <div className="text-center max-w-3xl mx-auto mb-16">
                 <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                  <Sun className="w-4 h-4 mr-2" />
                   <span className="text-xs font-medium uppercase tracking-wider">Premium Service</span>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
@@ -150,8 +157,12 @@ const Index = () => {
           </section>
           
           {/* CTA Section */}
-          <section className="py-20 bg-gradient-to-br from-primary/90 to-primary text-white">
-            <div className="container mx-auto px-4 text-center">
+          <section className="py-20 bg-gradient-to-br from-primary/90 to-accent text-white relative overflow-hidden">
+            <div className="absolute -left-12 bottom-0 text-white/10 hidden lg:block">
+              <Palmtree className="h-48 w-48" />
+            </div>
+            
+            <div className="container mx-auto px-4 text-center relative z-10">
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
                 Ready to Find Your Dream Home in Spain?
               </h2>
@@ -159,8 +170,8 @@ const Index = () => {
                 Start your personalized property search today and receive AI-matched recommendations tailored to your needs.
               </p>
               <Link to="/questionnaire">
-                <Button size="lg" variant="secondary" className="text-lg px-8">
-                  Begin Your Journey
+                <Button size="lg" variant="secondary" className="text-lg px-8 bg-white text-primary hover:bg-white/90">
+                  Begin Your Spanish Journey
                 </Button>
               </Link>
             </div>
