@@ -9,7 +9,7 @@ import PropertyImageGallery from "./PropertyImageGallery";
 export interface Property {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   price: number;
   currency: string;
   location: string;
@@ -20,6 +20,7 @@ export interface Property {
   isForRent: boolean;
   features?: string[];
   images?: string[];
+  imageUrl?: string; // Added this property for backward compatibility
   yearBuilt?: number;
 }
 

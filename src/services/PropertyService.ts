@@ -243,5 +243,19 @@ export const PropertyService = {
     // In a real app, this would remove from a user_favorites table in the database
     console.log(`Removed property ${propertyId} from favorites for user ${userId}`);
     return true;
+  },
+  
+  // Get similar properties
+  getSimilarProperties: async (property: Property): Promise<Property[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    // Find properties of the same type or in the same location
+    return sampleProperties.filter(p => 
+      p.id !== property.id && (
+        p.type === property.type || 
+        p.location.includes(property.location.split(',')[0])
+      )
+    ).slice(0, 3);
   }
 };
