@@ -42,9 +42,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     e.stopPropagation();
     
     if (!user) {
-      toast("Please login to save favorites", {
-        variant: "destructive"
-      });
+      toast.error("Please login to save favorites");
       return;
     }
     
