@@ -102,7 +102,7 @@ const PropertyDetailsWrapper = () => {
   return (
     <>
       <Helmet>
-        <title>{property.title} | SunnyHomeFinder</title>
+        <title>{property.title} | AI Spain Homes</title>
         <meta name="description" content={property.description} />
       </Helmet>
       

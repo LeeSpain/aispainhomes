@@ -6,7 +6,7 @@ const Questionnaire = () => {
   return (
     <>
       <Helmet>
-        <title>Find Your Perfect Home in Spain | SunnyHomeFinder</title>
+        <title>Find Your Perfect Home in Spain | AI Spain Homes</title>
       </Helmet>
       <QuestionnaireContainer />
     </>

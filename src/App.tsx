@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import ScrollToTop from "./components/common/ScrollToTop";
 import Index from "./pages/Index";
 import Questionnaire from "./pages/Questionnaire";
 import Login from "./pages/Login";
@@ -35,6 +36,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/questionnaire" element={<Questionnaire />} />
