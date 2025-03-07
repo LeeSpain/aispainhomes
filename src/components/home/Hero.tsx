@@ -45,7 +45,7 @@ const Hero = () => {
               {/* Image with decorative elements */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl opacity-50 transform rotate-6"></div>
               <img 
-                src="./assets/spanish-villa.jpg" 
+                src="/assets/spanish-villa.jpg" 
                 alt="Beautiful Spanish villa with white walls and terracotta roof" 
                 className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3] border border-white/10"
               />
