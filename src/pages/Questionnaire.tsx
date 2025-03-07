@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Property } from '@/components/properties/PropertyCard';
+import { Home, ShieldCheck } from 'lucide-react';
 
 const cities = [
   'Barcelona', 'Madrid', 'Valencia', 'Malaga', 'Alicante', 
@@ -108,33 +108,25 @@ const sampleProperties: Property[] = [
   }
 ];
 
-const subscriptionTiers = [
-  {
-    title: 'Free',
-    price: 0,
-    description: 'Basic access to get you started',
-    features: [
-      'View 5 property matches',
-      'Basic property search',
-      'Single language support'
-    ],
-    buttonText: 'Continue with Free'
-  },
-  {
-    title: 'Premium',
-    price: 9.99,
-    description: 'Full access for serious property hunters',
-    features: [
-      'Unlimited property matches',
-      'Weekly email alerts',
-      'Multilingual support',
-      'Detailed property analytics',
-      'Save favorite properties'
-    ],
-    isPopular: true,
-    buttonText: 'Try Premium'
-  }
-];
+const subscriptionTier = {
+  title: 'Premium Access',
+  price: 9.99,
+  description: 'Complete access to all property search and relocation services',
+  features: [
+    'Unlimited property matches',
+    'Daily email alerts with top 10 new properties',
+    'Multilingual support (6+ languages)',
+    'Lawyer and service provider searches',
+    'TV and utility setup assistance',
+    'School & healthcare finder',
+    'Moving company recommendations',
+    'Personalized relocation guides',
+    'Market insights and analytics',
+    'AI Guardian for full relocation support'
+  ],
+  isPopular: true,
+  buttonText: 'Start Your Journey'
+};
 
 const Questionnaire = () => {
   const navigate = useNavigate();
@@ -142,10 +134,11 @@ const Questionnaire = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showResults, setShowResults] = useState(false);
   const [showAuthForms, setShowAuthForms] = useState(false);
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('register');
   const totalSteps = 5;
   
   const [formData, setFormData] = useState({
+    service: 'property',
     propertyType: '',
     purpose: 'buy',
     location: '',
@@ -187,40 +180,20 @@ const Questionnaire = () => {
   const isNextDisabled = () => {
     switch (currentStep) {
       case 1:
-        return !formData.purpose;
+        return !formData.service || (formData.service === 'property' && !formData.purpose);
       case 2:
-        return !formData.propertyType;
+        return formData.service === 'property' && !formData.propertyType;
       case 3:
-        return !formData.location;
+        return formData.service === 'property' && !formData.location;
       default:
         return false;
     }
-  };
-  
-  const subscriptionTier = {
-    title: 'Premium Access',
-    price: 9.99,
-    description: 'Complete access to all property search and relocation services',
-    features: [
-      'Unlimited property matches',
-      'Daily email alerts with top 10 new properties',
-      'Multilingual support (6+ languages)',
-      'Lawyer and service provider searches',
-      'TV and utility setup assistance',
-      'School & healthcare finder',
-      'Moving company recommendations',
-      'Personalized relocation guides',
-      'Market insights and analytics'
-    ],
-    isPopular: true,
-    buttonText: 'Start Your Journey'
   };
   
   const handleContinueToAuth = () => {
     setShowAuthForms(true);
   };
   
-  // After authentication, redirect to dashboard
   const handleAuthSuccess = () => {
     navigate('/dashboard');
   };
@@ -241,22 +214,27 @@ const Questionnaire = () => {
                 <h1 className="text-3xl font-bold mb-2">Your Top Property Matches</h1>
                 <p className="text-muted-foreground mb-8">
                   Based on your preferences, we've found these properties that might interest you. 
-                  {user ? "We'll email you these results for easy reference." : "Create an account to see all matches and receive email updates."}
+                  {user ? "We'll email you these results for easy reference." : "Create an account to unlock all matches and premium features."}
                 </p>
                 
                 <div className="mb-12">
-                  <PropertyGrid properties={sampleProperties.slice(0, user ? sampleProperties.length : 5)} />
+                  <PropertyGrid properties={sampleProperties.slice(0, 5)} />
                 </div>
                 
                 {!user && (
                   <>
                     {!showAuthForms ? (
                       <div className="glass-panel rounded-xl p-8 mb-12">
-                        <h2 className="text-2xl font-bold mb-4">Unlock All Your Property Matches & Relocation Services</h2>
+                        <h2 className="text-2xl font-bold mb-4">Unlock Premium Features</h2>
                         <p className="text-muted-foreground mb-8">
-                          We've found more properties that match your criteria. Create an account to see all results, 
-                          get daily email alerts with your top 10 matches, and access our complete suite of relocation services.
+                          We've found more properties that match your criteria. Subscribe to our premium service 
+                          for €9.99/month to see all results, get daily email alerts, and access our complete suite 
+                          of relocation services.
                         </p>
+                        
+                        <div className="mb-8">
+                          <SubscriptionCard tier={subscriptionTier} />
+                        </div>
                         
                         <div className="flex flex-col md:flex-row gap-6 justify-center">
                           <Button 
@@ -264,7 +242,7 @@ const Questionnaire = () => {
                             onClick={handleContinueToAuth}
                             className="px-8 py-6 text-lg"
                           >
-                            Create Free Account
+                            Continue to Subscribe
                           </Button>
                           <Button 
                             variant="outline" 
@@ -337,27 +315,69 @@ const Questionnaire = () => {
         >
           {currentStep === 1 && (
             <QuestionnaireStep
-              title="What are you looking to do?"
-              description="Are you looking to buy or rent a property in Spain?"
+              title="What service are you looking for?"
+              description="Choose what kind of assistance you need for your Spanish relocation journey."
             >
               <RadioGroup
-                value={formData.purpose}
-                onValueChange={(value) => handleChange('purpose', value)}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"
+                value={formData.service}
+                onValueChange={(value) => {
+                  setFormData({ 
+                    ...formData, 
+                    service: value
+                  });
+                }}
+                className="grid grid-cols-1 gap-4 mt-6 mb-8"
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="buy" id="buy" />
-                  <Label htmlFor="buy" className="cursor-pointer text-lg">Buy a property</Label>
+                <div className="flex items-start space-x-3 p-4 rounded-lg border border-primary/20 hover:border-primary/50 transition-all">
+                  <RadioGroupItem value="property" id="property" className="mt-1" />
+                  <div>
+                    <Label htmlFor="property" className="cursor-pointer text-lg font-medium flex items-center">
+                      <Home className="w-5 h-5 mr-2 text-primary" />
+                      Property Search
+                    </Label>
+                    <p className="text-muted-foreground mt-1">
+                      Find your ideal home in Spain with our AI-powered property matching.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rent" id="rent" />
-                  <Label htmlFor="rent" className="cursor-pointer text-lg">Rent a property</Label>
+                
+                <div className="flex items-start space-x-3 p-4 rounded-lg border border-primary/20 hover:border-primary/50 transition-all">
+                  <RadioGroupItem value="guardian" id="guardian" className="mt-1" />
+                  <div>
+                    <Label htmlFor="guardian" className="cursor-pointer text-lg font-medium flex items-center">
+                      <ShieldCheck className="w-5 h-5 mr-2 text-primary" />
+                      AI Guardian
+                    </Label>
+                    <p className="text-muted-foreground mt-1">
+                      Get personalized guidance through every step of your relocation journey, from legal requirements to lifestyle integration.
+                    </p>
+                  </div>
                 </div>
               </RadioGroup>
+              
+              {formData.service === 'property' && (
+                <div className="mt-6">
+                  <p className="text-lg font-medium mb-4">What are you looking to do?</p>
+                  <RadioGroup
+                    value={formData.purpose}
+                    onValueChange={(value) => handleChange('purpose', value)}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="buy" id="buy" />
+                      <Label htmlFor="buy" className="cursor-pointer">Buy a property</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="rent" id="rent" />
+                      <Label htmlFor="rent" className="cursor-pointer">Rent a property</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
             </QuestionnaireStep>
           )}
           
-          {currentStep === 2 && (
+          {currentStep === 2 && formData.service === 'property' && (
             <QuestionnaireStep
               title="What type of property are you looking for?"
               description="Select the type of property you're interested in."
@@ -381,8 +401,52 @@ const Questionnaire = () => {
               </div>
             </QuestionnaireStep>
           )}
+
+          {currentStep === 2 && formData.service === 'guardian' && (
+            <QuestionnaireStep
+              title="Tell us about your relocation plans"
+              description="Help us understand your timeframe and specific needs."
+            >
+              <div className="space-y-6 mt-6">
+                <div>
+                  <Label htmlFor="timeline">When are you planning to move?</Label>
+                  <Select
+                    onValueChange={(value) => console.log(value)}
+                    defaultValue="3-6months"
+                  >
+                    <SelectTrigger id="timeline" className="mt-2">
+                      <SelectValue placeholder="Select your timeline" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="immediately">Within 1 month</SelectItem>
+                      <SelectItem value="1-3months">1-3 months</SelectItem>
+                      <SelectItem value="3-6months">3-6 months</SelectItem>
+                      <SelectItem value="6-12months">6-12 months</SelectItem>
+                      <SelectItem value="future">Just exploring options</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>What aspects of relocation are you most concerned about?</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                    {['Visas & Residency', 'Healthcare', 'Schools & Education', 
+                      'Language Barriers', 'Banking & Finances', 'Finding Work', 
+                      'Cultural Integration', 'Legal Requirements'].map((concern) => (
+                      <div key={concern} className="flex items-start space-x-2">
+                        <Checkbox id={concern.replace(/\s+/g, '-').toLowerCase()} />
+                        <Label htmlFor={concern.replace(/\s+/g, '-').toLowerCase()} className="cursor-pointer">
+                          {concern}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </QuestionnaireStep>
+          )}
           
-          {currentStep === 3 && (
+          {currentStep === 3 && formData.service === 'property' && (
             <QuestionnaireStep
               title="Where would you like to live?"
               description="Select a location in Spain where you want to find a property."
@@ -418,8 +482,61 @@ const Questionnaire = () => {
               </div>
             </QuestionnaireStep>
           )}
+
+          {currentStep === 3 && formData.service === 'guardian' && (
+            <QuestionnaireStep
+              title="Your household details"
+              description="Tell us about who will be relocating with you."
+            >
+              <div className="space-y-6 mt-6">
+                <div>
+                  <Label htmlFor="adults">Number of adults</Label>
+                  <Select defaultValue="1">
+                    <SelectTrigger id="adults" className="mt-2">
+                      <SelectValue placeholder="Select number of adults" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, '6+'].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="children">Number of children</Label>
+                  <Select defaultValue="0">
+                    <SelectTrigger id="children" className="mt-2">
+                      <SelectValue placeholder="Select number of children" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[0, 1, 2, 3, 4, 5, '6+'].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="pets">Do you have pets?</Label>
+                  <Select defaultValue="no">
+                    <SelectTrigger id="pets" className="mt-2">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="no">No pets</SelectItem>
+                      <SelectItem value="dog">Dog(s)</SelectItem>
+                      <SelectItem value="cat">Cat(s)</SelectItem>
+                      <SelectItem value="both">Both dogs and cats</SelectItem>
+                      <SelectItem value="other">Other pets</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </QuestionnaireStep>
+          )}
           
-          {currentStep === 4 && (
+          {currentStep === 4 && formData.service === 'property' && (
             <QuestionnaireStep
               title="What's your budget?"
               description={`Set your ${formData.purpose === 'rent' ? 'monthly rental' : 'purchase'} budget range.`}
@@ -500,8 +617,51 @@ const Questionnaire = () => {
               </div>
             </QuestionnaireStep>
           )}
+
+          {currentStep === 4 && formData.service === 'guardian' && (
+            <QuestionnaireStep
+              title="Employment & Income"
+              description="Tell us about your work situation for your move to Spain."
+            >
+              <div className="space-y-6 mt-6">
+                <div>
+                  <Label htmlFor="employment">What best describes your employment situation?</Label>
+                  <Select defaultValue="remote">
+                    <SelectTrigger id="employment" className="mt-2">
+                      <SelectValue placeholder="Select employment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="remote">Remote worker for non-Spanish company</SelectItem>
+                      <SelectItem value="transfer">Company transfer to Spain</SelectItem>
+                      <SelectItem value="local">Looking for work in Spain</SelectItem>
+                      <SelectItem value="business">Business owner/Self-employed</SelectItem>
+                      <SelectItem value="retired">Retired</SelectItem>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="language">Do you speak Spanish?</Label>
+                  <Select defaultValue="basic">
+                    <SelectTrigger id="language" className="mt-2">
+                      <SelectValue placeholder="Select your Spanish level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="basic">Basic phrases</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="fluent">Fluent</SelectItem>
+                      <SelectItem value="native">Native speaker</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </QuestionnaireStep>
+          )}
           
-          {currentStep === 5 && (
+          {currentStep === 5 && formData.service === 'property' && (
             <QuestionnaireStep
               title="What amenities are important to you?"
               description="Select the features and amenities you'd like in your property."
@@ -531,6 +691,42 @@ const Questionnaire = () => {
                     </Label>
                   </div>
                 ))}
+              </div>
+            </QuestionnaireStep>
+          )}
+
+          {currentStep === 5 && formData.service === 'guardian' && (
+            <QuestionnaireStep
+              title="Ready to unlock your personalized relocation plan"
+              description="Your AI Guardian will help you navigate every step of your relocation journey."
+            >
+              <div className="space-y-6 mt-6">
+                <div className="glass-panel p-6 border border-primary/20 rounded-lg">
+                  <h3 className="text-lg font-medium flex items-center">
+                    <ShieldCheck className="w-5 h-5 mr-2 text-primary" />
+                    AI Guardian Service - €9.99/month
+                  </h3>
+                  <ul className="mt-4 space-y-2">
+                    {['Personalized relocation timeline and checklist', 
+                      'Visa and residency guidance', 
+                      'Healthcare system navigation',
+                      'School options and enrollment assistance',
+                      'Banking and financial setup help',
+                      'Tax considerations and advice',
+                      'Cultural integration resources',
+                      'Local community connections',
+                      '24/7 AI assistance for all your questions'].map((feature) => (
+                      <li key={feature} className="flex">
+                        <span className="text-primary mr-2">✓</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <p className="text-center text-muted-foreground">
+                  Complete your questionnaire to see your personalized relocation plan preview
+                </p>
               </div>
             </QuestionnaireStep>
           )}

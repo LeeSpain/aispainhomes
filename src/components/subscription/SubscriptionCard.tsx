@@ -18,17 +18,13 @@ interface SubscriptionCardProps {
 const SubscriptionCard = ({ tier }: SubscriptionCardProps) => {
   return (
     <div 
-      className={`relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 ${
-        tier.isPopular ? 'ring-2 ring-primary shadow-lg' : ''
-      }`}
+      className="relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 border border-primary/20 shadow-lg"
     >
-      {tier.isPopular && (
-        <div className="absolute top-0 right-0">
-          <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
-            All-Inclusive
-          </div>
+      <div className="absolute top-0 right-0">
+        <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
+          Premium Plan
         </div>
-      )}
+      </div>
       
       <h3 className="text-2xl font-bold mb-2">{tier.title}</h3>
       <div className="mb-4">
