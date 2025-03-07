@@ -50,19 +50,19 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <span className="text-muted-foreground">
+                <Link to="/questionnaire?service=relocation" className="text-muted-foreground hover:text-foreground transition-colors">
                   Relocation Services
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-muted-foreground">
+                <Link to="/questionnaire?service=legal" className="text-muted-foreground hover:text-foreground transition-colors">
                   Legal Assistance
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-muted-foreground">
+                <Link to="/questionnaire?service=utilities" className="text-muted-foreground hover:text-foreground transition-colors">
                   Utility Setup
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
@@ -71,19 +71,19 @@ const Footer = () => {
             <h3 className="font-medium text-lg mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <span className="text-muted-foreground">
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
                   Terms & Conditions
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-muted-foreground">
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                   Privacy Policy
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-muted-foreground">
+                <Link to="/cookie-policy" className="text-muted-foreground hover:text-foreground transition-colors">
                   Cookie Policy
-                </span>
+                </Link>
               </li>
             </ul>
           </div>
