@@ -27,16 +27,6 @@ const NavLinks = ({ user, className = "" }: NavLinksProps) => {
       >
         Find Property
       </Link>
-      {user && (
-        <Link 
-          to="/dashboard" 
-          className={`transition-colors hover:text-primary ${
-            location.pathname === '/dashboard' ? 'text-primary font-medium' : ''
-          }`}
-        >
-          Dashboard
-        </Link>
-      )}
       <Link 
         to="/about" 
         className={`transition-colors hover:text-primary ${

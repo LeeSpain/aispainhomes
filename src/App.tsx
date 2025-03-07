@@ -28,7 +28,7 @@ const App = () => (
     <AuthProvider>
       <LanguageProvider>
         <Helmet>
-          <title>AISpainHomes.com | Find Your Dream Property in Spain</title>
+          <title>AI Spain Homes | Find Your Dream Property in Spain</title>
           <meta name="description" content="AI-powered property search and relocation assistance for Spain" />
         </Helmet>
         <TooltipProvider>
