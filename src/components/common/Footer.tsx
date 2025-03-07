@@ -54,16 +54,6 @@ const Footer = () => {
                   Relocation Services
                 </Link>
               </li>
-              <li>
-                <Link to="/questionnaire?service=legal" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Legal Assistance
-                </Link>
-              </li>
-              <li>
-                <Link to="/questionnaire?service=utilities" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Utility Setup
-                </Link>
-              </li>
             </ul>
           </div>
           
