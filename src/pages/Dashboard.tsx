@@ -1,4 +1,3 @@
-
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -22,7 +21,8 @@ import {
   School,
   HeartPulse,
   Tv,
-  Star
+  Star,
+  ShieldCheck
 } from "lucide-react";
 
 const sampleProperties: Property[] = [
@@ -126,7 +126,6 @@ const sampleProperties: Property[] = [
   }
 ];
 
-// Service provider type
 interface ServiceProvider {
   id: string;
   name: string;
@@ -136,7 +135,6 @@ interface ServiceProvider {
   details: string;
 }
 
-// Sample service providers
 const sampleServiceProviders: Record<string, ServiceProvider[]> = {
   lawyers: [
     { id: '1', name: 'Martinez & Associates', type: 'Law Firm', location: 'Barcelona', contact: 'contact@martinez.es', details: 'Specializes in property law and foreign investments' },
@@ -171,7 +169,6 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("properties");
   
   useEffect(() => {
-    // Redirect to login if not authenticated
     if (!isLoading && !user) {
       navigate("/login");
     }
@@ -186,7 +183,7 @@ const Dashboard = () => {
   }
   
   if (!user) {
-    return null; // Will redirect via useEffect
+    return null;
   }
   
   const ServiceProviderList = ({ providers }: { providers: ServiceProvider[] }) => (
@@ -217,21 +214,23 @@ const Dashboard = () => {
         <main className="flex-1 pt-28 pb-16">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              {/* Dashboard Header */}
               <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h1 className="text-3xl font-bold">Welcome, {user.name}</h1>
                   <p className="text-muted-foreground">Manage your property search and relocation services</p>
                 </div>
-                <div className="mt-4 sm:mt-0">
-                  <Button variant="outline" onClick={() => navigate("/questionnaire")}>
-                    <Search className="mr-2 h-4 w-4" />
-                    New Search
+                <div className="mt-4 sm:mt-0 flex gap-2">
+                  <Button variant="outline" onClick={() => navigate("/questionnaire")} className="flex items-center">
+                    <Home className="mr-2 h-4 w-4" />
+                    Property Search
+                  </Button>
+                  <Button variant="default" onClick={() => navigate("/questionnaire?service=guardian")} className="flex items-center">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    AI Guardian
                   </Button>
                 </div>
               </div>
               
-              {/* Dashboard Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
                 <TabsList className="w-full overflow-x-auto py-2">
                   <TabsTrigger value="properties" className="flex items-center">

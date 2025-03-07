@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
@@ -130,6 +130,7 @@ const subscriptionTier = {
 
 const Questionnaire = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [showResults, setShowResults] = useState(false);
@@ -139,7 +140,7 @@ const Questionnaire = () => {
   
   const [formData, setFormData] = useState({
     service: 'property',
-    propertyType: '',
+    propertyTypes: [] as string[],
     purpose: 'buy',
     location: '',
     priceRange: [100000, 500000],
@@ -149,8 +150,32 @@ const Questionnaire = () => {
     selectedAmenities: [] as string[]
   });
   
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const serviceParam = params.get('service');
+    if (serviceParam === 'guardian') {
+      setFormData(prev => ({ ...prev, service: 'guardian' }));
+    }
+  }, [location]);
+  
   const handleChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
+  };
+  
+  const togglePropertyType = (type: string) => {
+    setFormData(prev => {
+      if (prev.propertyTypes.includes(type)) {
+        return {
+          ...prev,
+          propertyTypes: prev.propertyTypes.filter(t => t !== type)
+        };
+      } else {
+        return {
+          ...prev,
+          propertyTypes: [...prev.propertyTypes, type]
+        };
+      }
+    });
   };
   
   const handleNext = () => {
@@ -182,7 +207,7 @@ const Questionnaire = () => {
       case 1:
         return !formData.service || (formData.service === 'property' && !formData.purpose);
       case 2:
-        return formData.service === 'property' && !formData.propertyType;
+        return formData.service === 'property' && formData.propertyTypes.length === 0;
       case 3:
         return formData.service === 'property' && !formData.location;
       default:
@@ -380,20 +405,24 @@ const Questionnaire = () => {
           {currentStep === 2 && formData.service === 'property' && (
             <QuestionnaireStep
               title="What type of property are you looking for?"
-              description="Select the type of property you're interested in."
+              description="Select one or more property types you're interested in."
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
                 {propertyTypes.map((type) => (
                   <div
                     key={type}
                     className={`p-4 rounded-lg cursor-pointer transition-all ${
-                      formData.propertyType === type
+                      formData.propertyTypes.includes(type)
                         ? 'bg-primary text-primary-foreground ring-2 ring-primary'
                         : 'bg-secondary hover:bg-secondary/80'
                     }`}
-                    onClick={() => handleChange('propertyType', type)}
+                    onClick={() => togglePropertyType(type)}
                   >
-                    <div className="text-center">
+                    <div className="text-center flex items-center justify-center gap-2">
+                      <Checkbox 
+                        checked={formData.propertyTypes.includes(type)}
+                        className="data-[state=checked]:bg-primary-foreground data-[state=checked]:text-primary"
+                      />
                       <div className="font-medium">{type}</div>
                     </div>
                   </div>
