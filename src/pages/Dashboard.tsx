@@ -8,6 +8,8 @@ import Footer from "@/components/common/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PropertyGrid from "@/components/properties/PropertyGrid";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Property } from "@/components/properties/PropertyCard";
 import { 
   Bell, 
