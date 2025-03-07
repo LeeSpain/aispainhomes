@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Sun, Palm, Palmtree } from 'lucide-react';
+import { ArrowRight, Search, Sun, Palmtree } from 'lucide-react';
 
 // Placeholder images until we have real ones
 const placeholderBackgrounds = [
