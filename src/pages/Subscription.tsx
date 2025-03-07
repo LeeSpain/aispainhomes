@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
+import PaymentForm from '@/components/subscription/PaymentForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -66,10 +67,15 @@ const subscriptionTiers = [
 ];
 
 const Subscription = () => {
-  const { user } = useAuth();
+  const { user, userPreferences } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  
+  // Check if the user has an active subscription
+  const hasActiveSubscription = userPreferences?.subscription?.status === 'active';
+  const currentPlan = userPreferences?.subscription?.plan || 'basic';
 
   const handleSelectPlan = (planId: string) => {
     setSelectedPlan(planId);
@@ -86,14 +92,27 @@ const Subscription = () => {
       return;
     }
 
-    setLoading(true);
-
-    // Simulate payment processing
-    setTimeout(() => {
-      setLoading(false);
-      toast.success(`Successfully subscribed to ${selectedPlan} plan`);
-      navigate('/dashboard');
-    }, 2000);
+    // If user selects basic plan, update subscription without payment
+    if (selectedPlan === 'basic') {
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+        toast.success('Successfully subscribed to Basic plan');
+        navigate('/dashboard');
+      }, 1500);
+      return;
+    }
+    
+    // Show payment form for premium/guardian plans
+    setShowPaymentForm(true);
+  };
+  
+  const handlePaymentSuccess = () => {
+    navigate('/dashboard');
+  };
+  
+  const handlePaymentCancel = () => {
+    setShowPaymentForm(false);
   };
 
   return (
@@ -108,37 +127,61 @@ const Subscription = () => {
         <main className="flex-1 pt-28 pb-16">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-3xl font-bold text-center mb-2">Choose Your Plan</h1>
-              <p className="text-center text-muted-foreground mb-12">
-                Select the plan that best fits your needs and start your Spanish property journey
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {subscriptionTiers.map((tier) => (
-                  <div key={tier.id} className={`relative ${selectedPlan === tier.id ? 'ring-2 ring-primary' : ''}`}>
-                    <SubscriptionCard 
-                      tier={tier} 
-                      isSelected={selectedPlan === tier.id}
-                      onSelect={() => handleSelectPlan(tier.id)}
-                    />
+              {!showPaymentForm ? (
+                <>
+                  <h1 className="text-3xl font-bold text-center mb-2">Choose Your Plan</h1>
+                  <p className="text-center text-muted-foreground mb-12">
+                    Select the plan that best fits your needs and start your Spanish property journey
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {subscriptionTiers.map((tier) => (
+                      <div 
+                        key={tier.id} 
+                        className={`relative ${selectedPlan === tier.id ? 'ring-2 ring-primary' : ''} 
+                                   ${currentPlan === tier.id && hasActiveSubscription ? 'ring-2 ring-green-500' : ''}`}
+                      >
+                        <SubscriptionCard 
+                          tier={tier} 
+                          isSelected={selectedPlan === tier.id}
+                          onSelect={() => handleSelectPlan(tier.id)}
+                          isCurrentPlan={currentPlan === tier.id && hasActiveSubscription}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              
-              <div className="mt-12 text-center">
-                <Button 
-                  size="lg" 
-                  onClick={handleSubscribe}
-                  disabled={!selectedPlan || loading}
-                  className="px-8"
-                >
-                  {loading ? 'Processing...' : 'Subscribe Now'}
-                </Button>
-                
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Secure payment processing. Cancel anytime.
-                </p>
-              </div>
+                  
+                  <div className="mt-12 text-center">
+                    <Button 
+                      size="lg" 
+                      onClick={handleSubscribe}
+                      disabled={!selectedPlan || loading}
+                      className="px-8"
+                    >
+                      {loading ? 'Processing...' : 'Subscribe Now'}
+                    </Button>
+                    
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      Secure payment processing. Cancel anytime.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    className="mb-6" 
+                    onClick={() => setShowPaymentForm(false)}
+                  >
+                    ← Back to Plans
+                  </Button>
+                  <PaymentForm 
+                    selectedPlan={selectedPlan} 
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={handlePaymentCancel}
+                  />
+                </>
+              )}
             </div>
           </div>
         </main>

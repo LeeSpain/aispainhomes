@@ -16,20 +16,30 @@ interface SubscriptionCardProps {
   tier: SubscriptionTier;
   isSelected?: boolean;
   onSelect?: () => void;
+  isCurrentPlan?: boolean;
 }
 
-const SubscriptionCard = ({ tier, isSelected = false, onSelect }: SubscriptionCardProps) => {
+const SubscriptionCard = ({ tier, isSelected = false, onSelect, isCurrentPlan = false }: SubscriptionCardProps) => {
   return (
     <div 
-      className={`relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 border border-primary/20 shadow-lg ${
-        isSelected ? 'border-primary shadow-primary/20' : ''
-      }`}
+      className={`relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 border ${
+        isSelected ? 'border-primary shadow-primary/20' : 
+        isCurrentPlan ? 'border-green-500 shadow-green-500/20' : 'border-primary/20'
+      } shadow-lg`}
       onClick={onSelect}
     >
       {tier.isPopular && (
         <div className="absolute top-0 right-0">
           <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
             Popular Plan
+          </div>
+        </div>
+      )}
+      
+      {isCurrentPlan && (
+        <div className="absolute top-0 left-0">
+          <div className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-br-lg">
+            Current Plan
           </div>
         </div>
       )}
@@ -55,10 +65,14 @@ const SubscriptionCard = ({ tier, isSelected = false, onSelect }: SubscriptionCa
       </div>
       
       <Button 
-        className={`w-full ${isSelected ? 'bg-primary' : 'bg-primary/80'} hover:bg-primary/90`}
+        className={`w-full ${
+          isCurrentPlan ? 'bg-green-500 hover:bg-green-600' :
+          isSelected ? 'bg-primary' : 'bg-primary/80 hover:bg-primary/90'
+        }`}
         onClick={onSelect}
+        disabled={isCurrentPlan}
       >
-        {tier.buttonText}
+        {isCurrentPlan ? 'Current Plan' : tier.buttonText}
       </Button>
       
       <p className="text-xs text-center text-muted-foreground mt-4">

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "sonner";
 
@@ -5,6 +6,13 @@ export interface User {
   id: string;
   email: string;
   name: string;
+}
+
+export interface Subscription {
+  plan: string;
+  status: 'active' | 'cancelled' | 'expired';
+  startDate: string;
+  nextBillingDate: string;
 }
 
 export interface UserPreferences {
@@ -18,6 +26,18 @@ export interface UserPreferences {
   notificationSettings: {
     email: boolean;
     propertyAlerts: boolean;
+    weeklyNewsletter?: boolean;
+    marketUpdates?: boolean;
+    promotionalOffers?: boolean;
+  };
+  subscription?: Subscription;
+  profile?: {
+    fullName?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    postalCode?: string;
   };
 }
 
@@ -29,10 +49,12 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUserPreferences: (preferences: Partial<UserPreferences>) => void;
+  updateUserProfile: (profile: Partial<User>) => void;
   addToFavorites: (propertyId: string) => void;
   removeFromFavorites: (propertyId: string) => void;
   addRecentSearch: (query: string) => void;
   clearRecentSearches: () => void;
+  subscribeToEmailUpdates: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,7 +78,24 @@ const defaultUserPreferences: UserPreferences = {
   notificationSettings: {
     email: true,
     propertyAlerts: true,
+    weeklyNewsletter: true,
+    marketUpdates: false,
+    promotionalOffers: false,
   },
+  subscription: {
+    plan: 'basic',
+    status: 'active',
+    startDate: new Date().toISOString(),
+    nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  profile: {
+    fullName: '',
+    phone: '',
+    address: '',
+    city: '',
+    country: '',
+    postalCode: '',
+  }
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
@@ -165,6 +204,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserPreferences(updatedPreferences);
     toast.success("Preferences updated");
   };
+  
+  const updateUserProfile = (profile: Partial<User>) => {
+    if (!user) return;
+    
+    const updatedUser = {
+      ...user,
+      ...profile,
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    toast.success("Profile updated");
+  };
 
   const addToFavorites = (propertyId: string) => {
     if (!userPreferences) return;
@@ -220,6 +272,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
     toast.success("Search history cleared");
   };
+  
+  const subscribeToEmailUpdates = async (email: string) => {
+    try {
+      // Simulate API request
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success("Thank you for subscribing to email updates!");
+      return;
+    } catch (error) {
+      toast.error("Failed to subscribe. Please try again.");
+      throw error;
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ 
@@ -230,10 +295,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       register, 
       logout,
       updateUserPreferences,
+      updateUserProfile,
       addToFavorites,
       removeFromFavorites,
       addRecentSearch,
-      clearRecentSearches
+      clearRecentSearches,
+      subscribeToEmailUpdates
     }}>
       {children}
     </AuthContext.Provider>

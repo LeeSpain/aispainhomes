@@ -21,7 +21,7 @@ import SettingsTab from "@/components/dashboard/SettingsTab";
 import sampleServiceProviders from "@/components/dashboard/serviceProvidersData";
 
 const Dashboard = () => {
-  const { user, isLoading, logout } = useAuth();
+  const { user, userPreferences, isLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("properties");
   const [properties, setProperties] = useState<Property[]>([]);
@@ -66,7 +66,7 @@ const Dashboard = () => {
     
     fetchProperties();
     fetchFavorites();
-  }, [user]);
+  }, [user, userPreferences?.favorites]);
   
   if (isLoading) {
     return (
@@ -147,7 +147,11 @@ const Dashboard = () => {
                 </TabsContent>
                 
                 <TabsContent value="settings">
-                  <SettingsTab user={user} onLogout={logout} />
+                  <SettingsTab 
+                    user={user} 
+                    userPreferences={userPreferences}
+                    onLogout={logout} 
+                  />
                 </TabsContent>
               </DashboardTabs>
             </div>

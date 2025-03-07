@@ -19,6 +19,7 @@ import PropertyDetails from "./pages/PropertyDetails";
 import Subscription from "./pages/Subscription";
 import AIGuardian from "./pages/AIGuardian";
 import EmailPreferences from "./pages/EmailPreferences";
+import ProfileSettings from "./pages/ProfileSettings";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/subscription" element={<Subscription />} />
               <Route path="/ai-guardian" element={<AIGuardian />} />
               <Route path="/email-preferences" element={<EmailPreferences />} />
+              <Route path="/profile-settings" element={<ProfileSettings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
