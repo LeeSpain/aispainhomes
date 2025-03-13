@@ -1,31 +1,32 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import Index from '@/pages';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import About from '@/pages/About';
-import Dashboard from '@/pages/Dashboard';
-import AdminDashboard from '@/pages/AdminDashboard';
-import PreDeployment from '@/pages/PreDeployment';
-import PropertyDetails from '@/pages/PropertyDetails';
-import Questionnaire from '@/pages/Questionnaire';
-import Subscription from '@/pages/Subscription';
-import PasswordRecovery from '@/pages/PasswordRecovery';
-import ProfileSettings from '@/pages/ProfileSettings';
-import TermsAndConditions from '@/pages/TermsAndConditions';
-import PrivacyPolicy from '@/pages/PrivacyPolicy';
-import CookiePolicy from '@/pages/CookiePolicy';
-import EmailPreferences from '@/pages/EmailPreferences';
-import AIGuardian from '@/pages/AIGuardian';
-import NotFound from '@/pages/NotFound';
-import Forbidden from '@/pages/Forbidden';
-import ServerError from '@/pages/ServerError';
-import Navbar from '@/components/common/navbar/Navbar';
-import Footer from '@/components/common/Footer';
-import CookieConsent from '@/components/common/CookieConsent';
-import ScrollToTop from '@/components/common/ScrollToTop';
-import SiteTracking from '@/pages/SiteTracking';
+import Index from './pages/Index';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import About from './pages/About';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import PreDeployment from './pages/PreDeployment';
+import PropertyDetails from './pages/PropertyDetails';
+import Questionnaire from './pages/Questionnaire';
+import Subscription from './pages/Subscription';
+import PasswordRecovery from './pages/PasswordRecovery';
+import ProfileSettings from './pages/ProfileSettings';
+import TermsAndConditions from './pages/TermsAndConditions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiePolicy from './pages/CookiePolicy';
+import EmailPreferences from './pages/EmailPreferences';
+import AIGuardian from './pages/AIGuardian';
+import NotFound from './pages/NotFound';
+import Forbidden from './pages/Forbidden';
+import ServerError from './pages/ServerError';
+import Navbar from './components/common/navbar/Navbar';
+import Footer from './components/common/Footer';
+import CookieConsent from './components/common/CookieConsent';
+import ScrollToTop from './components/common/ScrollToTop';
+import SiteTracking from './pages/SiteTracking';
 
 function App() {
   return (
