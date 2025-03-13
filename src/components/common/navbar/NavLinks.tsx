@@ -18,7 +18,7 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
     { label: t('nav.about'), href: "/about" },
     { label: t('nav.search'), href: "/search" },
     { 
-      label: t('subscription.guardian'), 
+      label: "AI Guardian", 
       href: "/ai-guardian",
       icon: <ShieldCheck className="h-4 w-4" />
     },

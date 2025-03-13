@@ -40,7 +40,7 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           }`}
         >
           <ShieldCheck className="h-4 w-4" />
-          {t('subscription.guardian')}
+          AI Guardian
         </Link>
         {user && (
           <Link 
