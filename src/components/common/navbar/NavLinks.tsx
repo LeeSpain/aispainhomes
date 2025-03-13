@@ -1,40 +1,39 @@
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface NavLinksProps {
-  user: { name: string } | null;
   className?: string;
+  onLinkClick?: () => void;
 }
 
-const NavLinks = ({ user, className = "" }: NavLinksProps) => {
-  const location = useLocation();
-  
+const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
+  const links = [
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Site Tracking", href: "/site-tracking" },
+    { label: "Questionnaire", href: "/questionnaire" },
+  ];
+
+  const handleClick = () => {
+    if (onLinkClick) {
+      onLinkClick();
+    }
+  };
+
   return (
-    <nav className={`hidden md:flex items-center space-x-8 ${className}`}>
-      <Link 
-        to="/" 
-        className={`transition-colors hover:text-primary ${
-          location.pathname === '/' ? 'text-primary font-medium' : ''
-        }`}
-      >
-        Home
-      </Link>
-      <Link 
-        to="/questionnaire" 
-        className={`transition-colors hover:text-primary ${
-          location.pathname === '/questionnaire' ? 'text-primary font-medium' : ''
-        }`}
-      >
-        Find Property
-      </Link>
-      <Link 
-        to="/about" 
-        className={`transition-colors hover:text-primary ${
-          location.pathname === '/about' ? 'text-primary font-medium' : ''
-        }`}
-      >
-        About
-      </Link>
+    <nav className={cn("flex gap-1", className)}>
+      {links.map((link) => (
+        <Button
+          key={link.href}
+          variant="ghost"
+          asChild
+          onClick={handleClick}
+        >
+          <Link to={link.href}>{link.label}</Link>
+        </Button>
+      ))}
     </nav>
   );
 };

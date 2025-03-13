@@ -1,99 +1,69 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import Index from '@/pages';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import About from '@/pages/About';
+import Dashboard from '@/pages/Dashboard';
+import AdminDashboard from '@/pages/AdminDashboard';
+import PreDeployment from '@/pages/PreDeployment';
+import PropertyDetails from '@/pages/PropertyDetails';
+import Questionnaire from '@/pages/Questionnaire';
+import Subscription from '@/pages/Subscription';
+import PasswordRecovery from '@/pages/PasswordRecovery';
+import ProfileSettings from '@/pages/ProfileSettings';
+import TermsAndConditions from '@/pages/TermsAndConditions';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import CookiePolicy from '@/pages/CookiePolicy';
+import EmailPreferences from '@/pages/EmailPreferences';
+import AIGuardian from '@/pages/AIGuardian';
+import NotFound from '@/pages/NotFound';
+import Forbidden from '@/pages/Forbidden';
+import ServerError from '@/pages/ServerError';
+import Navbar from '@/components/common/navbar/Navbar';
+import Footer from '@/components/common/Footer';
+import CookieConsent from '@/components/common/CookieConsent';
+import ScrollToTop from '@/components/common/ScrollToTop';
+import SiteTracking from '@/pages/SiteTracking';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Helmet } from "react-helmet";
-import { AuthProvider } from "./contexts/AuthContext";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import ScrollToTop from "./components/common/ScrollToTop";
-import GlobalLoading from "./components/common/GlobalLoading";
-import OfflineNotice from "./components/common/OfflineNotice";
-import BrowserCompatibilityNotice from "./components/common/BrowserCompatibilityNotice";
-import CookieConsent from "./components/common/CookieConsent";
-import PrintStyles from "./components/common/PrintStyles";
-import Index from "./pages/Index";
-import Questionnaire from "./pages/Questionnaire";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import PasswordRecovery from "./pages/PasswordRecovery";
-import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import PreDeployment from "./pages/PreDeployment";
-import NotFound from "./pages/NotFound";
-import ServerError from "./pages/ServerError";
-import Forbidden from "./pages/Forbidden";
-import About from "./pages/About";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import PropertyDetails from "./pages/PropertyDetails";
-import Subscription from "./pages/Subscription";
-import AIGuardian from "./pages/AIGuardian";
-import EmailPreferences from "./pages/EmailPreferences";
-import ProfileSettings from "./pages/ProfileSettings";
-import { useState, useEffect } from "react";
-
-const queryClient = new QueryClient();
-
-const App = () => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate initial app loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return <GlobalLoading />;
-  }
-
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LanguageProvider>
-          <Helmet>
-            <title>AI Spain Homes | Find Your Dream Property in Spain</title>
-            <meta name="description" content="AI-powered property search and relocation assistance for Spain" />
-          </Helmet>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              <OfflineNotice />
-              <BrowserCompatibilityNotice />
-              <CookieConsent />
-              <PrintStyles />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/questionnaire" element={<Questionnaire />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/password-recovery" element={<PasswordRecovery />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/pre-deployment" element={<PreDeployment />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/terms" element={<TermsAndConditions />} />
-                <Route path="/property/:id" element={<PropertyDetails />} />
-                <Route path="/subscription" element={<Subscription />} />
-                <Route path="/ai-guardian" element={<AIGuardian />} />
-                <Route path="/email-preferences" element={<EmailPreferences />} />
-                <Route path="/profile-settings" element={<ProfileSettings />} />
-                <Route path="/server-error" element={<ServerError />} />
-                <Route path="/forbidden" element={<Forbidden />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </LanguageProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <Router>
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/pre-deployment" element={<PreDeployment />} />
+            <Route path="/site-tracking" element={<SiteTracking />} />
+            <Route path="/property/:id" element={<PropertyDetails />} />
+            <Route path="/questionnaire" element={<Questionnaire />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/password-recovery" element={<PasswordRecovery />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/email-preferences" element={<EmailPreferences />} />
+            <Route path="/ai-guardian" element={<AIGuardian />} />
+            <Route path="/forbidden" element={<Forbidden />} />
+            <Route path="/server-error" element={<ServerError />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <Footer />
+        <Toaster />
+        <CookieConsent />
+        <ScrollToTop />
+      </div>
+    </Router>
   );
-};
+}
 
 export default App;
