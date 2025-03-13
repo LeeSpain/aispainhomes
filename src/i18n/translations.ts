@@ -1,5 +1,5 @@
 
-import { SupportedLanguage, Translations } from './types';
+import { Translations } from './types';
 import { commonTranslations } from './categories/common';
 import { navigationTranslations } from './categories/navigation';
 import { propertyTranslations } from './categories/property';
@@ -17,13 +17,14 @@ export const translations: Translations = {
   ...subscriptionTranslations,
 };
 
-export { SupportedLanguage };
+// The fix: Use 'export type' instead of 'export' for type re-exports
+export type { SupportedLanguage } from './types';
 
-export const getTranslation = (key: string, language: SupportedLanguage = 'en'): string => {
+export const getTranslation = (key: string, language: string = 'en'): string => {
   if (!translations[key]) {
     console.warn(`Translation key not found: ${key}`);
     return key;
   }
   
-  return translations[key][language] || translations[key]['en'];
+  return translations[key][language as keyof typeof translations[typeof key]] || translations[key]['en'] || key;
 };
