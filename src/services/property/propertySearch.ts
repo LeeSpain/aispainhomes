@@ -77,6 +77,34 @@ export const propertySearch = {
   },
   
   /**
+   * Get filtered properties with simplified parameters
+   * Added to support components that need a simpler filtering interface
+   */
+  getFilteredProperties: async (params: Partial<SearchParams>): Promise<Property[]> => {
+    // This is a wrapper around searchProperties for backward compatibility
+    return propertySearch.searchProperties(params);
+  },
+  
+  /**
+   * Get similar properties based on the current property
+   */
+  getSimilarProperties: async (property: Property): Promise<Property[]> => {
+    // In a real app, this would use more sophisticated matching
+    // For now, return properties with the same type or in the same location
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    return sampleProperties.filter(p => 
+      p.id !== property.id && (
+        p.type === property.type || 
+        p.location.includes(property.location.split(',')[0]) ||
+        Math.abs(p.price - property.price) < property.price * 0.2
+      )
+    );
+  },
+  
+  /**
    * Get property recommendations based on user preferences
    */
   getRecommendedProperties: async (preferences: any): Promise<Property[]> => {
