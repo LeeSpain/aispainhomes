@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PreDeployment from './pages/PreDeployment';
 import PropertyDetails from './pages/PropertyDetails';
+import PropertySearch from './pages/PropertySearch';
 import Questionnaire from './pages/Questionnaire';
 import Subscription from './pages/Subscription';
 import PasswordRecovery from './pages/PasswordRecovery';
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/pre-deployment" element={<PreDeployment />} />
                 <Route path="/site-tracking" element={<SiteTracking />} />
+                <Route path="/search" element={<PropertySearch />} />
                 <Route path="/property/:id" element={<PropertyDetails />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
                 <Route path="/subscription" element={<Subscription />} />

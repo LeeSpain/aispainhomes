@@ -1,65 +1,117 @@
 
-import { Property } from '@/components/properties/PropertyCard';
-import { sampleProperties } from '@/data/sampleProperties';
+import { sampleProperties } from '../../data/sampleProperties';
+import type { Property } from '@/components/properties/PropertyCard';
 
-// Search and filter related property services
+interface SearchParams {
+  query?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  propertyType?: string;
+  location?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  minArea?: number;
+}
+
 export const propertySearch = {
-  // Get properties with filters
-  getFilteredProperties: async (filters: {
-    location?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    bedrooms?: number;
-    propertyType?: string;
-    isForRent?: boolean;
-  }): Promise<Property[]> => {
+  /**
+   * Search properties based on various criteria
+   */
+  searchProperties: async (params: SearchParams): Promise<Property[]> => {
+    // This would be an API call in a real application
+    // For now, we'll filter the sample data
+    const {
+      query = '',
+      minPrice = 0,
+      maxPrice = Number.MAX_SAFE_INTEGER,
+      propertyType = '',
+      location = '',
+      bedrooms = 0,
+      bathrooms = 0,
+      minArea = 0
+    } = params;
+
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 700));
-    
-    let filtered = [...sampleProperties];
-    
-    if (filters.location) {
-      filtered = filtered.filter(p => 
-        p.location.toLowerCase().includes(filters.location!.toLowerCase())
-      );
-    }
-    
-    if (filters.minPrice !== undefined) {
-      filtered = filtered.filter(p => p.price >= filters.minPrice!);
-    }
-    
-    if (filters.maxPrice !== undefined) {
-      filtered = filtered.filter(p => p.price <= filters.maxPrice!);
-    }
-    
-    if (filters.bedrooms !== undefined) {
-      filtered = filtered.filter(p => p.bedrooms >= filters.bedrooms!);
-    }
-    
-    if (filters.propertyType) {
-      filtered = filtered.filter(p => 
-        p.type.toLowerCase() === filters.propertyType!.toLowerCase()
-      );
-    }
-    
-    if (filters.isForRent !== undefined) {
-      filtered = filtered.filter(p => p.isForRent === filters.isForRent);
-    }
-    
-    return filtered;
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    return sampleProperties.filter(property => {
+      // Filter by search query
+      if (query && !property.title.toLowerCase().includes(query.toLowerCase()) &&
+          !property.description.toLowerCase().includes(query.toLowerCase()) &&
+          !property.location.toLowerCase().includes(query.toLowerCase())) {
+        return false;
+      }
+      
+      // Filter by price range
+      if (property.price < minPrice || property.price > maxPrice) {
+        return false;
+      }
+      
+      // Filter by property type
+      if (propertyType && property.type.toLowerCase() !== propertyType.toLowerCase()) {
+        return false;
+      }
+      
+      // Filter by location
+      if (location && !property.location.toLowerCase().includes(location.toLowerCase())) {
+        return false;
+      }
+      
+      // Filter by bedrooms
+      if (bedrooms > 0 && property.bedrooms < bedrooms) {
+        return false;
+      }
+      
+      // Filter by bathrooms
+      if (bathrooms > 0 && property.bathrooms < bathrooms) {
+        return false;
+      }
+      
+      // Filter by area
+      if (minArea > 0 && property.area < minArea) {
+        return false;
+      }
+      
+      return true;
+    });
   },
   
-  // Get similar properties
-  getSimilarProperties: async (property: Property): Promise<Property[]> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 400));
+  /**
+   * Get property recommendations based on user preferences
+   */
+  getRecommendedProperties: async (preferences: any): Promise<Property[]> => {
+    // This would use AI matching in a real application
+    // For now, we'll just return some filtered properties
     
-    // Find properties of the same type or in the same location
-    return sampleProperties.filter(p => 
-      p.id !== property.id && (
-        p.type === property.type || 
-        p.location.includes(property.location.split(',')[0])
-      )
-    ).slice(0, 3);
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return sampleProperties
+      .filter(property => {
+        // Basic filtering based on preferences
+        if (preferences.priceRange && 
+            (property.price < preferences.priceRange[0] || 
+             property.price > preferences.priceRange[1])) {
+          return false;
+        }
+        
+        if (preferences.propertyTypes && 
+            preferences.propertyTypes.length > 0 && 
+            !preferences.propertyTypes.includes(property.type.toLowerCase())) {
+          return false;
+        }
+        
+        if (preferences.location && 
+            !property.location.toLowerCase().includes(preferences.location.toLowerCase())) {
+          return false;
+        }
+        
+        if (preferences.bedrooms && property.bedrooms < preferences.bedrooms) {
+          return false;
+        }
+        
+        return true;
+      })
+      .slice(0, 6); // Return top 6 recommendations
   }
 };
