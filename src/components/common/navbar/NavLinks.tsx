@@ -16,7 +16,7 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
   const links = [
     { label: t('nav.home'), href: "/" },
     { label: t('nav.about'), href: "/about" },
-    { label: t('nav.search'), href: "/search" },
+    { label: t('nav.search'), href: "/property-search" },
     { 
       label: "AI Guardian", 
       href: "/ai-guardian",

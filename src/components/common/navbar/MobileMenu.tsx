@@ -26,9 +26,9 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           {t('nav.home')}
         </Link>
         <Link 
-          to="/search" 
+          to="/property-search" 
           className={`py-2 transition-colors hover:text-primary ${
-            location.pathname === '/search' ? 'text-primary font-medium' : ''
+            location.pathname === '/property-search' ? 'text-primary font-medium' : ''
           }`}
         >
           {t('nav.search')}

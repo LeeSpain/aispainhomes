@@ -23,7 +23,7 @@ import AIGuardian from './pages/AIGuardian';
 import NotFound from './pages/NotFound';
 import Forbidden from './pages/Forbidden';
 import ServerError from './pages/ServerError';
-import Navbar from './components/common/navbar/Navbar';
+import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import CookieConsent from './components/common/CookieConsent';
 import ScrollToTop from './components/common/ScrollToTop';
@@ -48,6 +48,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/pre-deployment" element={<PreDeployment />} />
                 <Route path="/site-tracking" element={<SiteTracking />} />
+                <Route path="/property-search" element={<PropertySearch />} />
                 <Route path="/search" element={<PropertySearch />} />
                 <Route path="/property/:id" element={<PropertyDetails />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
