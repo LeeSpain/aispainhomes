@@ -23,7 +23,7 @@ import AIGuardian from './pages/AIGuardian';
 import NotFound from './pages/NotFound';
 import Forbidden from './pages/Forbidden';
 import ServerError from './pages/ServerError';
-import Navbar from './components/common/Navbar';
+import Navbar from './components/common/navbar/Navbar';
 import Footer from './components/common/Footer';
 import CookieConsent from './components/common/CookieConsent';
 import ScrollToTop from './components/common/ScrollToTop';
