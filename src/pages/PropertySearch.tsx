@@ -114,7 +114,7 @@ const PropertySearch = () => {
           
           <PropertyGrid properties={properties} isLoading={isLoading} />
           
-          {!isLoading && properties.length > 0 && <SearchEmptyState />}
+          {!isLoading && properties.length === 0 && <SearchEmptyState />}
         </TabsContent>
         
         <TabsContent value="track">
