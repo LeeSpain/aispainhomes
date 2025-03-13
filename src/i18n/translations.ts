@@ -1,3 +1,4 @@
+
 export type SupportedLanguage = 'en' | 'es' | 'de' | 'fr' | 'it';
 
 interface Translations {
@@ -244,10 +245,10 @@ export const translations: Translations = {
   },
   "subscription.guardian": {
     en: "AI Guardian",
-    es: "Guardián IA",
-    de: "KI-Wächter",
-    fr: "Gardien IA",
-    it: "Guardiano IA"
+    es: "AI Guardian",
+    de: "AI Guardian",
+    fr: "AI Guardian",
+    it: "AI Guardian"
   }
 };
 
