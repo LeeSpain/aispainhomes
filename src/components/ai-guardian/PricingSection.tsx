@@ -1,0 +1,85 @@
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ShieldCheck, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+
+const PricingSection = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (!user) {
+      navigate('/login?redirect=ai-guardian');
+    } else {
+      navigate('/subscription');
+    }
+  };
+
+  return (
+    <div className="max-w-xl mx-auto">
+      <Card className="border-primary">
+        <CardHeader className="bg-primary/5 border-b">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-2xl">AI Guardian Premium</CardTitle>
+              <CardDescription className="text-lg">Full relocation support package</CardDescription>
+            </div>
+            <ShieldCheck className="h-10 w-10 text-primary" />
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="mb-6 text-center">
+            <span className="text-5xl font-bold">€19.99</span>
+            <span className="text-muted-foreground text-lg"> / month</span>
+            <p className="text-sm text-muted-foreground mt-2">No long-term contract. Cancel anytime.</p>
+          </div>
+          
+          <Separator className="my-6" />
+          
+          <div className="space-y-4 mb-8">
+            <h3 className="font-semibold text-lg">All-inclusive package includes:</h3>
+            <ul className="space-y-3">
+              {[
+                'AI Guardian for full relocation support',
+                'Personalized relocation timeline',
+                'Document checklist and reminders',
+                'Visa and residency guidance',
+                'Tax planning assistance',
+                'Banking setup support',
+                'Cultural integration resources',
+                'Priority customer support',
+                '24/7 AI assistance in 5 languages'
+              ].map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <Check className="h-5 w-5 text-primary mr-3 mt-0.5" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="bg-primary/5 p-4 rounded-lg border mb-8">
+            <p className="text-sm">
+              <strong>Special Offer:</strong> Sign up now and get your first month at 50% off. Use code <span className="font-mono bg-primary/10 px-2 py-0.5 rounded">WELCOME50</span> at checkout.
+            </p>
+          </div>
+          
+          <Button size="lg" className="w-full py-6 text-lg" onClick={handleGetStarted}>
+            Get Started Now
+          </Button>
+        </CardContent>
+      </Card>
+      
+      <div className="mt-8 text-center">
+        <p className="text-muted-foreground">
+          Questions about AI Guardian? <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/contact')}>Contact our team</Button>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default PricingSection;
