@@ -11,6 +11,7 @@ interface SearchParams {
   bedrooms?: number;
   bathrooms?: number;
   minArea?: number;
+  amenities?: string[];
 }
 
 export const propertySearch = {
@@ -28,7 +29,8 @@ export const propertySearch = {
       location = '',
       bedrooms = 0,
       bathrooms = 0,
-      minArea = 0
+      minArea = 0,
+      amenities = []
     } = params;
 
     // Simulate API delay
@@ -70,6 +72,20 @@ export const propertySearch = {
       // Filter by area
       if (minArea > 0 && property.area < minArea) {
         return false;
+      }
+      
+      // Filter by amenities
+      if (amenities.length > 0) {
+        if (!property.features) return false;
+        
+        // Check if property has all required amenities
+        for (const amenity of amenities) {
+          if (!property.features.some(feature => 
+            feature.toLowerCase().includes(amenity.toLowerCase())
+          )) {
+            return false;
+          }
+        }
       }
       
       return true;
@@ -138,8 +154,139 @@ export const propertySearch = {
           return false;
         }
         
+        // Advanced filtering with amenities preferences
+        if (preferences.selectedAmenities && 
+            preferences.selectedAmenities.length > 0 && 
+            property.features) {
+          let amenityMatchScore = 0;
+          
+          // Calculate how many of the preferred amenities match
+          for (const amenity of preferences.selectedAmenities) {
+            if (property.features.some(feature => 
+              feature.toLowerCase().includes(amenity.toLowerCase())
+            )) {
+              amenityMatchScore++;
+            }
+          }
+          
+          // If less than half of desired amenities match, lower ranking
+          if (amenityMatchScore < preferences.selectedAmenities.length / 2) {
+            return Math.random() > 0.7; // Only keep 30% of properties with few amenity matches
+          }
+        }
+        
         return true;
       })
+      .sort((a, b) => {
+        // Sort by match quality (can be expanded with more sophisticated logic)
+        let scoreA = 0;
+        let scoreB = 0;
+        
+        // Exact location match is highest priority
+        if (preferences.location) {
+          if (a.location.toLowerCase().includes(preferences.location.toLowerCase())) scoreA += 10;
+          if (b.location.toLowerCase().includes(preferences.location.toLowerCase())) scoreB += 10;
+        }
+        
+        // Price in the middle of the range is better than at the edges
+        if (preferences.priceRange) {
+          const idealPrice = (preferences.priceRange[0] + preferences.priceRange[1]) / 2;
+          const distanceA = Math.abs(a.price - idealPrice);
+          const distanceB = Math.abs(b.price - idealPrice);
+          
+          scoreA += (1 - distanceA / idealPrice) * 5;
+          scoreB += (1 - distanceB / idealPrice) * 5;
+        }
+        
+        return scoreB - scoreA;
+      })
       .slice(0, 6); // Return top 6 recommendations
+  },
+  
+  /**
+   * Get properties that match the user's questionnaire results
+   * This provides an AI-like matching algorithm based on weighted preferences
+   */
+  getMatchingProperties: async (formData: any): Promise<Property[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Calculate match scores for each property
+    const propertiesWithScores = sampleProperties.map(property => {
+      let score = 0;
+      const maxScore = 100;
+      
+      // Location match (highest weight - 30 points)
+      if (formData.location && 
+          property.location.toLowerCase().includes(formData.location.toLowerCase())) {
+        score += 30;
+      }
+      
+      // Property type match (25 points)
+      if (formData.propertyTypes && 
+          formData.propertyTypes.includes(property.type.toLowerCase())) {
+        score += 25;
+      }
+      
+      // Price match (20 points) - closer to ideal price gets more points
+      if (formData.priceRange) {
+        const [min, max] = formData.priceRange;
+        if (property.price >= min && property.price <= max) {
+          // Full points if in range
+          const idealPrice = (min + max) / 2;
+          const distanceFromIdeal = Math.abs(property.price - idealPrice) / idealPrice;
+          score += 20 * (1 - distanceFromIdeal);
+        }
+      }
+      
+      // Bedrooms match (10 points)
+      if (formData.bedrooms && property.bedrooms >= formData.bedrooms) {
+        score += 10;
+      }
+      
+      // Bathrooms match (5 points)
+      if (formData.bathrooms && property.bathrooms >= formData.bathrooms) {
+        score += 5;
+      }
+      
+      // Area match (5 points)
+      if (formData.minArea && property.area >= formData.minArea) {
+        score += 5;
+      }
+      
+      // Amenities match (5 points) - partial matching allowed
+      if (formData.selectedAmenities && 
+          formData.selectedAmenities.length > 0 && 
+          property.features) {
+        const matchCount = formData.selectedAmenities.filter(amenity => 
+          property.features.some(feature => 
+            feature.toLowerCase().includes(amenity.toLowerCase())
+          )
+        ).length;
+        
+        const matchPercentage = matchCount / formData.selectedAmenities.length;
+        score += 5 * matchPercentage;
+      }
+      
+      // Buy/Rent preference match
+      if ((formData.purpose === 'buy' && !property.isForRent) || 
+          (formData.purpose === 'rent' && property.isForRent)) {
+        score += 5;
+      }
+      
+      return {
+        property,
+        score: (score / maxScore) * 100 // Convert to percentage
+      };
+    });
+    
+    // Sort by match score and return top results
+    return propertiesWithScores
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8)
+      .map(item => ({
+        ...item.property,
+        matchScore: Math.round(item.score) // Add match score to property object
+      }));
   }
 };
