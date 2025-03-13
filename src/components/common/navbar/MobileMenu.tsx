@@ -1,5 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   if (!isOpen) return null;
   
@@ -20,7 +22,7 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             location.pathname === '/' ? 'text-primary font-medium' : ''
           }`}
         >
-          Home
+          {t('nav.home')}
         </Link>
         <Link 
           to="/questionnaire" 
@@ -28,7 +30,7 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             location.pathname === '/questionnaire' ? 'text-primary font-medium' : ''
           }`}
         >
-          Find Property
+          {t('property.viewDetails')}
         </Link>
         {user && (
           <Link 
@@ -37,7 +39,7 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
               location.pathname === '/dashboard' ? 'text-primary font-medium' : ''
             }`}
           >
-            Dashboard
+            {t('nav.dashboard')}
           </Link>
         )}
         <Link 
@@ -46,7 +48,7 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             location.pathname === '/about' ? 'text-primary font-medium' : ''
           }`}
         >
-          About
+          {t('nav.about')}
         </Link>
         
         {!user && (
@@ -55,13 +57,13 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
               to="/login" 
               className="py-2 transition-colors hover:text-primary"
             >
-              Login
+              {t('nav.login')}
             </Link>
             <Link 
               to="/register" 
               className="py-2 transition-colors hover:text-primary"
             >
-              Sign Up
+              {t('nav.register')}
             </Link>
           </div>
         )}

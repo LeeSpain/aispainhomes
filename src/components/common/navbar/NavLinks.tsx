@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NavLinksProps {
   className?: string;
@@ -9,11 +10,13 @@ interface NavLinksProps {
 }
 
 const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
+  const { t } = useTranslation();
+  
   const links = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Site Tracking", href: "/site-tracking" },
-    { label: "Questionnaire", href: "/questionnaire" },
+    { label: t('nav.home'), href: "/" },
+    { label: t('nav.about'), href: "/about" },
+    { label: t('nav.search'), href: "/site-tracking" },
+    { label: t('property.viewDetails'), href: "/questionnaire" },
   ];
 
   const handleClick = () => {
@@ -23,7 +26,7 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
   };
 
   return (
-    <nav className={cn("flex gap-1", className)}>
+    <nav className={cn("hidden md:flex gap-1", className)}>
       {links.map((link) => (
         <Button
           key={link.href}
