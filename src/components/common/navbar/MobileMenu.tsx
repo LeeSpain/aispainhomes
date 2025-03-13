@@ -1,6 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
+import { ShieldCheck } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -31,6 +32,15 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           }`}
         >
           {t('nav.search')}
+        </Link>
+        <Link 
+          to="/ai-guardian" 
+          className={`py-2 transition-colors hover:text-primary flex items-center gap-2 ${
+            location.pathname === '/ai-guardian' ? 'text-primary font-medium' : ''
+          }`}
+        >
+          <ShieldCheck className="h-4 w-4" />
+          {t('subscription.guardian')}
         </Link>
         {user && (
           <Link 

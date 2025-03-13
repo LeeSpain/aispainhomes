@@ -1,4 +1,3 @@
-
 export type SupportedLanguage = 'en' | 'es' | 'de' | 'fr' | 'it';
 
 interface Translations {
@@ -80,6 +79,13 @@ export const translations: Translations = {
     de: "Abmelden",
     fr: "Déconnexion",
     it: "Disconnetti"
+  },
+  "nav.search": {
+    en: "Search",
+    es: "Búsqueda",
+    de: "Suche",
+    fr: "Recherche",
+    it: "Ricerca"
   },
   
   // Property related

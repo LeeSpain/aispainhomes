@@ -32,6 +32,7 @@ const PropertyFilters = ({
             <SelectValue placeholder="Property Type" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="">Any Type</SelectItem>
             <SelectItem value="apartment">Apartment</SelectItem>
             <SelectItem value="villa">Villa</SelectItem>
             <SelectItem value="house">House</SelectItem>
@@ -49,6 +50,7 @@ const PropertyFilters = ({
             <SelectValue placeholder="Location" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="">Any Location</SelectItem>
             <SelectItem value="costa-del-sol">Costa del Sol</SelectItem>
             <SelectItem value="costa-blanca">Costa Blanca</SelectItem>
             <SelectItem value="barcelona">Barcelona</SelectItem>
@@ -67,6 +69,7 @@ const PropertyFilters = ({
             <SelectValue placeholder="Bedrooms" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="">Any Bedrooms</SelectItem>
             <SelectItem value="1">1+ Bedroom</SelectItem>
             <SelectItem value="2">2+ Bedrooms</SelectItem>
             <SelectItem value="3">3+ Bedrooms</SelectItem>

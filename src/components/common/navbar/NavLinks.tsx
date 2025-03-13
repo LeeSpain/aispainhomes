@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { ShieldCheck } from "lucide-react";
 
 interface NavLinksProps {
   className?: string;
@@ -16,6 +17,11 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
     { label: t('nav.home'), href: "/" },
     { label: t('nav.about'), href: "/about" },
     { label: t('nav.search'), href: "/search" },
+    { 
+      label: t('subscription.guardian'), 
+      href: "/ai-guardian",
+      icon: <ShieldCheck className="h-4 w-4" />
+    },
   ];
 
   const handleClick = () => {
@@ -33,7 +39,10 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
           asChild
           onClick={handleClick}
         >
-          <Link to={link.href}>{link.label}</Link>
+          <Link to={link.href} className="flex items-center gap-1">
+            {link.icon}
+            {link.label}
+          </Link>
         </Button>
       ))}
     </nav>
