@@ -41,7 +41,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <BrandLogo />
         
-        <NavLinks user={user} />
+        <NavLinks onLinkClick={() => setIsMobileMenuOpen(false)} />
         
         <div className="hidden md:flex items-center space-x-4">
           <GlobalSearch />

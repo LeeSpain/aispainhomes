@@ -1,11 +1,10 @@
+
 import { Helmet } from 'react-helmet';
-import Navbar from '@/components/common/Navbar';
-import Footer from '@/components/common/Footer';
 import Hero from '@/components/home/Hero';
 import Features from '@/components/home/Features';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import PropertyCard, { Property } from '@/components/properties/PropertyCard';
+import PropertyCard from '@/components/properties/PropertyCard';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
 import { Sun, Palmtree } from 'lucide-react';
 import { sampleProperties } from '@/data/sampleProperties';
@@ -42,8 +41,6 @@ const Index = () => {
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
-        <Navbar />
-        
         <main className="flex-1">
           <Hero />
           
@@ -136,8 +133,6 @@ const Index = () => {
             </div>
           </section>
         </main>
-        
-        <Footer />
       </div>
     </>
   );
