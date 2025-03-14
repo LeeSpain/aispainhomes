@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { Helmet } from 'react-helmet';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
@@ -27,7 +26,8 @@ const QuestionnaireContainer = () => {
   };
   
   const handleAuthSuccess = () => {
-    navigate('/dashboard');
+    // After auth success, go straight to subscription page instead of dashboard
+    navigate('/subscription?plan=guardian');
   };
   
   if (showResults) {

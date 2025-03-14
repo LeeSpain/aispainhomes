@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShieldCheck, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 
 const PricingSection = () => {
   const { user } = useAuth();
@@ -12,9 +12,9 @@ const PricingSection = () => {
 
   const handleGetStarted = () => {
     if (!user) {
-      navigate('/login?redirect=ai-guardian');
+      navigate('/login?redirect=subscription');
     } else {
-      navigate('/subscription');
+      navigate('/subscription?plan=guardian');
     }
   };
 

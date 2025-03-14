@@ -101,7 +101,53 @@ const Index = () => {
               </div>
               
               <div className="max-w-xl mx-auto">
-                <SubscriptionCard tier={subscriptionTier} />
+                <div className="relative glass-panel rounded-xl overflow-hidden p-8 transition-all duration-300 border border-primary/20 shadow-lg">
+                  {subscriptionTier.isPopular && (
+                    <div className="absolute top-0 right-0">
+                      <div className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
+                        Popular Plan
+                      </div>
+                    </div>
+                  )}
+                  
+                  <h3 className="text-2xl font-bold mb-2">{subscriptionTier.title}</h3>
+                  <div className="mb-2">
+                    <span className="text-4xl font-bold">€{subscriptionTier.price}</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  
+                  {subscriptionTier.hasTrial && (
+                    <div className="bg-primary/10 text-accent-foreground font-medium rounded-md py-1 px-2 text-sm mb-3 inline-block">
+                      {subscriptionTier.trialDays}-day free trial
+                    </div>
+                  )}
+                  
+                  <p className="text-muted-foreground mb-6">{subscriptionTier.description}</p>
+                  
+                  <div className="border-t border-border pt-6 mb-6">
+                    <h4 className="font-semibold mb-4">What's included:</h4>
+                    <ul className="space-y-3 mb-8">
+                      {subscriptionTier.features.map((feature, index) => (
+                        <li key={index} className="flex items-start">
+                          <Check className="h-5 w-5 text-primary mr-2 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <Link to="/subscription?plan=guardian">
+                    <Button className="w-full bg-primary">
+                      {subscriptionTier.buttonText}
+                    </Button>
+                  </Link>
+                  
+                  <p className="text-xs text-center text-muted-foreground mt-4">
+                    {subscriptionTier.hasTrial 
+                      ? "Card details required. You won't be charged until after your trial ends."
+                      : "No long-term contract. Cancel anytime."}
+                  </p>
+                </div>
               </div>
               
               <div className="mt-12 text-center max-w-2xl mx-auto">

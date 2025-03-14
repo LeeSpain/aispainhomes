@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { CreditCard, CheckCircle2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
 
 interface PaymentFormProps {
@@ -158,8 +158,8 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
                 <p><strong>Trial Terms:</strong> Your 7-day free trial starts today. Your card will be charged €24.99 after the trial period unless you cancel. Cancel anytime from your dashboard.</p>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button type="button" variant="outline" onClick={onCancel}>
+            <CardFooter className="flex justify-end">
+              <Button type="button" variant="outline" onClick={onCancel} className="mr-2">
                 Cancel
               </Button>
               <Button type="submit" disabled={isProcessing}>
