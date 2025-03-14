@@ -8,6 +8,7 @@ import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useAuth } from '@/contexts/auth/useAuth';
 import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
+import { UserPreferences } from '@/contexts/auth/types';
 
 const Dashboard = () => {
   const { user, userPreferences, logout } = useAuth();
@@ -23,14 +24,21 @@ const Dashboard = () => {
     email: 'demo@example.com'
   };
   
-  const mockPreferences = {
+  // Create mock preferences that match the UserPreferences type
+  const mockPreferences: UserPreferences = {
     favorites: [],
     recentSearches: [],
     subscription: {
       plan: 'basic',
-      status: 'active' as 'active' | 'cancelled' | 'expired' | 'trial' | 'inactive',
+      status: 'active',
       startDate: new Date().toISOString(),
       nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    language: 'en',
+    notificationSettings: {
+      email: true,
+      push: true,
+      sms: false
     }
   };
   

@@ -51,8 +51,12 @@ const About = () => {
                     After navigating bureaucracy, language barriers, and confusing property markets ourselves, we built the service we wish we'd had. Our AI-powered tools combine with our lived experience to guide you through every step of finding your place in the sun.
                   </p>
                 </div>
-                <div className="bg-gradient-to-tr from-primary/5 to-accent/10 rounded-2xl p-6 h-80 flex items-center justify-center">
-                  <Sun className="h-32 w-32 text-primary/20" />
+                <div className="rounded-2xl overflow-hidden shadow-xl">
+                  <img 
+                    src="/lovable-uploads/ba681842-0946-4dc9-9473-7f8b5641d21f.png" 
+                    alt="AI-powered Spain relocation services with expats and experts" 
+                    className="w-full h-auto object-cover"
+                  />
                 </div>
               </div>
             </div>
