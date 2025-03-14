@@ -8,14 +8,24 @@ interface PropertyGridProps {
 }
 
 const PropertyGrid = ({ properties, isLoading = false }: PropertyGridProps) => {
+  // Show skeleton placeholders while loading
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array(3).fill(0).map((_, index) => (
-          <Skeleton 
-            key={index} 
-            className="h-[400px] w-full rounded-lg"
-          />
+          <div key={index} className="h-[400px] overflow-hidden rounded-lg border bg-background shadow-sm">
+            <Skeleton className="h-[200px] w-full" />
+            <div className="p-4">
+              <Skeleton className="h-6 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2 mb-4" />
+              <div className="flex gap-3 mb-4">
+                <Skeleton className="h-4 w-10" />
+                <Skeleton className="h-4 w-10" />
+                <Skeleton className="h-4 w-10" />
+              </div>
+              <Skeleton className="h-6 w-1/3 mt-4" />
+            </div>
+          </div>
         ))}
       </div>
     );
