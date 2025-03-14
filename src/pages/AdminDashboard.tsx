@@ -31,18 +31,17 @@ const AdminDashboard = () => {
   const [trackedSites, setTrackedSites] = useState<TrackedSite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Create a mock admin user for direct access
+  const mockAdminUser = {
+    id: 'admin-demo',
+    name: 'Admin Demo',
+    email: 'admin@example.com' // Use admin email to enable admin features
+  };
+  
+  // Use real user or mock admin
+  const currentUser = user || mockAdminUser;
+  
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    
-    // In a real application, check if user has admin privileges
-    if (user.email !== 'admin@example.com') {
-      navigate('/forbidden');
-      return;
-    }
-    
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -61,9 +60,7 @@ const AdminDashboard = () => {
     };
     
     loadData();
-  }, [user, navigate]);
-  
-  if (!user) return null;
+  }, []);
   
   const stats = [
     { title: 'Total Properties', value: properties.length, icon: Home },

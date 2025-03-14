@@ -39,12 +39,27 @@ const Dashboard = () => {
   const [favoriteProperties, setFavoriteProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
+  // Create a mock user if none exists (for direct access)
+  const mockUser = {
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@example.com'
+  };
+  
+  const mockPreferences = {
+    favorites: [],
+    recentSearches: [],
+    subscription: {
+      plan: 'basic',
+      status: 'active'
     }
-    
+  };
+  
+  // Use the real user or the mock user
+  const currentUser = user || mockUser;
+  const currentPreferences = userPreferences || mockPreferences;
+  
+  useEffect(() => {
     const loadUserData = async () => {
       setIsLoading(true);
       try {
@@ -53,8 +68,8 @@ const Dashboard = () => {
         setProperties(propertiesData.slice(0, 4)); // Show only 4 recommendations
         
         // Load favorite properties
-        if (userPreferences?.favorites && userPreferences.favorites.length > 0) {
-          const promises = userPreferences.favorites.map(id => 
+        if (currentPreferences?.favorites && currentPreferences.favorites.length > 0) {
+          const promises = currentPreferences.favorites.map(id => 
             PropertyService.getPropertyById(id)
           );
           
@@ -73,7 +88,7 @@ const Dashboard = () => {
     };
     
     loadUserData();
-  }, [user, navigate, userPreferences?.favorites]);
+  }, [currentPreferences?.favorites]);
   
   // Handle tab change
   const handleTabChange = (tab: string) => {
@@ -82,11 +97,11 @@ const Dashboard = () => {
   
   // Handle logout
   const handleLogout = () => {
-    logout();
+    if (user) {
+      logout();
+    }
     navigate('/');
   };
-  
-  if (!user) return null;
   
   return (
     <>
@@ -103,9 +118,9 @@ const Dashboard = () => {
               {/* Left side - AIGuardian Chat */}
               <div className="lg:col-span-4 xl:col-span-3 space-y-6">
                 <div className="sticky top-24">
-                  <AIGuardianChat user={user} />
+                  <AIGuardianChat user={currentUser} />
                   <div className="mt-6">
-                    <MembershipOverview subscription={userPreferences?.subscription} />
+                    <MembershipOverview subscription={currentPreferences?.subscription} />
                   </div>
                   <div className="mt-4">
                     <Button 
@@ -122,7 +137,7 @@ const Dashboard = () => {
             
               {/* Right side - Dashboard Content */}
               <div className="lg:col-span-8 xl:col-span-9">
-                <DashboardHeader user={user} variant="simple" />
+                <DashboardHeader user={currentUser} variant="simple" />
               
                 <div className="mt-8">
                   <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>

@@ -32,6 +32,10 @@ import SiteTracking from './pages/SiteTracking';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
+// Create a version of Dashboard that doesn't check for authentication
+const PublicDashboard = () => <Dashboard />;
+const PublicAdminDashboard = () => <AdminDashboard />;
+
 function App() {
   return (
     <AuthProvider>
@@ -45,8 +49,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard" element={<PublicDashboard />} />
+                <Route path="/admin" element={<PublicAdminDashboard />} />
                 <Route path="/pre-deployment" element={<PreDeployment />} />
                 <Route path="/site-tracking" element={<SiteTracking />} />
                 <Route path="/property-search" element={<PropertySearch />} />
