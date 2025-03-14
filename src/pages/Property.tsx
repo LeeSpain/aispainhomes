@@ -33,8 +33,8 @@ const Property = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
             <div>
               <img 
-                src="/lovable-uploads/4d7c55a0-c0b7-4960-a703-74b71a326897.png" 
-                alt="AI property search visualization" 
+                src="/lovable-uploads/8b9ed673-fe42-4f92-b569-6f15b35e35f4.png" 
+                alt="AI property search visualization showing a robot assistant displaying Spanish properties" 
                 className="rounded-xl shadow-xl border border-white/10"
               />
             </div>
