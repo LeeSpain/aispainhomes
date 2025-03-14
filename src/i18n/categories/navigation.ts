@@ -1,3 +1,4 @@
+
 import { TranslationCategory } from '../types';
 
 export const navigationTranslations: TranslationCategory = {
