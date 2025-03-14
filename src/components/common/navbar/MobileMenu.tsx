@@ -85,18 +85,6 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
                     {t('nav.admin_dashboard')}
                   </Link>
                 )}
-                <Link 
-                  to="/login" 
-                  className="py-2 transition-colors hover:text-primary"
-                >
-                  {t('nav.login')}
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="py-2 transition-colors hover:text-primary"
-                >
-                  {t('nav.register')}
-                </Link>
               </div>
             </AccordionContent>
           </AccordionItem>

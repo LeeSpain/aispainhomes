@@ -1,4 +1,3 @@
-
 import { TranslationCategory } from '../types';
 
 export const navigationTranslations: TranslationCategory = {
@@ -80,18 +79,18 @@ export const navigationTranslations: TranslationCategory = {
     it: "Registrati per Cercare"
   },
   "nav.quick_access": {
-    en: "Quick Access",
-    es: "Acceso Rápido",
-    de: "Schnellzugriff",
-    fr: "Accès Rapide",
-    it: "Accesso Rapido"
+    en: "Quick Action",
+    es: "Acción Rápida",
+    de: "Schnellaktion",
+    fr: "Action Rapide",
+    it: "Azione Rapida"
   },
   "nav.user_dashboard": {
-    en: "User Dashboard",
-    es: "Panel de Usuario",
-    de: "Benutzer-Dashboard",
-    fr: "Tableau de Bord Utilisateur",
-    it: "Dashboard Utente"
+    en: "Members Dashboard",
+    es: "Panel de Miembros",
+    de: "Mitglieder-Dashboard",
+    fr: "Tableau de Bord des Membres",
+    it: "Dashboard Membri"
   },
   "nav.admin_dashboard": {
     en: "Admin Dashboard",

@@ -77,12 +77,6 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
               {t('nav.admin_dashboard')}
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => window.location.href = "/login"}>
-            {t('nav.login')}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => window.location.href = "/register"}>
-            {t('nav.register')}
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </nav>
