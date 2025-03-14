@@ -43,7 +43,7 @@ const Subscription = () => {
   return (
     <>
       <Helmet>
-        <title>Subscribe to AI Guardian | SunnyHomeFinder</title>
+        <title>Complete Registration | AISpainHomes</title>
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -52,7 +52,7 @@ const Subscription = () => {
         <main className="flex-1 pt-28 pb-16">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <h1 className="text-3xl font-bold text-center mb-2">Complete Your Subscription</h1>
+              <h1 className="text-3xl font-bold text-center mb-2">Complete Your Registration</h1>
               <p className="text-center text-muted-foreground mb-12">
                 Start your 7-day free trial of AI Guardian
               </p>
