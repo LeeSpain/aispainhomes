@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SiteTracker from '@/components/sites/SiteTracker';
 import { PropertyUpdate, siteTrackingService } from '@/services/site/siteTrackingService';
-import { Bot, Trash2 } from 'lucide-react';
+import { Bot, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const SiteTracking = () => {
