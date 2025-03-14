@@ -37,8 +37,10 @@ const Dashboard = () => {
     language: 'en',
     notificationSettings: {
       email: true,
-      push: true,
-      sms: false
+      propertyAlerts: true,
+      weeklyNewsletter: false,
+      marketUpdates: false,
+      promotionalOffers: false
     }
   };
   
