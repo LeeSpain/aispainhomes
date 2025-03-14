@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,35 +11,24 @@ interface PropertyImageGalleryProps {
 
 const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
   
   // If no images are provided, use a placeholder
   const displayImages = images.length > 0 
     ? images 
     : ['/placeholder.svg'];
 
-  useEffect(() => {
-    // Reset loading state when images prop changes
-    setIsLoading(true);
-    
-    // Preload all images before showing any
-    const imagePromises = displayImages.map((src) => {
-      return new Promise<void>((resolve) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve();
-        img.onerror = () => resolve(); // Resolve even on error to continue
-      });
-    });
-    
-    Promise.all(imagePromises)
-      .then(() => {
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false); // Ensure loading state is turned off even if errors occur
-      });
-  }, [displayImages]);
+  const handleImageLoad = (index: number) => {
+    setLoadedImages(prev => ({
+      ...prev,
+      [index]: true
+    }));
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    // Fallback to placeholder on error
+    (e.target as HTMLImageElement).src = '/placeholder.svg';
+  };
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -53,17 +42,15 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
-        <Skeleton className="h-full w-full" />
-      </div>
-    );
-  }
+  const isCurrentImageLoaded = loadedImages[currentImageIndex];
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
+        {!isCurrentImageLoaded && (
+          <Skeleton className="absolute inset-0 h-full w-full" />
+        )}
+        
         {displayImages.map((src, index) => (
           <img
             key={index}
@@ -71,12 +58,10 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
             alt={`${title} - Image ${index + 1}`}
             className={cn(
               "h-full w-full object-cover absolute inset-0 transition-opacity duration-300",
-              currentImageIndex === index ? "opacity-100" : "opacity-0"
+              currentImageIndex === index && isCurrentImageLoaded ? "opacity-100" : "opacity-0"
             )}
-            onError={(e) => {
-              // Fallback to placeholder on error
-              (e.target as HTMLImageElement).src = '/placeholder.svg';
-            }}
+            onLoad={() => handleImageLoad(index)}
+            onError={handleImageError}
           />
         ))}
       </div>

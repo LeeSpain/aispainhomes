@@ -3,7 +3,6 @@ import PropertyCard, { Property } from './PropertyCard';
 
 interface PropertyGridProps {
   properties: Property[];
-  isLoading?: boolean;
 }
 
 const PropertyGrid = ({ properties }: PropertyGridProps) => {
