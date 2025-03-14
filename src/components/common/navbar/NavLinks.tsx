@@ -69,12 +69,12 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => window.location.href = "/dashboard"}>
-            {t('nav.user_dashboard')}
+          <DropdownMenuItem asChild>
+            <Link to="/dashboard">{t('nav.user_dashboard')}</Link>
           </DropdownMenuItem>
           {user?.email === 'admin@example.com' && (
-            <DropdownMenuItem onClick={() => window.location.href = "/admin"}>
-              {t('nav.admin_dashboard')}
+            <DropdownMenuItem asChild>
+              <Link to="/admin">{t('nav.admin_dashboard')}</Link>
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
