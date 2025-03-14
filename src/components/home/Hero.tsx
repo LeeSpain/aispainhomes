@@ -41,18 +41,15 @@ const Hero = () => {
           </div>
           
           <div className="hidden lg:flex justify-end">
-            <div className="relative w-full max-w-lg">
+            <div className="relative w-full max-w-[110%]">
               {/* Image with decorative elements */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl opacity-50 transform rotate-6"></div>
               <img 
                 src="/lovable-uploads/4d7c55a0-c0b7-4960-a703-74b71a326897.png" 
                 alt="AI assistant showing Spanish coastal properties with holographic interface" 
-                className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3] border border-white/10"
+                className="relative rounded-2xl shadow-2xl w-[110%] object-cover aspect-[4/3] border border-white/10"
               />
-              <div className="absolute -bottom-4 -right-4 bg-white dark:bg-black p-3 rounded-lg shadow-lg">
-                <div className="text-xs font-medium text-muted-foreground">Costa del Sol Villa</div>
-                <div className="text-base font-bold">€495,000</div>
-              </div>
+              {/* Removed the price overlay div that was here */}
             </div>
           </div>
         </div>
