@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Info, Home, ShieldCheck, Building2, Lightning } from "lucide-react";
+import { Info, Home, ShieldCheck, Building2, Zap } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import {
   DropdownMenu,
@@ -64,24 +64,24 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
             variant="default"
             className="ml-2 flex items-center gap-1"
           >
-            <Lightning className="h-4 w-4" />
-            Quick Access
+            <Zap className="h-4 w-4" />
+            {t('nav.quick_access')}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => window.location.href = "/dashboard"}>
-            User Dashboard
+            {t('nav.user_dashboard')}
           </DropdownMenuItem>
           {user?.email === 'admin@example.com' && (
             <DropdownMenuItem onClick={() => window.location.href = "/admin"}>
-              Admin Dashboard
+              {t('nav.admin_dashboard')}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onClick={() => window.location.href = "/login"}>
-            Login
+            {t('nav.login')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => window.location.href = "/register"}>
-            Register
+            {t('nav.register')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

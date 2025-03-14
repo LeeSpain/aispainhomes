@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import { ShieldCheck, Info, Home, Lightning, Building2 } from 'lucide-react';
+import { ShieldCheck, Info, Home, Zap, Building2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -66,8 +66,8 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="quick-access" className="border-b-0">
             <AccordionTrigger className="py-2 text-left flex items-center gap-2 hover:text-primary">
-              <Lightning className="h-4 w-4" />
-              <span>Quick Access</span>
+              <Zap className="h-4 w-4" />
+              <span>{t('nav.quick_access')}</span>
             </AccordionTrigger>
             <AccordionContent className="pl-7">
               <div className="flex flex-col space-y-2">
@@ -75,14 +75,14 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
                   to="/dashboard" 
                   className="py-2 transition-colors hover:text-primary"
                 >
-                  User Dashboard
+                  {t('nav.user_dashboard')}
                 </Link>
                 {isAdmin && (
                   <Link 
                     to="/admin" 
                     className="py-2 transition-colors hover:text-primary"
                   >
-                    Admin Dashboard
+                    {t('nav.admin_dashboard')}
                   </Link>
                 )}
                 <Link 
