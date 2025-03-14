@@ -174,8 +174,8 @@ const Property = () => {
                 <div className="relative rounded-xl overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-accent/30 blur-3xl opacity-50 transform -rotate-6"></div>
                   <img 
-                    src="/lovable-uploads/9b33ae67-3ea6-4f31-a6f6-4c35f120950b.png" 
-                    alt="Relocation assistance in Spain" 
+                    src="/lovable-uploads/45a17b57-e992-4ce6-8c46-32718953261a.png" 
+                    alt="AI Guardian helping a family relocate to Spain with holographic interface" 
                     className="relative rounded-xl shadow-xl object-cover aspect-[4/3] border border-white/10"
                   />
                 </div>
