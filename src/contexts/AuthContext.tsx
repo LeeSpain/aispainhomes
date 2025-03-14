@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "sonner";
 
@@ -10,9 +9,10 @@ export interface User {
 
 export interface Subscription {
   plan: string;
-  status: 'active' | 'cancelled' | 'expired';
+  status: 'active' | 'cancelled' | 'expired' | 'trial' | 'inactive';
   startDate: string;
   nextBillingDate: string;
+  trialEndDate?: string;
 }
 
 export interface UserPreferences {
