@@ -2,8 +2,11 @@
 import React from "react";
 import { 
   Building2, Search, Globe, Mail, Scale, Tv, TruckIcon, 
-  GraduationCap, Heart, BellRing, BarChart3, Sun, Palmtree 
+  GraduationCap, Heart, BellRing, BarChart3, Sun, Palmtree,
+  ShieldCheck, Landmark, HeartPulse, Briefcase, Car
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -12,49 +15,59 @@ const features = [
     description: "Our advanced AI analyzes your preferences to find your ideal Spanish property, filtering through thousands of listings to match your exact criteria.",
   },
   {
-    icon: <Mail className="h-12 w-12 text-primary" />,
-    title: "Top 10 Email Updates",
-    description: "Receive curated emails with your top 10 matching properties, delivered to your inbox with photos, descriptions, and direct links.",
-  },
-  {
-    icon: <BellRing className="h-12 w-12 text-primary" />,
-    title: "Continuous Property Monitoring",
-    description: "Our AI continuously scans for new listings matching your criteria, immediately alerting you to fresh opportunities or price changes.",
-  },
-  {
-    icon: <Globe className="h-12 w-12 text-primary" />,
-    title: "Multilingual Support",
-    description: "Use our platform in English, Spanish, French, German, Italian, Dutch and more, with automatic translation of all property details.",
+    icon: <ShieldCheck className="h-12 w-12 text-primary" />,
+    title: "Complete Relocation Guardian",
+    description: "Your AI Guardian provides personalized guidance through every step of your Spanish relocation journey, from property search to settling in.",
   },
   {
     icon: <Scale className="h-12 w-12 text-primary" />,
-    title: "Lawyer Search Service",
-    description: "Find top-rated legal experts in your area who specialize in Spanish property law and speak your language for smooth transactions.",
+    title: "Legal & Documentation Support",
+    description: "Navigate Spanish bureaucracy with ease through our guidance on NIE applications, visa support, document translations, and legal requirements.",
   },
   {
-    icon: <Tv className="h-12 w-12 text-primary" />,
-    title: "TV & Utility Setup",
-    description: "Receive personalized recommendations for TV, internet, and utility providers in your new location, with setup guides in your language.",
+    icon: <Landmark className="h-12 w-12 text-primary" />,
+    title: "Financial Planning Assistance",
+    description: "Get help with Spanish bank accounts, mortgage comparisons, currency exchange monitoring, and understanding tax implications for expats.",
   },
   {
     icon: <TruckIcon className="h-12 w-12 text-primary" />,
-    title: "Moving Assistance",
-    description: "Connect with reliable moving companies that service your route, complete with reviews and pricing information.",
+    title: "Relocation Logistics",
+    description: "Compare moving companies, understand customs regulations, find temporary accommodation, and create a personalized moving timeline and checklist.",
+  },
+  {
+    icon: <Tv className="h-12 w-12 text-primary" />,
+    title: "Utilities & Home Setup",
+    description: "Simplify setting up electricity, water, internet, mobile plans, and home security with provider comparisons and registration assistance.",
+  },
+  {
+    icon: <HeartPulse className="h-12 w-12 text-primary" />,
+    title: "Healthcare Navigation",
+    description: "Access guidance on healthcare registration, insurance options, finding English-speaking medical professionals, and emergency services.",
   },
   {
     icon: <GraduationCap className="h-12 w-12 text-primary" />,
-    title: "School & Healthcare Finder",
-    description: "Discover the best schools and healthcare providers near your new home, with details on languages, specialties, and enrollment processes.",
+    title: "Education Resources",
+    description: "Find schools and universities with our filters for language, curriculum, and fees, plus guidance on enrollment and credential validation.",
   },
   {
-    icon: <BarChart3 className="h-12 w-12 text-primary" />,
-    title: "Market Insights",
-    description: "Access up-to-date market analytics and property valuations to make informed decisions about when and where to buy.",
+    icon: <Globe className="h-12 w-12 text-primary" />,
+    title: "Community Integration",
+    description: "Connect with expat communities, discover local events, find language exchange partners, and access cultural adaptation resources.",
+  },
+  {
+    icon: <Car className="h-12 w-12 text-primary" />,
+    title: "Transportation Guidance",
+    description: "Navigate public transport, understand driver's license requirements, and explore vehicle purchase options and regional travel planning.",
+  },
+  {
+    icon: <Briefcase className="h-12 w-12 text-primary" />,
+    title: "Work & Business Support",
+    description: "Access information on coworking spaces, business formation, digital nomad visas, and professional certification transfers.",
   },
   {
     icon: <Heart className="h-12 w-12 text-primary" />,
-    title: "Comprehensive Relocation Support",
-    description: "From finding properties to settling in, our platform guides you through every step of moving to Spain with personalized recommendations.",
+    title: "Lifestyle Support",
+    description: "Discover shopping resources, restaurant recommendations, childcare services, pet care options, and seasonal events in your new area.",
   },
 ];
 
@@ -64,14 +77,14 @@ const Features = () => {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
-            <Sun className="w-4 h-4 mr-2" />
-            <span className="text-xs font-medium uppercase tracking-wider">Mediterranean Lifestyle</span>
+            <ShieldCheck className="w-4 h-4 mr-2" />
+            <span className="text-xs font-medium uppercase tracking-wider">Complete Relocation Services</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
-            Everything You Need for Your Move to Spain
+            Your Comprehensive Solution for Spanish Relocation
           </h2>
           <p className="mt-4 text-xl text-muted-foreground text-balance">
-            Our AI platform doesn't just find you a property - it provides a complete relocation solution with personalized recommendations.
+            From finding your dream property to settling into your new Spanish lifestyle, our AI platform provides personalized guidance every step of the way.
           </p>
         </div>
 
@@ -88,10 +101,18 @@ const Features = () => {
           ))}
         </div>
 
-        <div className="mt-16 text-center relative">
-          <div className="absolute -top-6 right-4 text-primary/10 transform rotate-12 hidden lg:block">
-            <Palmtree className="h-24 w-24" />
+        <div className="mt-16 text-center">
+          <div className="max-w-3xl mx-auto mb-8">
+            <p className="text-xl text-muted-foreground">
+              All these services are included in one simple subscription for just €9.99/month, providing you with comprehensive support throughout your Spanish property search and relocation journey.
+            </p>
           </div>
+          
+          <Link to="/ai-guardian">
+            <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent">
+              Explore AI Guardian Services
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Shield } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -13,17 +13,23 @@ const Hero = () => {
       <div className="container mx-auto px-4 z-10 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
-              <Search className="w-4 h-4 mr-2" />
-              <span className="text-xs font-medium uppercase tracking-wider">AI-Powered Property Search</span>
+            <div className="flex gap-4 mb-6">
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+                <Search className="w-4 h-4 mr-2" />
+                <span className="text-xs font-medium uppercase tracking-wider">AI-Powered Property Search</span>
+              </div>
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent">
+                <Shield className="w-4 h-4 mr-2" />
+                <span className="text-xs font-medium uppercase tracking-wider">Relocation Guardian</span>
+              </div>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
-              Find Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Perfect Spanish Home</span> with AI
+              Find Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Perfect Spanish Home</span> with Complete Relocation Support
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 text-balance">
-              Our AI matches you with your ideal Spanish property and guides you through every step of relocation with personalized recommendations.
+              Our AI matches you with your ideal Spanish property and guides you through every step of your relocation journey with personalized recommendations and expert assistance.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
@@ -32,9 +38,9 @@ const Hero = () => {
                   Find My Dream Home
                 </Button>
               </Link>
-              <Link to="/about">
+              <Link to="/ai-guardian">
                 <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto">
-                  Learn More
+                  Explore AI Guardian
                 </Button>
               </Link>
             </div>
