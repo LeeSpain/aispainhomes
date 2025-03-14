@@ -51,7 +51,7 @@ const Dashboard = () => {
     recentSearches: [],
     subscription: {
       plan: 'basic',
-      status: 'active',
+      status: 'active' as 'active' | 'cancelled' | 'expired' | 'trial' | 'inactive',
       startDate: new Date().toISOString(),
       nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     }
