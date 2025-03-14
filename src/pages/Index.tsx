@@ -71,7 +71,7 @@ const Index = () => {
               </div>
               
               <div className="text-center">
-                <Link to="/questionnaire">
+                <Link to="/register">
                   <Button size="lg" className="text-lg px-8 bg-gradient-to-r from-primary to-accent">
                     Find Your Perfect Match
                   </Button>
@@ -136,7 +136,7 @@ const Index = () => {
                     </ul>
                   </div>
                   
-                  <Link to="/subscription?plan=guardian">
+                  <Link to="/register">
                     <Button className="w-full bg-primary">
                       {subscriptionTier.buttonText}
                     </Button>
@@ -173,7 +173,7 @@ const Index = () => {
               <p className="text-xl mb-10 max-w-2xl mx-auto text-white/90 text-balance">
                 Start your personalized property search today and receive AI-matched recommendations tailored to your needs.
               </p>
-              <Link to="/questionnaire">
+              <Link to="/register">
                 <Button size="lg" variant="secondary" className="text-lg px-8 bg-white text-primary hover:bg-white/90">
                   Begin Your Spanish Journey
                 </Button>

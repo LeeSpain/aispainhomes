@@ -111,7 +111,7 @@ const Features = () => {
             </p>
           </div>
           
-          <Link to="/ai-guardian">
+          <Link to="/register">
             <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent">
               Try AI Guardian Free for 7 Days
             </Button>

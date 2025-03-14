@@ -36,10 +36,10 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to={user ? "/questionnaire" : "/register"}>
+              <Link to="/register">
                 <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent w-full sm:w-auto flex items-center gap-2">
-                  {!user && <UserPlus className="w-5 h-5" />}
-                  {user ? "Find My Dream Home" : "Register to Begin"}
+                  <UserPlus className="w-5 h-5" />
+                  Join Now
                 </Button>
               </Link>
               <Link to="/ai-guardian">
