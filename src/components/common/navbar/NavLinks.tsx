@@ -78,17 +78,17 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <a href="/dashboard" className="flex items-center gap-2 w-full">
+          <DropdownMenuItem asChild>
+            <Link to="/dashboard" className="flex items-center gap-2 w-full">
               <Users className="h-4 w-4" />
               {t('nav.user_dashboard')}
-            </a>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <a href="/admin" className="flex items-center gap-2 w-full">
+          <DropdownMenuItem asChild>
+            <Link to="/admin" className="flex items-center gap-2 w-full">
               <Zap className="h-4 w-4" />
               {t('nav.admin_dashboard')}
-            </a>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
