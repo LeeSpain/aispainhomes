@@ -2,19 +2,22 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Home } from 'lucide-react';
+import { Search, Home, UserPlus } from 'lucide-react';
 import { PropertyService } from '@/services/PropertyService';
 import PropertyGrid from '@/components/properties/PropertyGrid';
 import { Property } from '@/components/properties/PropertyCard';
 import SiteTracker from '@/components/sites/SiteTracker';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
 import SearchHeader from '@/components/properties/search/SearchHeader';
 import SearchCard from '@/components/properties/search/SearchCard';
 import SearchEmptyState from '@/components/properties/search/SearchEmptyState';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const PropertySearch = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +28,12 @@ const PropertySearch = () => {
   const [activeTab, setActiveTab] = useState('search');
   
   useEffect(() => {
+    // If user is not logged in, don't fetch properties
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    
     const loadProperties = async () => {
       setIsLoading(true);
       try {
@@ -39,9 +48,14 @@ const PropertySearch = () => {
     };
     
     loadProperties();
-  }, []);
+  }, [user]);
   
   const handleSearch = async () => {
+    if (!user) {
+      navigate('/register');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const results = await PropertyService.searchProperties({
@@ -72,11 +86,40 @@ const PropertySearch = () => {
     setLocation('');
     setBedrooms('');
     
-    // Load all properties again
-    PropertyService.getAllProperties().then(data => {
-      setProperties(data);
-    });
+    // Load all properties again if user is logged in
+    if (user) {
+      PropertyService.getAllProperties().then(data => {
+        setProperties(data);
+      });
+    }
   };
+
+  // Show login/register prompt if not logged in
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-8 pt-24">
+        <Helmet>
+          <title>Property Search | Spanish Home Finder</title>
+        </Helmet>
+        
+        <div className="max-w-3xl mx-auto text-center py-16">
+          <h1 className="text-4xl font-bold mb-4">Access Premium Property Search</h1>
+          <p className="text-xl text-muted-foreground mb-8">
+            To search for properties, you need to create an account or login. Our property search tool helps you find your perfect home in Spain.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button onClick={() => navigate('/register')} size="lg" className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              Register Now
+            </Button>
+            <Button onClick={() => navigate('/login')} size="lg" variant="outline">
+              Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 pt-24">

@@ -1,9 +1,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, Shield } from "lucide-react";
+import { Search, Shield, UserPlus } from "lucide-react";
+import { useAuth } from "@/contexts/auth";
 
 const Hero = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/10 overflow-hidden">
       {/* Background pattern */}
@@ -33,9 +36,10 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/questionnaire">
-                <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent w-full sm:w-auto">
-                  Find My Dream Home
+              <Link to={user ? "/questionnaire" : "/register"}>
+                <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent w-full sm:w-auto flex items-center gap-2">
+                  {!user && <UserPlus className="w-5 h-5" />}
+                  {user ? "Find My Dream Home" : "Register to Begin"}
                 </Button>
               </Link>
               <Link to="/ai-guardian">
@@ -55,7 +59,6 @@ const Hero = () => {
                 alt="AI assistant showing Spanish coastal properties with holographic interface" 
                 className="relative rounded-2xl shadow-2xl w-[110%] object-cover aspect-[4/3] border border-white/10"
               />
-              {/* Removed the price overlay div that was here */}
             </div>
           </div>
         </div>

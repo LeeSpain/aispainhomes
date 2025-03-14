@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Info, Home, UserPlus } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -19,19 +19,21 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
       <nav className="container mx-auto px-4 py-6 flex flex-col space-y-4">
         <Link 
           to="/" 
-          className={`py-2 transition-colors hover:text-primary ${
+          className={`py-2 transition-colors hover:text-primary flex items-center gap-2 ${
             location.pathname === '/' ? 'text-primary font-medium' : ''
           }`}
         >
+          <Home className="h-4 w-4" />
           {t('nav.home')}
         </Link>
         <Link 
-          to="/property-search" 
-          className={`py-2 transition-colors hover:text-primary ${
-            location.pathname === '/property-search' ? 'text-primary font-medium' : ''
+          to="/about" 
+          className={`py-2 transition-colors hover:text-primary flex items-center gap-2 ${
+            location.pathname === '/about' ? 'text-primary font-medium' : ''
           }`}
         >
-          {t('nav.search')}
+          <Info className="h-4 w-4" />
+          {t('nav.about')}
         </Link>
         <Link 
           to="/ai-guardian" 
@@ -42,6 +44,7 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           <ShieldCheck className="h-4 w-4" />
           AI Guardian
         </Link>
+        
         {user && (
           <Link 
             to="/dashboard" 
@@ -52,14 +55,6 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             {t('nav.dashboard')}
           </Link>
         )}
-        <Link 
-          to="/about" 
-          className={`py-2 transition-colors hover:text-primary ${
-            location.pathname === '/about' ? 'text-primary font-medium' : ''
-          }`}
-        >
-          {t('nav.about')}
-        </Link>
         
         {!user && (
           <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 dark:border-gray-800">
@@ -71,8 +66,9 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             </Link>
             <Link 
               to="/register" 
-              className="py-2 transition-colors hover:text-primary"
+              className="py-2 font-medium text-primary hover:text-primary/80 flex items-center gap-2"
             >
+              <UserPlus className="h-4 w-4" />
               {t('nav.register')}
             </Link>
           </div>

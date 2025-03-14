@@ -64,5 +64,19 @@ export const navigationTranslations: TranslationCategory = {
     de: "Suche",
     fr: "Recherche",
     it: "Ricerca"
+  },
+  "nav.register_now": {
+    en: "Register Now",
+    es: "Regístrate Ahora",
+    de: "Jetzt Registrieren",
+    fr: "S'inscrire Maintenant",
+    it: "Registrati Ora"
+  },
+  "nav.access_search": {
+    en: "Register to Search",
+    es: "Regístrate para Buscar",
+    de: "Registrieren zum Suchen",
+    fr: "S'inscrire pour Rechercher",
+    it: "Registrati per Cercare"
   }
 };
