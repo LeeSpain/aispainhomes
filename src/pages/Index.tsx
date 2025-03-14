@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import PropertyCard from '@/components/properties/PropertyCard';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
-import { Sun, Palmtree } from 'lucide-react';
+import { Sun, Palmtree, Check } from 'lucide-react';
 import { sampleProperties } from '@/data/sampleProperties';
 
 // Get first 3 properties for featured section
