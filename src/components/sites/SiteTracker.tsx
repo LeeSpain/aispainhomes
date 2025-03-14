@@ -106,19 +106,20 @@ const SiteTracker = () => {
   };
   
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Property Site Tracker</CardTitle>
-        <CardDescription>
+    <Card className="bg-slate-50 border-slate-200 shadow-sm w-full">
+      <CardHeader className="bg-gradient-to-r from-slate-100 to-blue-50 border-b border-slate-200">
+        <CardTitle className="text-slate-800">Property Site Tracker</CardTitle>
+        <CardDescription className="text-slate-600">
           Track Spanish property websites for new listings
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
-        <form onSubmit={handleAddSite} className="mb-6 space-y-4">
+      <CardContent className="pt-6">
+        <form onSubmit={handleAddSite} className="mb-6 p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-medium mb-4 text-slate-800">Add New Website</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="siteUrl" className="text-sm font-medium">Website URL</label>
+              <label htmlFor="siteUrl" className="text-sm font-medium text-slate-700">Website URL</label>
               <Input
                 id="siteUrl"
                 type="url"
@@ -126,10 +127,11 @@ const SiteTracker = () => {
                 value={newSiteUrl}
                 onChange={(e) => setNewSiteUrl(e.target.value)}
                 required
+                className="border-slate-300 focus:border-blue-400"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="siteName" className="text-sm font-medium">Website Name</label>
+              <label htmlFor="siteName" className="text-sm font-medium text-slate-700">Website Name</label>
               <Input
                 id="siteName"
                 type="text"
@@ -137,56 +139,58 @@ const SiteTracker = () => {
                 value={newSiteName}
                 onChange={(e) => setNewSiteName(e.target.value)}
                 required
+                className="border-slate-300 focus:border-blue-400"
               />
             </div>
           </div>
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
             <Plus className="w-4 h-4 mr-2" />
             Add Site to Track
           </Button>
         </form>
         
-        <div className="rounded-md border">
+        <div className="bg-white rounded-md border border-slate-200 shadow-sm">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-slate-100">
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>URL</TableHead>
-                <TableHead>Properties</TableHead>
-                <TableHead>Last Checked</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-slate-700">Name</TableHead>
+                <TableHead className="text-slate-700">URL</TableHead>
+                <TableHead className="text-slate-700">Properties</TableHead>
+                <TableHead className="text-slate-700">Last Checked</TableHead>
+                <TableHead className="text-slate-700 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sites.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-4">
+                  <TableCell colSpan={5} className="text-center py-4 text-slate-600">
                     No sites being tracked. Add a site above to get started.
                   </TableCell>
                 </TableRow>
               ) : (
                 sites.map((site) => (
-                  <TableRow key={site.id}>
-                    <TableCell className="font-medium">{site.name}</TableCell>
+                  <TableRow key={site.id} className="hover:bg-slate-50">
+                    <TableCell className="font-medium text-slate-800">{site.name}</TableCell>
                     <TableCell className="truncate max-w-[200px]">
                       <a 
                         href={site.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-primary hover:underline"
+                        className="text-blue-600 hover:underline"
                       >
                         {site.url}
                       </a>
                     </TableCell>
-                    <TableCell>{site.propertyCount}</TableCell>
-                    <TableCell>{new Date(site.lastChecked).toLocaleString()}</TableCell>
+                    <TableCell className="text-slate-700">{site.propertyCount}</TableCell>
+                    <TableCell className="text-slate-600">{new Date(site.lastChecked).toLocaleString()}</TableCell>
                     <TableCell className="text-right">
                       <Button 
                         variant="ghost" 
                         size="icon"
                         onClick={() => handleRemoveSite(site.id, site.name)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Trash2 className="w-4 h-4 text-destructive" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -197,18 +201,19 @@ const SiteTracker = () => {
         </div>
       </CardContent>
       
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-between pt-6 border-t border-slate-200 bg-slate-50">
         <Button
           variant="outline"
           onClick={handleCheckForNewProperties}
           disabled={isChecking || sites.length === 0}
+          className="border-blue-200 text-blue-700 hover:bg-blue-50"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${isChecking ? 'animate-spin' : ''}`} />
           Check for New Properties
         </Button>
         
         {sites.length > 0 && (
-          <Button variant="secondary">
+          <Button variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200">
             <Bell className="w-4 h-4 mr-2" />
             Configure Notifications
           </Button>
@@ -219,4 +224,3 @@ const SiteTracker = () => {
 };
 
 export default SiteTracker;
-

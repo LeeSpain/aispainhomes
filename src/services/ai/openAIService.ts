@@ -87,19 +87,98 @@ export const openAIService = {
    * Get website recommendations based on user query
    */
   getWebsiteRecommendations: async (query: string): Promise<TrackedSite[]> => {
-    // In a real implementation, this would use AI to recommend websites
-    // For simulation, we'll just return all tracked sites
-    const sites = siteTrackingService.getTrackedSites();
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Filter sites based on query
-    if (!query) return sites;
+    // Get all existing tracked sites
+    const existingSites = siteTrackingService.getTrackedSites();
     
-    const queryLower = query.toLowerCase();
-    return sites.filter(site => {
-      const siteName = site.name.toLowerCase();
-      const siteUrl = site.url.toLowerCase();
-      return siteName.includes(queryLower) || siteUrl.includes(queryLower);
-    });
+    // Default recommended sites
+    const recommendedSites: TrackedSite[] = [
+      {
+        id: crypto.randomUUID(),
+        url: "https://www.idealista.com",
+        name: "Idealista",
+        lastChecked: new Date().toISOString(),
+        propertyCount: 35420,
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        url: "https://www.fotocasa.es",
+        name: "Fotocasa",
+        lastChecked: new Date().toISOString(),
+        propertyCount: 28150,
+        addedAt: new Date().toISOString()
+      },
+      {
+        id: crypto.randomUUID(),
+        url: "https://www.kyero.com",
+        name: "Kyero",
+        lastChecked: new Date().toISOString(),
+        propertyCount: 19680,
+        addedAt: new Date().toISOString()
+      }
+    ];
+    
+    // If a specific query is provided, add some query-specific suggestions
+    if (query && query.length > 3) {
+      const queryLower = query.toLowerCase();
+      
+      // Region-specific sites
+      if (queryLower.includes("barcelona") || queryLower.includes("catalonia")) {
+        recommendedSites.push({
+          id: crypto.randomUUID(),
+          url: "https://www.habitaclia.com",
+          name: "Habitaclia",
+          lastChecked: new Date().toISOString(),
+          propertyCount: 12540,
+          addedAt: new Date().toISOString()
+        });
+      }
+      
+      if (queryLower.includes("costa") || queryLower.includes("beach") || queryLower.includes("sea")) {
+        recommendedSites.push({
+          id: crypto.randomUUID(),
+          url: "https://www.spain-holiday.com",
+          name: "Spain-Holiday",
+          lastChecked: new Date().toISOString(),
+          propertyCount: 8970,
+          addedAt: new Date().toISOString()
+        });
+      }
+      
+      // International portals
+      if (queryLower.includes("international") || queryLower.includes("english") || queryLower.includes("expat")) {
+        recommendedSites.push({
+          id: crypto.randomUUID(),
+          url: "https://www.thinkspain.com",
+          name: "ThinkSpain",
+          lastChecked: new Date().toISOString(),
+          propertyCount: 9840,
+          addedAt: new Date().toISOString()
+        });
+      }
+      
+      // Luxury properties
+      if (queryLower.includes("luxury") || queryLower.includes("villa") || queryLower.includes("premium")) {
+        recommendedSites.push({
+          id: crypto.randomUUID(),
+          url: "https://www.luxuryestate.com/spain",
+          name: "LuxuryEstate",
+          lastChecked: new Date().toISOString(),
+          propertyCount: 3250,
+          addedAt: new Date().toISOString()
+        });
+      }
+    }
+    
+    // Filter out sites that are already being tracked
+    const newRecommendations = recommendedSites.filter(
+      rec => !existingSites.some(existing => existing.url === rec.url)
+    );
+    
+    return newRecommendations;
   },
 
   /**
