@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,24 +11,53 @@ interface PropertyImageGalleryProps {
 
 const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
+  const [allImagesPreloaded, setAllImagesPreloaded] = useState(false);
   
   // If no images are provided, use a placeholder
   const displayImages = images.length > 0 
     ? images 
     : ['/placeholder.svg'];
-
-  const handleImageLoad = (index: number) => {
-    setLoadedImages(prev => ({
-      ...prev,
-      [index]: true
-    }));
-  };
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    // Fallback to placeholder on error
-    (e.target as HTMLImageElement).src = '/placeholder.svg';
-  };
+  
+  // Preload all images to prevent flickering
+  useEffect(() => {
+    const imageObjects: HTMLImageElement[] = [];
+    const loadedStatus = new Array(displayImages.length).fill(false);
+    
+    displayImages.forEach((src, index) => {
+      const img = new Image();
+      img.src = src;
+      
+      img.onload = () => {
+        loadedStatus[index] = true;
+        setImagesLoaded([...loadedStatus]);
+        
+        // Check if all images are loaded
+        if (loadedStatus.every(status => status)) {
+          setAllImagesPreloaded(true);
+        }
+      };
+      
+      img.onerror = () => {
+        // On error, mark as loaded but use placeholder
+        loadedStatus[index] = true;
+        setImagesLoaded([...loadedStatus]);
+      };
+      
+      imageObjects.push(img);
+    });
+    
+    // Initial setup
+    setImagesLoaded(loadedStatus);
+    
+    // Cleanup
+    return () => {
+      imageObjects.forEach(img => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, [displayImages]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -42,12 +71,12 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
     );
   };
 
-  const isCurrentImageLoaded = loadedImages[currentImageIndex];
+  const isCurrentImageLoaded = imagesLoaded[currentImageIndex];
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
-        {!isCurrentImageLoaded && (
+        {(!allImagesPreloaded || !isCurrentImageLoaded) && (
           <Skeleton className="absolute inset-0 h-full w-full" />
         )}
         
@@ -58,15 +87,15 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
             alt={`${title} - Image ${index + 1}`}
             className={cn(
               "h-full w-full object-cover absolute inset-0 transition-opacity duration-300",
-              currentImageIndex === index && isCurrentImageLoaded ? "opacity-100" : "opacity-0"
+              currentImageIndex === index && allImagesPreloaded && isCurrentImageLoaded
+                ? "opacity-100" 
+                : "opacity-0"
             )}
-            onLoad={() => handleImageLoad(index)}
-            onError={handleImageError}
           />
         ))}
       </div>
       
-      {displayImages.length > 1 && (
+      {displayImages.length > 1 && allImagesPreloaded && (
         <>
           <button 
             onClick={prevImage}

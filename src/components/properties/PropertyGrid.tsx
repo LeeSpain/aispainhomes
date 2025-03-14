@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react';
 import PropertyCard, { Property } from './PropertyCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -8,7 +9,23 @@ interface PropertyGridProps {
 }
 
 const PropertyGrid = ({ properties, isLoading = false }: PropertyGridProps) => {
-  if (isLoading) {
+  const [showSkeleton, setShowSkeleton] = useState(isLoading);
+  
+  // Use an effect to handle the loading state transition
+  useEffect(() => {
+    if (isLoading) {
+      setShowSkeleton(true);
+    } else {
+      // Small delay before hiding skeleton to ensure smooth transition
+      const timeout = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 300);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoading]);
+
+  if (showSkeleton) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array(3).fill(0).map((_, index) => (

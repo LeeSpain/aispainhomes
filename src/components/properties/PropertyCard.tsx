@@ -1,27 +1,34 @@
 
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Bed, Bath, Square, Heart } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
-import PropertyImageGallery from "./PropertyImageGallery";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/auth';
+import { Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import PropertyImageGallery from './PropertyImageGallery';
+import { toast } from 'sonner';
 
 export interface Property {
   id: string;
   title: string;
-  description?: string;
-  price: number;
-  currency: string;
   location: string;
+  price: number;
+  priceUnit: 'total' | 'monthly';
   bedrooms: number;
   bathrooms: number;
   area: number;
+  images: string[];
+  description: string;
+  features: string[];
   type: string;
-  isForRent: boolean;
-  features?: string[];
-  images?: string[];
-  imageUrl?: string; // Added this property for backward compatibility
-  yearBuilt?: number;
+  status: 'forSale' | 'forRent' | 'sold' | 'rented';
+  createdAt: string;
+  agent?: {
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+    photo: string;
+  };
 }
 
 interface PropertyCardProps {
@@ -29,91 +36,87 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
-  const { user, addToFavorites, removeFromFavorites, userPreferences } = useAuth();
+  const { user, userPreferences, updateUserPreferences } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   
   const isFavorite = userPreferences?.favorites?.includes(property.id) || false;
   
-  // Ensure we have a valid images array
-  const propertyImages = property.images && property.images.length > 0 
-    ? property.images 
-    : property.imageUrl 
-      ? [property.imageUrl] 
-      : ['/placeholder.svg'];
-  
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (!user) {
-      toast.error("Please login to save favorites");
+      toast.error('Please log in to save favorites');
       return;
     }
     
-    if (isFavorite) {
-      removeFromFavorites(property.id);
-    } else {
-      addToFavorites(property.id);
-    }
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      try {
+        if (isFavorite) {
+          // Remove from favorites
+          const updatedFavorites = userPreferences?.favorites?.filter(id => id !== property.id) || [];
+          updateUserPreferences({ favorites: updatedFavorites });
+          toast.success('Property removed from favorites');
+        } else {
+          // Add to favorites
+          const updatedFavorites = [...(userPreferences?.favorites || []), property.id];
+          updateUserPreferences({ favorites: updatedFavorites });
+          toast.success('Property added to favorites');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+  };
+  
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 0,
+    }).format(price);
   };
   
   return (
-    <Card className="overflow-hidden h-full flex flex-col">
-      <Link to={`/property/${property.id}`} className="relative">
-        <PropertyImageGallery 
-          images={propertyImages} 
-          title={property.title} 
-        />
-        <button
-          onClick={handleFavoriteClick}
-          className={`absolute right-3 top-3 p-2 rounded-full ${
-            isFavorite 
-              ? "bg-primary-foreground text-primary" 
-              : "bg-black/30 backdrop-blur-sm text-white"
-          }`}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary" : ""}`} />
-        </button>
-      </Link>
-      
-      <CardContent className="p-4 flex-grow">
-        <Link to={`/property/${property.id}`} className="no-underline">
-          <h3 className="font-semibold text-lg mb-1 hover:text-primary transition-colors">
+    <Link to={`/property/${property.id}`} className="block h-full group">
+      <div className="h-full overflow-hidden rounded-lg border bg-background shadow-sm transition-all hover:shadow-md">
+        <div className="relative">
+          <PropertyImageGallery images={property.images} title={property.title} />
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`absolute top-2 right-2 z-10 rounded-full bg-white/80 hover:bg-white ${isFavorite ? 'text-red-500' : 'text-gray-500'}`}
+            onClick={toggleFavorite}
+            disabled={isLoading}
+          >
+            <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
+            <span className="sr-only">{isFavorite ? 'Remove from favorites' : 'Add to favorites'}</span>
+          </Button>
+        </div>
+        
+        <div className="p-4">
+          <h3 className="text-lg font-semibold line-clamp-1 mb-1 group-hover:text-primary transition-colors">
             {property.title}
           </h3>
-        </Link>
-        <p className="text-muted-foreground text-sm mb-2">{property.location}</p>
-        
-        <div className="flex flex-wrap gap-3 mt-3">
-          <div className="flex items-center">
-            <Bed className="h-4 w-4 mr-1" />
-            <span className="text-sm">{property.bedrooms}</span>
+          
+          <p className="text-muted-foreground text-sm mb-3">{property.location}</p>
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+            <div>{property.bedrooms} beds</div>
+            <div>{property.bathrooms} baths</div>
+            <div>{property.area} m²</div>
           </div>
-          <div className="flex items-center">
-            <Bath className="h-4 w-4 mr-1" />
-            <span className="text-sm">{property.bathrooms}</span>
-          </div>
-          <div className="flex items-center">
-            <Square className="h-4 w-4 mr-1" />
-            <span className="text-sm">{property.area} m²</span>
+          
+          <div className="font-semibold text-lg">
+            {formatPrice(property.price)}
+            {property.priceUnit === 'monthly' && <span className="text-sm font-normal text-muted-foreground"> /month</span>}
           </div>
         </div>
-      </CardContent>
-      
-      <CardFooter className="p-4 pt-0 border-t mt-auto">
-        <div className="flex justify-between w-full items-center">
-          <div>
-            <span className="font-bold text-lg">
-              {property.currency}{property.price.toLocaleString()}
-            </span>
-            {property.isForRent && <span className="text-muted-foreground text-sm ml-1">/month</span>}
-          </div>
-          <span className="text-sm font-medium px-2 py-1 bg-primary/10 text-primary rounded-md">
-            {property.type}
-          </span>
-        </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </Link>
   );
 };
 
