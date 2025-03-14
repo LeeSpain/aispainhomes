@@ -1,7 +1,6 @@
 
 import { Helmet } from 'react-helmet';
 import Navbar from '@/components/common/Navbar';
-import Footer from '@/components/common/Footer';
 import { Sun, Info, History, Users, HomeIcon, Heart } from 'lucide-react';
 
 const About = () => {
@@ -129,7 +128,7 @@ const About = () => {
           </section>
         </main>
         
-        <Footer />
+        {/* Removed the Footer component from here since it's already included in App.tsx */}
       </div>
     </>
   );
