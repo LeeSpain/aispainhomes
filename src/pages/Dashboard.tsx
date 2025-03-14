@@ -19,6 +19,8 @@ import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
 import { toast } from 'sonner';
 import { TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { ExternalLink } from 'lucide-react';
 
 // Import mock service provider data
 import { 
@@ -104,6 +106,16 @@ const Dashboard = () => {
                   <AIGuardianChat user={user} />
                   <div className="mt-6">
                     <MembershipOverview subscription={userPreferences?.subscription} />
+                  </div>
+                  <div className="mt-4">
+                    <Button 
+                      onClick={() => navigate('/site-tracking')} 
+                      variant="outline" 
+                      className="w-full flex items-center justify-between"
+                    >
+                      <span>Manage Tracked Websites</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </div>
