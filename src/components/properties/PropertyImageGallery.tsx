@@ -12,6 +12,7 @@ interface PropertyImageGalleryProps {
 const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const imageRefs = useRef<HTMLImageElement[]>([]);
 
   // If no images are provided, use a placeholder
@@ -19,36 +20,36 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
     ? images 
     : ['/placeholder.svg'];
   
-  // Preload the current image and the next one
+  // Preload all images on component mount
   useEffect(() => {
     // Initialize imageRefs array
     imageRefs.current = imageRefs.current.slice(0, displayImages.length);
     
-    // Create a new Image object to preload
-    const preloadImages = () => {
-      const imagesToLoad = [
-        currentImageIndex,
-        (currentImageIndex + 1) % displayImages.length,
-        (currentImageIndex - 1 + displayImages.length) % displayImages.length
-      ];
-      
-      imagesToLoad.forEach(idx => {
-        if (!loadedImages[idx]) {
+    const preloadAllImages = () => {
+      const imagePromises = displayImages.map((src, index) => {
+        return new Promise<void>((resolve) => {
           const img = new Image();
-          img.src = displayImages[idx];
+          img.src = src;
           img.onload = () => {
-            setLoadedImages(prev => ({...prev, [idx]: true}));
+            setLoadedImages(prev => ({...prev, [index]: true}));
+            resolve();
           };
           img.onerror = () => {
             // On error, mark as loaded but will use fallback
-            setLoadedImages(prev => ({...prev, [idx]: true}));
+            setLoadedImages(prev => ({...prev, [index]: true}));
+            resolve();
           };
-        }
+        });
+      });
+      
+      // When first image is loaded, we can remove the initial loading state
+      Promise.all(imagePromises).then(() => {
+        setIsInitialLoad(false);
       });
     };
     
-    preloadImages();
-  }, [displayImages, currentImageIndex, loadedImages]);
+    preloadAllImages();
+  }, [displayImages]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -67,31 +68,34 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
-        {!isCurrentImageLoaded && (
+        {(!isCurrentImageLoaded || isInitialLoad) && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Skeleton className="h-full w-full absolute" />
           </div>
         )}
         
-        <img
-          ref={el => {
-            if (el) imageRefs.current[currentImageIndex] = el;
-          }}
-          src={displayImages[currentImageIndex]}
-          alt={`${title} - Image ${currentImageIndex + 1}`}
-          className={cn(
-            "h-full w-full object-cover transition-opacity duration-300",
-            isCurrentImageLoaded ? "opacity-100" : "opacity-0"
-          )}
-          onLoad={() => {
-            setLoadedImages(prev => ({...prev, [currentImageIndex]: true}));
-          }}
-          onError={(e) => {
-            // Fallback to placeholder on error
-            (e.target as HTMLImageElement).src = '/placeholder.svg';
-            setLoadedImages(prev => ({...prev, [currentImageIndex]: true}));
-          }}
-        />
+        {displayImages.map((src, index) => (
+          <img
+            key={index}
+            ref={el => {
+              if (el) imageRefs.current[index] = el;
+            }}
+            src={src}
+            alt={`${title} - Image ${index + 1}`}
+            className={cn(
+              "h-full w-full object-cover absolute inset-0 transition-opacity duration-300",
+              currentImageIndex === index && isCurrentImageLoaded && !isInitialLoad ? "opacity-100" : "opacity-0"
+            )}
+            onLoad={() => {
+              setLoadedImages(prev => ({...prev, [index]: true}));
+            }}
+            onError={(e) => {
+              // Fallback to placeholder on error
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+              setLoadedImages(prev => ({...prev, [index]: true}));
+            }}
+          />
+        ))}
       </div>
       
       {displayImages.length > 1 && (

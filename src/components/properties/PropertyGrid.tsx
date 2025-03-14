@@ -1,5 +1,6 @@
 
 import PropertyCard, { Property } from './PropertyCard';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PropertyGridProps {
   properties: Property[];
@@ -10,10 +11,10 @@ const PropertyGrid = ({ properties, isLoading = false }: PropertyGridProps) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array(6).fill(0).map((_, index) => (
-          <div 
+        {Array(3).fill(0).map((_, index) => (
+          <Skeleton 
             key={index} 
-            className="bg-muted animate-pulse rounded-xl h-[400px]"
+            className="h-[400px] w-full rounded-lg"
           />
         ))}
       </div>
