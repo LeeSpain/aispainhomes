@@ -83,20 +83,20 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             </AccordionTrigger>
             <AccordionContent className="pl-7">
               <div className="flex flex-col space-y-2">
-                <Link 
-                  to="/dashboard" 
+                <a 
+                  href="/dashboard" 
                   className="py-2 transition-colors hover:text-primary flex items-center gap-2"
                 >
                   <Users className="h-4 w-4" />
                   {t('nav.user_dashboard')}
-                </Link>
-                <Link 
-                  to="/admin" 
+                </a>
+                <a 
+                  href="/admin" 
                   className="py-2 transition-colors hover:text-primary flex items-center gap-2"
                 >
                   <Zap className="h-4 w-4" />
                   {t('nav.admin_dashboard')}
-                </Link>
+                </a>
               </div>
             </AccordionContent>
           </AccordionItem>
