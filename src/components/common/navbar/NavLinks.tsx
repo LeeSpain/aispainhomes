@@ -36,6 +36,15 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
     },
   ];
 
+  // Add Admin Dashboard link if user is admin
+  if (user?.email === 'admin@example.com') {
+    links.push({
+      label: t('nav.admin_dashboard'),
+      href: "/admin",
+      icon: <Zap className="h-4 w-4" />
+    });
+  }
+
   const handleClick = () => {
     if (onLinkClick) {
       onLinkClick();

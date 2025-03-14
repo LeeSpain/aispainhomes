@@ -63,6 +63,18 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           AI Guardian
         </Link>
         
+        {isAdmin && (
+          <Link 
+            to="/admin" 
+            className={`py-2 transition-colors hover:text-primary flex items-center gap-2 ${
+              location.pathname === '/admin' ? 'text-primary font-medium' : ''
+            }`}
+          >
+            <Zap className="h-4 w-4" />
+            {t('nav.admin_dashboard')}
+          </Link>
+        )}
+        
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="quick-access" className="border-b-0">
             <AccordionTrigger className="py-2 text-left flex items-center gap-2 hover:text-primary">
@@ -89,17 +101,6 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        
-        {user && (
-          <Link 
-            to="/dashboard" 
-            className={`py-2 transition-colors hover:text-primary ${
-              location.pathname === '/dashboard' ? 'text-primary font-medium' : ''
-            }`}
-          >
-            {t('nav.dashboard')}
-          </Link>
-        )}
       </nav>
     </div>
   );
