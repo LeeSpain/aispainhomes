@@ -46,7 +46,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 2,
     bathrooms: 2,
     area: 95,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200',
     features: ['Sea View', 'Pool', 'Parking', 'Terrace', 'Air Conditioning'],
     isForRent: false
   },
@@ -60,7 +60,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 4,
     bathrooms: 3,
     area: 280,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=1200',
     features: ['Pool', 'Garden', 'Parking', 'Sea View', 'Security System'],
     isForRent: false
   },
@@ -74,7 +74,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 0,
     bathrooms: 1,
     area: 48,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=1200',
     features: ['Furnished', 'City Center', 'Air Conditioning', 'Public Transport'],
     isForRent: true
   },
@@ -88,7 +88,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 2,
     bathrooms: 2,
     area: 85,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?q=80&w=1200',
     features: ['Beachfront', 'Pool', 'Furnished', 'Balcony'],
     isForRent: false
   },
@@ -102,7 +102,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 3,
     bathrooms: 2,
     area: 150,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200',
     features: ['Garden', 'Mountain View', 'Fireplace', 'Fruit Trees'],
     isForRent: false
   },
@@ -116,7 +116,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 3,
     bathrooms: 2,
     area: 175,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?q=80&w=1200',
     features: ['Terrace', 'City View', 'Parking', 'Modern Kitchen'],
     isForRent: false
   },
@@ -130,7 +130,7 @@ export const sampleProperties: Property[] = [
     bedrooms: 2,
     bathrooms: 2,
     area: 110,
-    imageUrl: '/placeholder.svg',
+    imageUrl: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?q=80&w=1200',
     features: ['Community Pool', 'Garden', 'Near Beach', 'Furnished'],
     isForRent: false
   }
@@ -138,7 +138,7 @@ export const sampleProperties: Property[] = [
 
 // Update properties with image arrays
 sampleProperties.forEach(property => {
-  const images = samplePropertyImages[property.id] || ['/placeholder.svg'];
-  property.imageUrl = images[0]; // For backward compatibility
-  property.images = images;
+  if (!property.images) {
+    property.images = samplePropertyImages[property.id] || [property.imageUrl || '/placeholder.svg'];
+  }
 });

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -10,11 +10,48 @@ interface PropertyImageGalleryProps {
 
 const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // If no images are provided, use a placeholder
   const displayImages = images.length > 0 
     ? images 
     : ['/placeholder.svg'];
+
+  useEffect(() => {
+    // Reset loading state when images change
+    setIsLoading(true);
+    setImagesLoaded(new Array(displayImages.length).fill(false));
+    
+    // Preload images
+    const imagePromises = displayImages.map((src, index) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          setImagesLoaded(prev => {
+            const newState = [...prev];
+            newState[index] = true;
+            return newState;
+          });
+          resolve();
+        };
+        img.onerror = () => {
+          // On error, mark as loaded but use placeholder
+          setImagesLoaded(prev => {
+            const newState = [...prev];
+            newState[index] = true;
+            return newState;
+          });
+          resolve();
+        };
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      setIsLoading(false);
+    });
+  }, [displayImages]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -30,11 +67,23 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          </div>
+        )}
         <img
           src={displayImages[currentImageIndex]}
           alt={`${title} - Image ${currentImageIndex + 1}`}
-          className="h-full w-full object-cover transition-all duration-300"
+          className={cn(
+            "h-full w-full object-cover transition-opacity duration-300",
+            isLoading ? "opacity-0" : "opacity-100"
+          )}
+          onError={(e) => {
+            // Fallback to placeholder on error
+            (e.target as HTMLImageElement).src = '/placeholder.svg';
+          }}
         />
       </div>
       

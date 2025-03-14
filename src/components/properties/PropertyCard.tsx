@@ -33,6 +33,13 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   
   const isFavorite = userPreferences?.favorites?.includes(property.id) || false;
   
+  // Ensure we have a valid images array
+  const propertyImages = property.images && property.images.length > 0 
+    ? property.images 
+    : property.imageUrl 
+      ? [property.imageUrl] 
+      : ['/placeholder.svg'];
+  
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -53,7 +60,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     <Card className="overflow-hidden h-full flex flex-col">
       <Link to={`/property/${property.id}`} className="relative">
         <PropertyImageGallery 
-          images={property.images || ['/placeholder.svg']} 
+          images={propertyImages} 
           title={property.title} 
         />
         <button
