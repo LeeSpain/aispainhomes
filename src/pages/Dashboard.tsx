@@ -110,7 +110,7 @@ const Dashboard = () => {
             
               {/* Right side - Dashboard Content */}
               <div className="lg:col-span-8 xl:col-span-9">
-                <DashboardHeader user={user} />
+                <DashboardHeader user={user} variant="simple" />
               
                 <div className="mt-8">
                   <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>
