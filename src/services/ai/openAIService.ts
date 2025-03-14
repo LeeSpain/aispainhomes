@@ -14,6 +14,15 @@ interface AIResponse {
   relevantSites?: TrackedSite[];
 }
 
+// Simulated API configuration
+const config = {
+  model: 'gpt-4o',
+  temperature: 0.7,
+  systemPrompt: 'You are AI Guardian, a helpful assistant for Spanish Home Finder. ' +
+    'You help users find properties in Spain, connect with service providers, ' +
+    'and navigate the relocation process.'
+};
+
 export const openAIService = {
   /**
    * Generate a response using OpenAI
@@ -91,6 +100,32 @@ export const openAIService = {
       const siteUrl = site.url.toLowerCase();
       return siteName.includes(queryLower) || siteUrl.includes(queryLower);
     });
+  },
+
+  /**
+   * Update configuration settings
+   */
+  updateConfig: (newConfig: Partial<typeof config>): typeof config => {
+    Object.assign(config, newConfig);
+    return { ...config };
+  },
+
+  /**
+   * Get current configuration
+   */
+  getConfig: (): typeof config => {
+    return { ...config };
+  },
+
+  /**
+   * Verify API key is valid (simulation)
+   */
+  verifyApiKey: async (apiKey: string): Promise<boolean> => {
+    // Simulate API verification
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // For simulation purposes, we'll consider any key longer than 10 chars as valid
+    return apiKey.length > 10 && apiKey.startsWith('sk-');
   }
 };
 

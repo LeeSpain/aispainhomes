@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { Users, Home, FileText, BarChart3 } from 'lucide-react';
+import { Users, Home, FileText, BarChart3, Globe, Bot, Settings, Server } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
@@ -13,6 +13,10 @@ import StatsCards from '@/components/admin/StatsCards';
 import OverviewTab from '@/components/admin/OverviewTab';
 import PropertiesTab from '@/components/admin/PropertiesTab';
 import UsersTab from '@/components/admin/UsersTab';
+import WebsitesTab from '@/components/admin/WebsitesTab';
+import AISettingsTab from '@/components/admin/AISettingsTab';
+import SystemSettingsTab from '@/components/admin/SystemSettingsTab';
+import { siteTrackingService, TrackedSite } from '@/services/site/siteTrackingService';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -24,6 +28,7 @@ const AdminDashboard = () => {
     { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
     { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'Admin', status: 'Active' },
   ]);
+  const [trackedSites, setTrackedSites] = useState<TrackedSite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
@@ -33,7 +38,10 @@ const AdminDashboard = () => {
     }
     
     // In a real application, check if user has admin privileges
-    // For demo, we'll assume they do if they're logged in
+    if (user.email !== 'admin@example.com') {
+      navigate('/forbidden');
+      return;
+    }
     
     const loadData = async () => {
       setIsLoading(true);
@@ -41,6 +49,10 @@ const AdminDashboard = () => {
         // Load properties data
         const propertiesData = await PropertyService.getFilteredProperties({});
         setProperties(propertiesData);
+        
+        // Load tracked sites
+        const sites = siteTrackingService.getTrackedSites();
+        setTrackedSites(sites);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -56,14 +68,14 @@ const AdminDashboard = () => {
   const stats = [
     { title: 'Total Properties', value: properties.length, icon: Home },
     { title: 'Total Users', value: users.length, icon: Users },
-    { title: 'Active Subscriptions', value: 2, icon: BarChart3 },
+    { title: 'Tracked Websites', value: trackedSites.length, icon: Globe },
     { title: 'Pending Documents', value: 5, icon: FileText },
   ];
   
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard | AI Spain Homes</title>
+        <title>Admin Dashboard | Spanish Home Finder</title>
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -73,16 +85,19 @@ const AdminDashboard = () => {
           <div className="container mx-auto px-4">
             <div className="mb-8">
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage your application, users and properties</p>
+              <p className="text-muted-foreground">Manage your application, users, properties, and AI services</p>
             </div>
             
             <StatsCards stats={stats} />
             
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-              <TabsList className="grid w-full grid-cols-3">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8 mt-8">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="properties">Properties</TabsTrigger>
                 <TabsTrigger value="users">Users</TabsTrigger>
+                <TabsTrigger value="websites">Website Tracking</TabsTrigger>
+                <TabsTrigger value="ai">AI Settings</TabsTrigger>
+                <TabsTrigger value="system">System</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview">
@@ -95,6 +110,18 @@ const AdminDashboard = () => {
               
               <TabsContent value="users">
                 <UsersTab users={users} />
+              </TabsContent>
+              
+              <TabsContent value="websites">
+                <WebsitesTab trackedSites={trackedSites} />
+              </TabsContent>
+              
+              <TabsContent value="ai">
+                <AISettingsTab />
+              </TabsContent>
+              
+              <TabsContent value="system">
+                <SystemSettingsTab />
               </TabsContent>
             </Tabs>
           </div>
