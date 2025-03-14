@@ -78,5 +78,26 @@ export const navigationTranslations: TranslationCategory = {
     de: "Registrieren zum Suchen",
     fr: "S'inscrire pour Rechercher",
     it: "Registrati per Cercare"
+  },
+  "nav.quick_access": {
+    en: "Quick Access",
+    es: "Acceso Rápido",
+    de: "Schnellzugriff",
+    fr: "Accès Rapide",
+    it: "Accesso Rapido"
+  },
+  "nav.user_dashboard": {
+    en: "User Dashboard",
+    es: "Panel de Usuario",
+    de: "Benutzer-Dashboard",
+    fr: "Tableau de Bord Utilisateur",
+    it: "Dashboard Utente"
+  },
+  "nav.admin_dashboard": {
+    en: "Admin Dashboard",
+    es: "Panel de Administrador",
+    de: "Admin-Dashboard",
+    fr: "Tableau de Bord Administrateur",
+    it: "Dashboard Amministratore"
   }
 };

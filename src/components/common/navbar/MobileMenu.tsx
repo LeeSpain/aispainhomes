@@ -1,16 +1,25 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import { ShieldCheck, Info, Home, UserPlus, Building2 } from 'lucide-react';
+import { ShieldCheck, Info, Home, Lightning, Building2 } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface MobileMenuProps {
   isOpen: boolean;
-  user: { name: string } | null;
+  user: { name: string; email?: string } | null;
 }
 
 const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
   const location = useLocation();
   const { t } = useTranslation();
+  
+  // Check if user is admin
+  const isAdmin = user?.email === 'admin@example.com';
 
   if (!isOpen) return null;
   
@@ -54,6 +63,45 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           AI Guardian
         </Link>
         
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="quick-access" className="border-b-0">
+            <AccordionTrigger className="py-2 text-left flex items-center gap-2 hover:text-primary">
+              <Lightning className="h-4 w-4" />
+              <span>Quick Access</span>
+            </AccordionTrigger>
+            <AccordionContent className="pl-7">
+              <div className="flex flex-col space-y-2">
+                <Link 
+                  to="/dashboard" 
+                  className="py-2 transition-colors hover:text-primary"
+                >
+                  User Dashboard
+                </Link>
+                {isAdmin && (
+                  <Link 
+                    to="/admin" 
+                    className="py-2 transition-colors hover:text-primary"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                <Link 
+                  to="/login" 
+                  className="py-2 transition-colors hover:text-primary"
+                >
+                  {t('nav.login')}
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="py-2 transition-colors hover:text-primary"
+                >
+                  {t('nav.register')}
+                </Link>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        
         {user && (
           <Link 
             to="/dashboard" 
@@ -63,24 +111,6 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           >
             {t('nav.dashboard')}
           </Link>
-        )}
-        
-        {!user && (
-          <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 dark:border-gray-800">
-            <Link 
-              to="/login" 
-              className="py-2 transition-colors hover:text-primary"
-            >
-              {t('nav.login')}
-            </Link>
-            <Link 
-              to="/register" 
-              className="py-2 font-medium text-primary hover:text-primary/80 flex items-center gap-2"
-            >
-              <UserPlus className="h-4 w-4" />
-              {t('nav.register')}
-            </Link>
-          </div>
         )}
       </nav>
     </div>

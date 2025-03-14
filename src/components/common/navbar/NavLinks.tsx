@@ -3,8 +3,14 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Info, Home, ShieldCheck, UserPlus, Building2 } from "lucide-react";
+import { Info, Home, ShieldCheck, Building2, Lightning } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavLinksProps {
   className?: string;
@@ -52,19 +58,33 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
         </Button>
       ))}
       
-      {!user && (
-        <Button
-          variant="default"
-          asChild
-          onClick={handleClick}
-          className="ml-2"
-        >
-          <Link to="/register" className="flex items-center gap-1">
-            <UserPlus className="h-4 w-4" />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="default"
+            className="ml-2 flex items-center gap-1"
+          >
+            <Lightning className="h-4 w-4" />
+            Quick Access
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => window.location.href = "/dashboard"}>
+            User Dashboard
+          </DropdownMenuItem>
+          {user?.email === 'admin@example.com' && (
+            <DropdownMenuItem onClick={() => window.location.href = "/admin"}>
+              Admin Dashboard
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={() => window.location.href = "/login"}>
+            Login
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => window.location.href = "/register"}>
             Register
-          </Link>
-        </Button>
-      )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </nav>
   );
 };
