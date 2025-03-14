@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Info, Home, ShieldCheck, UserPlus } from "lucide-react";
+import { Info, Home, ShieldCheck, UserPlus, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 
 interface NavLinksProps {
@@ -18,6 +18,11 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
   const links = [
     { label: t('nav.home'), href: "/", icon: <Home className="h-4 w-4" /> },
     { label: t('nav.about'), href: "/about", icon: <Info className="h-4 w-4" /> },
+    { 
+      label: "Property", 
+      href: "/property",
+      icon: <Building2 className="h-4 w-4" />
+    },
     { 
       label: "AI Guardian", 
       href: "/ai-guardian",

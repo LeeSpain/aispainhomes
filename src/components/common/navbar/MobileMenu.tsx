@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
-import { ShieldCheck, Info, Home, UserPlus } from 'lucide-react';
+import { ShieldCheck, Info, Home, UserPlus, Building2 } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -34,6 +34,15 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
         >
           <Info className="h-4 w-4" />
           {t('nav.about')}
+        </Link>
+        <Link 
+          to="/property" 
+          className={`py-2 transition-colors hover:text-primary flex items-center gap-2 ${
+            location.pathname === '/property' ? 'text-primary font-medium' : ''
+          }`}
+        >
+          <Building2 className="h-4 w-4" />
+          Property
         </Link>
         <Link 
           to="/ai-guardian" 

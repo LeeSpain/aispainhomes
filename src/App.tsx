@@ -20,6 +20,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
 import EmailPreferences from './pages/EmailPreferences';
 import AIGuardian from './pages/AIGuardian';
+import Property from './pages/Property';
 import NotFound from './pages/NotFound';
 import Forbidden from './pages/Forbidden';
 import ServerError from './pages/ServerError';
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/property-search" element={<PropertySearch />} />
                 <Route path="/search" element={<PropertySearch />} />
                 <Route path="/property/:id" element={<PropertyDetails />} />
+                <Route path="/property" element={<Property />} />
                 <Route path="/questionnaire" element={<Questionnaire />} />
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/password-recovery" element={<PasswordRecovery />} />
