@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Bell, 
@@ -11,8 +10,10 @@ import {
   Truck,
   School,
   HeartPulse,
-  Star
+  Star,
+  Layers
 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -21,50 +22,37 @@ interface DashboardTabsProps {
 }
 
 const DashboardTabs = ({ activeTab, onTabChange, children }: DashboardTabsProps) => {
+  const tabItems = [
+    { value: "properties", label: "Properties", icon: Home },
+    { value: "favorites", label: "Favorites", icon: Star },
+    { value: "alerts", label: "Alerts", icon: Bell },
+    { value: "documents", label: "Documents", icon: FileText },
+    { value: "lawyers", label: "Lawyers", icon: Users },
+    { value: "utilities", label: "Utilities", icon: Tv },
+    { value: "movers", label: "Movers", icon: Truck },
+    { value: "schools", label: "Schools", icon: School },
+    { value: "healthcare", label: "Healthcare", icon: HeartPulse },
+    { value: "settings", label: "Settings", icon: Settings },
+  ];
+
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="mb-8">
-      <TabsList className="w-full overflow-x-auto py-2">
-        <TabsTrigger value="properties" className="flex items-center">
-          <Home className="mr-2 h-4 w-4" />
-          Properties
-        </TabsTrigger>
-        <TabsTrigger value="favorites" className="flex items-center">
-          <Star className="mr-2 h-4 w-4" />
-          Favorites
-        </TabsTrigger>
-        <TabsTrigger value="alerts" className="flex items-center">
-          <Bell className="mr-2 h-4 w-4" />
-          Alerts
-        </TabsTrigger>
-        <TabsTrigger value="lawyers" className="flex items-center">
-          <Users className="mr-2 h-4 w-4" />
-          Lawyers
-        </TabsTrigger>
-        <TabsTrigger value="utilities" className="flex items-center">
-          <Tv className="mr-2 h-4 w-4" />
-          Utilities
-        </TabsTrigger>
-        <TabsTrigger value="movers" className="flex items-center">
-          <Truck className="mr-2 h-4 w-4" />
-          Movers
-        </TabsTrigger>
-        <TabsTrigger value="schools" className="flex items-center">
-          <School className="mr-2 h-4 w-4" />
-          Schools
-        </TabsTrigger>
-        <TabsTrigger value="healthcare" className="flex items-center">
-          <HeartPulse className="mr-2 h-4 w-4" />
-          Healthcare
-        </TabsTrigger>
-        <TabsTrigger value="documents" className="flex items-center">
-          <FileText className="mr-2 h-4 w-4" />
-          Documents
-        </TabsTrigger>
-        <TabsTrigger value="settings" className="flex items-center">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </TabsTrigger>
-      </TabsList>
+    <Tabs value={activeTab} onValueChange={onTabChange}>
+      <div className="border rounded-md bg-white dark:bg-slate-800 mb-6 shadow-sm">
+        <ScrollArea className="w-full whitespace-nowrap">
+          <TabsList className="w-full justify-start p-1 h-auto bg-transparent">
+            {tabItems.map((item) => (
+              <TabsTrigger 
+                key={item.value} 
+                value={item.value} 
+                className="flex items-center gap-1.5 py-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </ScrollArea>
+      </div>
       
       {children}
     </Tabs>
