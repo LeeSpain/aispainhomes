@@ -51,7 +51,7 @@ const GuardianServiceStep = () => {
         <div className="p-6 border border-primary/20 rounded-lg bg-background/95 backdrop-blur-sm">
           <h3 className="text-xl font-semibold mb-4 flex items-center">
             <ShieldCheck className="w-6 h-6 mr-2 text-primary" />
-            AI Guardian Service - €9.99/month
+            AI Guardian Service - €24.99/month
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
@@ -73,6 +73,12 @@ const GuardianServiceStep = () => {
           <p className="mt-6 text-center text-muted-foreground text-sm">
             Plus 30+ additional services for every aspect of Spanish relocation!
           </p>
+          
+          <div className="mt-4 p-3 bg-primary/10 rounded-lg text-center">
+            <p className="text-sm font-medium">
+              Start with a 7-day free trial! Card details required, billed €24.99 after trial ends.
+            </p>
+          </div>
         </div>
 
         <p className="text-center text-muted-foreground">

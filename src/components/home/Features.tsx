@@ -103,14 +103,17 @@ const Features = () => {
 
         <div className="mt-16 text-center">
           <div className="max-w-3xl mx-auto mb-8">
-            <p className="text-xl text-muted-foreground">
-              All these services are included in one simple subscription for just €9.99/month, providing you with comprehensive support throughout your Spanish property search and relocation journey.
+            <p className="text-xl text-muted-foreground mb-3">
+              All these services are included in one simple subscription for just €24.99/month, providing you with comprehensive support throughout your Spanish property search and relocation journey.
+            </p>
+            <p className="text-accent-foreground font-medium">
+              Start with a 7-day free trial! We'll ask for your card details, but you won't be charged until the trial ends.
             </p>
           </div>
           
           <Link to="/ai-guardian">
             <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent">
-              Explore AI Guardian Services
+              Try AI Guardian Free for 7 Days
             </Button>
           </Link>
         </div>

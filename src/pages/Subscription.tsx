@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
@@ -26,9 +25,9 @@ const subscriptionTiers = [
     isPopular: false,
   },
   {
-    id: 'premium',
-    title: 'Premium',
-    price: 9.99,
+    id: 'guardian',
+    title: 'AI Guardian',
+    price: 24.99,
     description: 'Complete access to all property search and relocation services',
     features: [
       'Unlimited property matches',
@@ -40,19 +39,7 @@ const subscriptionTiers = [
       'Moving company recommendations',
       'Personalized relocation guides',
       'Market insights and analytics',
-    ],
-    buttonText: 'Upgrade Now',
-    isPopular: true,
-  },
-  {
-    id: 'guardian',
-    title: 'AI Guardian',
-    price: 19.99,
-    description: 'Premium plan plus full AI relocation assistance',
-    features: [
-      'All Premium features',
       'AI Guardian for full relocation support',
-      'Personalized relocation timeline',
       'Document checklist and reminders',
       'Visa and residency guidance',
       'Tax planning assistance',
@@ -61,8 +48,10 @@ const subscriptionTiers = [
       'Priority customer support',
       '24/7 AI assistance',
     ],
-    buttonText: 'Get Guardian',
-    isPopular: false,
+    buttonText: 'Start Free Trial',
+    isPopular: true,
+    hasTrial: true,
+    trialDays: 7
   }
 ];
 
@@ -134,7 +123,7 @@ const Subscription = () => {
                     Select the plan that best fits your needs and start your Spanish property journey
                   </p>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {subscriptionTiers.map((tier) => (
                       <div 
                         key={tier.id} 
@@ -158,7 +147,7 @@ const Subscription = () => {
                       disabled={!selectedPlan || loading}
                       className="px-8"
                     >
-                      {loading ? 'Processing...' : 'Subscribe Now'}
+                      {loading ? 'Processing...' : selectedPlan === 'guardian' ? 'Start Free Trial' : 'Subscribe Now'}
                     </Button>
                     
                     <p className="mt-4 text-sm text-muted-foreground">

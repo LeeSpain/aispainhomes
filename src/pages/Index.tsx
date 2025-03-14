@@ -12,11 +12,11 @@ import { sampleProperties } from '@/data/sampleProperties';
 // Get first 3 properties for featured section
 const featuredProperties = sampleProperties.slice(0, 3);
 
-// Updated subscription tier - single €9.99 option with comprehensive services
+// Updated subscription tier - single €24.99 option with comprehensive services and 7-day trial
 const subscriptionTier = {
-  id: 'premium',
-  title: 'Premium Access',
-  price: 9.99,
+  id: 'guardian',
+  title: 'AI Guardian',
+  price: 24.99,
   description: 'Complete access to all property search and relocation services',
   features: [
     'Unlimited property matches',
@@ -30,7 +30,9 @@ const subscriptionTier = {
     'Market insights and analytics'
   ],
   isPopular: true,
-  buttonText: 'Start Your Journey'
+  buttonText: 'Start Free Trial',
+  hasTrial: true,
+  trialDays: 7
 };
 
 const Index = () => {
@@ -104,9 +106,9 @@ const Index = () => {
               
               <div className="mt-12 text-center max-w-2xl mx-auto">
                 <p className="text-sm text-muted-foreground">
-                  Our all-inclusive premium subscription provides unlimited property searches with AI-powered matching, 
-                  daily email alerts featuring your top 10 property matches, comprehensive relocation services including 
-                  lawyer and utility provider recommendations, and multilingual support throughout your journey to Spain.
+                  Our all-inclusive AI Guardian subscription provides comprehensive property search and relocation 
+                  assistance for your move to Spain. Start with a 7-day free trial to experience the full power of 
+                  our AI-driven platform before your subscription begins at €24.99/month.
                 </p>
               </div>
             </div>

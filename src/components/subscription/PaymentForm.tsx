@@ -68,17 +68,21 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
       setIsProcessing(false);
       setIsCompleted(true);
       
+      // Calculate trial end date (7 days from now)
+      const trialEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      
       // Update user subscription in context
       updateUserPreferences({
         subscription: {
           plan: selectedPlan,
-          status: 'active',
+          status: 'trial',
           startDate: new Date().toISOString(),
-          nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          trialEndDate: trialEndDate.toISOString(),
+          nextBillingDate: trialEndDate.toISOString(),
         }
       });
       
-      toast.success(`Successfully subscribed to ${selectedPlan} plan`);
+      toast.success(`Your 7-day free trial has started!`);
       
       // Notify parent component of success
       setTimeout(() => {
@@ -92,8 +96,10 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
       {!isCompleted ? (
         <Card>
           <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
-            <CardDescription>Enter your payment information for the {selectedPlan} plan</CardDescription>
+            <CardTitle>Start Your 7-Day Free Trial</CardTitle>
+            <CardDescription>
+              Enter your payment details to begin. You won't be charged until after your trial ends.
+            </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -147,13 +153,17 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
                   />
                 </div>
               </div>
+              
+              <div className="bg-primary/5 p-3 rounded-lg border text-sm">
+                <p><strong>Trial Terms:</strong> Your 7-day free trial starts today. Your card will be charged €24.99 after the trial period unless you cancel. Cancel anytime from your dashboard.</p>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button type="button" variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Pay Now'}
+                {isProcessing ? 'Processing...' : 'Start Free Trial'}
               </Button>
             </CardFooter>
           </form>
@@ -164,10 +174,14 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
             <div className="mb-4 flex justify-center">
               <CheckCircle2 className="h-12 w-12 text-primary" />
             </div>
-            <CardTitle className="mb-2">Payment Successful!</CardTitle>
-            <CardDescription>
-              Thank you for subscribing to the {selectedPlan} plan. Your subscription is now active.
+            <CardTitle className="mb-2">Your Free Trial Has Started!</CardTitle>
+            <CardDescription className="mb-3">
+              Welcome to AI Guardian! Your 7-day free trial is now active.
             </CardDescription>
+            <p className="text-sm text-muted-foreground">
+              Your card will be automatically charged €24.99 after your trial period ends. 
+              You can cancel anytime from your dashboard.
+            </p>
           </CardContent>
         </Card>
       )}

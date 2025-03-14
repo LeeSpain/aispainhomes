@@ -15,6 +15,13 @@ const SettingsTab = ({ user, userPreferences, onLogout }: SettingsTabProps) => {
   const navigate = useNavigate();
   
   const currentPlan = userPreferences?.subscription?.plan || 'basic';
+  const subscriptionStatus = userPreferences?.subscription?.status || 'inactive';
+  const isTrialActive = subscriptionStatus === 'trial';
+  
+  const trialEndDate = userPreferences?.subscription?.trialEndDate 
+    ? new Date(userPreferences.subscription.trialEndDate).toLocaleDateString() 
+    : '';
+    
   const nextBillingDate = userPreferences?.subscription?.nextBillingDate 
     ? new Date(userPreferences.subscription.nextBillingDate).toLocaleDateString() 
     : '15/09/2023';
@@ -84,7 +91,9 @@ const SettingsTab = ({ user, userPreferences, onLogout }: SettingsTabProps) => {
                 <p className="text-sm text-muted-foreground">
                   {currentPlan === 'basic' 
                     ? 'Free plan' 
-                    : `€${currentPlan === 'premium' ? '9.99' : '19.99'}/month • Next billing date: ${nextBillingDate}`}
+                    : isTrialActive
+                      ? `Free trial (€24.99/month after trial) • Trial ends: ${trialEndDate}`
+                      : `€24.99/month • Next billing date: ${nextBillingDate}`}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={() => navigate('/subscription')}>

@@ -31,10 +31,13 @@ const PricingSection = () => {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="mb-6 text-center">
-            <span className="text-5xl font-bold">€19.99</span>
+          <div className="mb-4 text-center">
+            <span className="text-5xl font-bold">€24.99</span>
             <span className="text-muted-foreground text-lg"> / month</span>
-            <p className="text-sm text-muted-foreground mt-2">No long-term contract. Cancel anytime.</p>
+            <p className="text-accent-foreground font-medium mt-2">
+              Start with a 7-day free trial
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">Card details required. Cancel anytime.</p>
           </div>
           
           <Separator className="my-6" />
@@ -63,12 +66,12 @@ const PricingSection = () => {
           
           <div className="bg-primary/5 p-4 rounded-lg border mb-8">
             <p className="text-sm">
-              <strong>Special Offer:</strong> Sign up now and get your first month at 50% off. Use code <span className="font-mono bg-primary/10 px-2 py-0.5 rounded">WELCOME50</span> at checkout.
+              <strong>How it works:</strong> Sign up today and start your free 7-day trial. Your card will be charged €24.99 after the trial period unless you cancel. No long-term contract required.
             </p>
           </div>
           
           <Button size="lg" className="w-full py-6 text-lg" onClick={handleGetStarted}>
-            Get Started Now
+            Start Your Free Trial
           </Button>
         </CardContent>
       </Card>

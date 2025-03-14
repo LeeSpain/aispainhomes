@@ -10,6 +10,8 @@ interface SubscriptionTier {
   features: string[];
   isPopular?: boolean;
   buttonText: string;
+  hasTrial?: boolean;
+  trialDays?: number;
 }
 
 interface SubscriptionCardProps {
@@ -45,10 +47,16 @@ const SubscriptionCard = ({ tier, isSelected = false, onSelect, isCurrentPlan = 
       )}
       
       <h3 className="text-2xl font-bold mb-2">{tier.title}</h3>
-      <div className="mb-4">
+      <div className="mb-2">
         <span className="text-4xl font-bold">€{tier.price}</span>
         <span className="text-muted-foreground">/month</span>
       </div>
+      
+      {tier.hasTrial && (
+        <div className="bg-primary/10 text-accent-foreground font-medium rounded-md py-1 px-2 text-sm mb-3 inline-block">
+          {tier.trialDays}-day free trial
+        </div>
+      )}
       
       <p className="text-muted-foreground mb-6">{tier.description}</p>
       
@@ -76,7 +84,9 @@ const SubscriptionCard = ({ tier, isSelected = false, onSelect, isCurrentPlan = 
       </Button>
       
       <p className="text-xs text-center text-muted-foreground mt-4">
-        No long-term contract. Cancel anytime.
+        {tier.hasTrial 
+          ? "Card details required. You won't be charged until after your trial ends."
+          : "No long-term contract. Cancel anytime."}
       </p>
     </div>
   );
