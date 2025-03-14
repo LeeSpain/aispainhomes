@@ -51,7 +51,9 @@ const Dashboard = () => {
     recentSearches: [],
     subscription: {
       plan: 'basic',
-      status: 'active'
+      status: 'active',
+      startDate: new Date().toISOString(),
+      nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
     }
   };
   
@@ -120,7 +122,7 @@ const Dashboard = () => {
                 <div className="sticky top-24">
                   <AIGuardianChat user={currentUser} />
                   <div className="mt-6">
-                    <MembershipOverview subscription={currentPreferences?.subscription} />
+                    <MembershipOverview subscription={currentPreferences.subscription} />
                   </div>
                   <div className="mt-4">
                     <Button 
