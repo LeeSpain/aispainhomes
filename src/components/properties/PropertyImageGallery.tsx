@@ -11,47 +11,34 @@ interface PropertyImageGalleryProps {
 
 const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
-  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // If no images are provided, use a placeholder
   const displayImages = images.length > 0 
     ? images 
     : ['/placeholder.svg'];
-  
-  // Initialize loading state for each image
+
   useEffect(() => {
-    setImagesLoaded(new Array(displayImages.length).fill(false));
-  }, [displayImages]);
-  
-  // Preload all images
-  useEffect(() => {
-    const imagePromises = displayImages.map((src, index) => {
+    // Reset loading state when images prop changes
+    setIsLoading(true);
+    
+    // Preload all images before showing any
+    const imagePromises = displayImages.map((src) => {
       return new Promise<void>((resolve) => {
         const img = new Image();
         img.src = src;
-        img.onload = () => {
-          setImagesLoaded(prev => {
-            const newState = [...prev];
-            newState[index] = true;
-            return newState;
-          });
-          resolve();
-        };
-        img.onerror = () => {
-          setImagesLoaded(prev => {
-            const newState = [...prev];
-            newState[index] = true;
-            return newState;
-          });
-          resolve();
-        };
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // Resolve even on error to continue
       });
     });
     
-    Promise.all(imagePromises).then(() => {
-      setAllImagesLoaded(true);
-    });
+    Promise.all(imagePromises)
+      .then(() => {
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false); // Ensure loading state is turned off even if errors occur
+      });
   }, [displayImages]);
 
   const nextImage = () => {
@@ -66,13 +53,10 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
     );
   };
 
-  // Show skeleton until all images for this gallery are loaded
-  if (!allImagesLoaded) {
+  if (isLoading) {
     return (
-      <div className="relative w-full overflow-hidden rounded-lg">
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
-          <Skeleton className="h-full w-full absolute" />
-        </div>
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
+        <Skeleton className="h-full w-full" />
       </div>
     );
   }
