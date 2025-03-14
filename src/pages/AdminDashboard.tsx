@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
 import { Users, Home, FileText, BarChart3, Globe, Bot, Settings, Server } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Navbar from '@/components/common/Navbar';
-import Footer from '@/components/common/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { PropertyService } from '@/services/PropertyService';
 import { Property } from '@/components/properties/PropertyCard';
@@ -123,8 +121,6 @@ const AdminDashboard = () => {
             </Tabs>
           </div>
         </main>
-        
-        <Footer />
       </div>
     </>
   );

@@ -1,7 +1,6 @@
 
 import { Helmet } from 'react-helmet';
 import Navbar from '@/components/common/Navbar';
-import Footer from '@/components/common/Footer';
 import { ReactNode } from 'react';
 
 interface DashboardLayoutProps {
@@ -23,7 +22,6 @@ const DashboardLayout = ({ title, children }: DashboardLayoutProps) => {
             {children}
           </div>
         </main>
-        <Footer />
       </div>
     </>
   );
