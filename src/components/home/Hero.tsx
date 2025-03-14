@@ -8,7 +8,7 @@ const Hero = () => {
   const { user } = useAuth();
   
   return (
-    <div className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/10 overflow-hidden pt-24 md:pt-32">
+    <div className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/10 overflow-hidden pt-16 md:pt-24">
       {/* Background pattern */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(155,135,245,0.05),transparent_70%)]"></div>
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom_left,rgba(155,135,245,0.05),transparent_70%)]"></div>
