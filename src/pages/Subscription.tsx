@@ -37,7 +37,8 @@ const Subscription = () => {
   }, [user, hasActiveSubscription, currentPlan, navigate]);
   
   const handlePaymentSuccess = () => {
-    navigate('/dashboard');
+    toast.success('Payment successful! Please verify your email to continue.');
+    navigate('/verify-email');
   };
   
   return (

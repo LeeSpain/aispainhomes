@@ -31,6 +31,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import SiteTracking from './pages/SiteTracking';
 import WebsiteTracking from './pages/WebsiteTracking';
 import OfficialResources from './pages/OfficialResources';
+import EmailVerification from './pages/EmailVerification';
 import { AuthProvider } from './contexts/auth';
 import { LanguageProvider } from './contexts/LanguageContext';
 
@@ -65,6 +66,7 @@ function AppContent() {
           <Route path="/property" element={<Property />} />
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/subscription" element={<Subscription />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/password-recovery" element={<PasswordRecovery />} />
           <Route path="/profile-settings" element={<ProfileSettings />} />
           <Route path="/terms" element={<TermsAndConditions />} />

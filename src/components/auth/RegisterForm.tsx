@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 interface FormErrors {
   name?: string;
@@ -70,7 +71,8 @@ const RegisterForm = () => {
     
     try {
       await register(name, email, password);
-      navigate("/dashboard");
+      toast.success('Account created! Complete your payment to continue.');
+      navigate('/subscription?plan=guardian&step=payment');
     } catch (error) {
       console.error("Registration failed:", error);
       setGeneralError(

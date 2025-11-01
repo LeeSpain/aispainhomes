@@ -20,34 +20,51 @@ const QuestionnaireContainer = () => {
   const [authTab, setAuthTab] = useState<'login' | 'register'>('register');
   
   const handleShowResults = async () => {
-    // Save questionnaire response if user is logged in
-    if (user) {
+    // Check if user has active subscription
+    if (user?.id) {
       try {
-        // @ts-ignore - Type will be available after database types regenerate
-        await supabase.from('questionnaire_responses').insert({
-          user_id: user.id,
-          service_type: formData.service,
-          property_type: formData.purpose,
-          property_types: formData.propertyTypes,
-          location_preferences: { location: formData.location },
-          budget_range: {
-            min: formData.priceRange[0],
-            max: formData.priceRange[1]
-          },
-          household_details: {
-            bedrooms: formData.bedrooms,
-            bathrooms: formData.bathrooms,
-            minArea: formData.minArea
-          },
-          amenities_required: formData.selectedAmenities
-        });
+        // Save questionnaire responses to database
+        const { error } = await supabase
+          .from('questionnaire_responses')
+          .upsert({
+            user_id: user.id,
+            service_type: formData.service,
+            property_type: formData.purpose,
+            property_types: formData.propertyTypes,
+            location_preferences: { location: formData.location },
+            budget_range: {
+              min: formData.priceRange[0],
+              max: formData.priceRange[1]
+            },
+            household_details: {
+              bedrooms: formData.bedrooms,
+              bathrooms: formData.bathrooms,
+              minArea: formData.minArea
+            },
+            amenities_required: formData.selectedAmenities,
+            updated_at: new Date().toISOString(),
+          });
+
+        if (error) {
+          console.error('Error saving questionnaire responses:', error);
+          toast.error('Failed to save your responses');
+          return;
+        }
+
+        console.log('Questionnaire responses saved successfully');
+        
+        // Redirect to dashboard instead of showing results
+        toast.success('Questionnaire completed! Welcome to your dashboard.');
+        navigate('/dashboard');
       } catch (error) {
-        console.error('Error saving questionnaire response:', error);
-        toast.error('Failed to save your preferences');
+        console.error('Error saving questionnaire responses:', error);
+        toast.error('Failed to save your responses');
+        return;
       }
+    } else {
+      // If not logged in, show results page
+      setShowResults(true);
     }
-    
-    setShowResults(true);
   };
   
   const handleContinueToAuth = () => {

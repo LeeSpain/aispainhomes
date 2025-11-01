@@ -24,6 +24,7 @@ import { PropertyService } from '@/services/PropertyService';
 import { UserPreferences } from '@/contexts/auth/types';
 import { cn } from '@/lib/utils';
 import { useDashboardInit } from '@/hooks/useDashboardInit';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user, userPreferences, isLoading: authLoading, logout } = useAuth();
@@ -84,12 +85,35 @@ const Dashboard = () => {
     loadAlertCount();
   }, [user?.id]);
   
-  // Redirect to login if not authenticated
+  // Redirect guards: login -> email verification -> questionnaire -> dashboard
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (authLoading) return;
+    
+    // 1. Not authenticated -> login
+    if (!user) {
       navigate('/login');
+      return;
     }
-  }, [user, authLoading, navigate]);
+    
+    // 2. Email not verified -> email verification page
+    // Check if user's email is confirmed by fetching fresh user data
+    const checkEmailVerification = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (!currentUser?.email_confirmed_at) {
+        navigate('/verify-email');
+        return;
+      }
+      
+      // 3. Questionnaire not completed -> questionnaire page
+      if (!hasCompletedQuestionnaire) {
+        navigate('/questionnaire');
+        return;
+      }
+    };
+    
+    checkEmailVerification();
+  }, [user, authLoading, hasCompletedQuestionnaire, navigate]);
   
   // Properties are now loaded via usePersonalizedDashboard hook
   
