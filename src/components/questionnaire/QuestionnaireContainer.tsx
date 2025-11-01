@@ -22,6 +22,14 @@ const QuestionnaireContainer = () => {
     if (user?.id) {
       try {
         // Save questionnaire responses to database
+        // Format lifestyle preferences to ensure arrays are properly structured
+        const lifestylePrefs = {
+          climatePreference: formData.lifestyle.climatePreference,
+          areaType: formData.lifestyle.areaType,
+          communityPreference: formData.lifestyle.communityPreference,
+          proximityPriorities: formData.lifestyle.proximityPriorities
+        };
+
         const { error } = await supabase
           .from('questionnaire_responses')
           .upsert({
@@ -37,7 +45,11 @@ const QuestionnaireContainer = () => {
               max: formData.priceRange[1]
             },
             household_details: {
-              ...formData.household,
+              adults: formData.household.adults,
+              children: formData.household.children,
+              childrenAges: formData.household.childrenAges,
+              pets: formData.household.pets,
+              specialNeeds: formData.household.specialNeeds,
               bedrooms: formData.bedrooms,
               bathrooms: formData.bathrooms,
               minArea: formData.minArea
@@ -45,11 +57,12 @@ const QuestionnaireContainer = () => {
             amenities_required: formData.selectedAmenities,
             employment_status: formData.employment.status,
             legal_documentation: formData.legalDocs,
-            lifestyle_preferences: formData.lifestyle,
+            lifestyle_preferences: lifestylePrefs,
             services_needed: formData.servicesNeeded,
             additional_notes: formData.additionalInfo.specialRequests,
             referral_source: formData.additionalInfo.referralSource,
             relocation_budget_range: { budget: formData.additionalInfo.relocationBudget },
+            completed_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           });
 
