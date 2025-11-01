@@ -23,7 +23,7 @@ const DashboardSidebar = ({ user, subscription }: DashboardSidebarProps) => {
       </div>
       <div className="mt-4">
         <Button 
-          onClick={() => navigate('/site-tracking')} 
+          onClick={() => navigate('/website-tracking')} 
           variant="outline" 
           className="w-full flex items-center justify-between"
         >

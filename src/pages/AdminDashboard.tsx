@@ -8,7 +8,7 @@ import StatsCards from '@/components/admin/StatsCards';
 import OverviewTab from '@/components/admin/OverviewTab';
 import SubscriptionsTab from '@/components/admin/SubscriptionsTab';
 import UsersTab from '@/components/admin/UsersTab';
-import WebsitesTab from '@/components/admin/WebsitesTab';
+import AdminWebsiteTrackingTab from '@/components/admin/AdminWebsiteTrackingTab';
 import AISettingsTab from '@/components/admin/AISettingsTab';
 import SystemSettingsTab from '@/components/admin/SystemSettingsTab';
 import { siteTrackingService, TrackedSite } from '@/services/site/siteTrackingService';
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
       case 'users':
         return <UsersTab users={users} />;
       case 'websites':
-        return <WebsitesTab trackedSites={trackedSites} />;
+        return <AdminWebsiteTrackingTab />;
       case 'ai':
         return <AISettingsTab />;
       case 'system':
