@@ -39,7 +39,7 @@ const QuestionnaireContainer = () => {
             property_types: formData.propertyTypes,
             personal_info: formData.personalInfo,
             relocation_timeline: formData.relocationTimeline,
-            location_preferences: { location: formData.location },
+            location_preferences: formData.location ? [formData.location] : [],
             budget_range: {
               min: formData.priceRange[0],
               max: formData.priceRange[1]
@@ -69,7 +69,7 @@ const QuestionnaireContainer = () => {
           });
 
         if (error) {
-          console.error('Error saving questionnaire responses:', error);
+          console.error('Error saving questionnaire responses:', error?.message ?? error, error);
           toast.error('Failed to save your responses');
           return;
         }
@@ -80,7 +80,7 @@ const QuestionnaireContainer = () => {
         toast.success('Questionnaire completed! Welcome to your dashboard.');
         navigate('/dashboard');
       } catch (error) {
-        console.error('Error saving questionnaire responses:', error);
+        console.error('Error saving questionnaire responses:', error?.message ?? error, error);
         toast.error('Failed to save your responses');
         return;
       }
