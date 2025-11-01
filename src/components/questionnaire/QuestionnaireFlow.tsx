@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionnaireLayout from './QuestionnaireLayout';
 import PersonalInfoStep from './steps/PersonalInfoStep';
@@ -35,6 +35,11 @@ const QuestionnaireFlow = ({
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 10; // Complete questionnaire for both property and guardian services
+
+  // Scroll to top whenever step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
