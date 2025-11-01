@@ -31,6 +31,12 @@ const Dashboard = () => {
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
+  // Debug logging
+  useEffect(() => {
+    console.log('Dashboard - Current user:', user);
+    console.log('Dashboard - User preferences:', userPreferences);
+  }, [user, userPreferences]);
+  
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {

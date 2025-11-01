@@ -41,10 +41,12 @@ const PublicAdminDashboard = () => <AdminDashboard />;
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const hideNavAndFooter = isAdminRoute || isDashboardRoute;
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isAdminRoute && <Navbar />}
+      {!hideNavAndFooter && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />
@@ -75,7 +77,7 @@ function AppContent() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isAdminRoute && <Footer />}
+      {!hideNavAndFooter && <Footer />}
       <Toaster />
       <CookieConsent />
       <ScrollToTop />
