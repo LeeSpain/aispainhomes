@@ -4,10 +4,10 @@ project_id = "hwuzrpvvswraruhgrwco"
 verify_jwt = true
 
 [functions.ai-settings-update]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-test-connection]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-usage-report]
 verify_jwt = true
