@@ -64,6 +64,8 @@ const QuestionnaireContainer = () => {
             relocation_budget_range: { budget: formData.additionalInfo.relocationBudget },
             completed_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'user_id'
           });
 
         if (error) {
