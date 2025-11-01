@@ -57,9 +57,10 @@ const AIClaraChat = ({ user }: AIClaraChatProps) => {
           citedResources: Array.isArray(msg.cited_resources) ? msg.cited_resources as string[] : []
         })));
       } else {
+        const firstName = user.name.split(' ')[0];
         setMessages([{
           id: '1',
-          content: `Hello ${user.name}, I'm Clara, your AI assistant. I have access to 100+ official Spanish government resources to help with your relocation and property needs.`,
+          content: `Hello ${firstName}, I'm Clara, your AI assistant. I have access to 100+ official Spanish government resources to help with your relocation and property needs.`,
           sender: 'assistant',
           timestamp: new Date(),
           citedResources: []
