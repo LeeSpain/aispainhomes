@@ -81,6 +81,14 @@ serve(async (req) => {
       console.error('Error fetching instructions:', instructionsError);
     }
 
+    // Fetch tracked websites for context
+    const { data: trackedWebsites } = await supabase
+      .from('tracked_websites')
+      .select('name, url, category, last_checked_at')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .limit(10);
+
     // Build system prompt with custom instructions
     let systemPrompt = settings.system_prompt || 'You are a helpful AI assistant.';
     
@@ -89,10 +97,38 @@ serve(async (req) => {
       systemPrompt += instructions.map(i => `- ${i.instruction}`).join('\n');
     }
 
+    if (trackedWebsites && trackedWebsites.length > 0) {
+      const websiteList = trackedWebsites.map(w => `- ${w.name} (${w.category}): ${w.url}`).join('\n');
+      systemPrompt += `\n\nUser's Tracked Websites:\n${websiteList}`;
+    }
+
+    systemPrompt += `\n\nIMPORTANT: If the user asks questions outside of your knowledge (about current events, recent data, or information you don't have), use the web_search function to find accurate, up-to-date information.`;
+
     // Prepare messages for OpenAI
     const openaiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages
+    ];
+
+    // Define tools for function calling
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "web_search",
+          description: "Search the web for current information, recent events, or data you don't have. Use this when you need up-to-date information or when the user asks about things outside your knowledge base.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "The search query to find information on the web"
+              }
+            },
+            required: ["query"]
+          }
+        }
+      }
     ];
 
     // Call OpenAI API
@@ -103,7 +139,7 @@ serve(async (req) => {
 
     console.log('Calling OpenAI with model:', settings.model);
 
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    let openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
@@ -114,6 +150,8 @@ serve(async (req) => {
         messages: openaiMessages,
         temperature: settings.temperature,
         max_tokens: settings.max_tokens,
+        tools: tools,
+        tool_choice: "auto"
       }),
     });
 
@@ -123,8 +161,77 @@ serve(async (req) => {
       throw new Error(`OpenAI API error: ${openaiResponse.status}`);
     }
 
-    const responseData = await openaiResponse.json();
-    const assistantMessage = responseData.choices[0].message.content;
+    let responseData = await openaiResponse.json();
+    let assistantMessage = responseData.choices[0].message.content;
+    const toolCalls = responseData.choices[0].message.tool_calls;
+
+    // Handle function calls
+    if (toolCalls && toolCalls.length > 0) {
+      console.log('AI requested function calls:', toolCalls.length);
+      
+      for (const toolCall of toolCalls) {
+        if (toolCall.function.name === 'web_search') {
+          const args = JSON.parse(toolCall.function.arguments);
+          console.log('Performing web search:', args.query);
+
+          // Call web search function
+          const searchResponse = await fetch(
+            `${Deno.env.get('SUPABASE_URL')}/functions/v1/web-search`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': req.headers.get('Authorization')!,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ query: args.query, numResults: 5 }),
+            }
+          );
+
+          let searchResults: any = { results: [] };
+          if (searchResponse.ok) {
+            searchResults = await searchResponse.json();
+            console.log('Search completed:', searchResults.count, 'results');
+          }
+
+          // Add function result to messages
+          openaiMessages.push({
+            role: 'assistant',
+            content: null,
+            tool_calls: [toolCall]
+          } as any);
+
+          openaiMessages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(searchResults.results || [])
+          } as any);
+        }
+      }
+
+      // Make second API call with function results
+      openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: settings.model,
+          messages: openaiMessages,
+          temperature: settings.temperature,
+          max_tokens: settings.max_tokens,
+        }),
+      });
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        console.error('OpenAI API error on second call:', openaiResponse.status, errorText);
+        throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+      }
+
+      responseData = await openaiResponse.json();
+      assistantMessage = responseData.choices[0].message.content;
+    }
     const tokensUsed = responseData.usage.total_tokens;
     const inputTokens = responseData.usage.prompt_tokens;
     const outputTokens = responseData.usage.completion_tokens;

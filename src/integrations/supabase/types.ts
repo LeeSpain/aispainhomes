@@ -149,6 +149,231 @@ export type Database = {
         }
         Relationships: []
       }
+      extracted_items: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          external_id: string | null
+          first_seen_at: string | null
+          id: string
+          images: Json | null
+          is_active: boolean | null
+          item_type: string | null
+          last_seen_at: string | null
+          location: string | null
+          metadata: Json | null
+          price: number | null
+          status_changed_at: string | null
+          title: string | null
+          tracked_website_id: string
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          external_id?: string | null
+          first_seen_at?: string | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          item_type?: string | null
+          last_seen_at?: string | null
+          location?: string | null
+          metadata?: Json | null
+          price?: number | null
+          status_changed_at?: string | null
+          title?: string | null
+          tracked_website_id: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          external_id?: string | null
+          first_seen_at?: string | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          item_type?: string | null
+          last_seen_at?: string | null
+          location?: string | null
+          metadata?: Json | null
+          price?: number | null
+          status_changed_at?: string | null
+          title?: string | null
+          tracked_website_id?: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extracted_items_tracked_website_id_fkey"
+            columns: ["tracked_website_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_websites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracked_websites: {
+        Row: {
+          category: string
+          check_frequency: string | null
+          created_at: string | null
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          last_checked_at: string | null
+          last_error: string | null
+          last_status: string | null
+          location: string | null
+          metadata: Json | null
+          name: string
+          updated_at: string | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          check_frequency?: string | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          last_error?: string | null
+          last_status?: string | null
+          location?: string | null
+          metadata?: Json | null
+          name: string
+          updated_at?: string | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          check_frequency?: string | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          last_error?: string | null
+          last_status?: string | null
+          location?: string | null
+          metadata?: Json | null
+          name?: string
+          updated_at?: string | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      website_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          metadata: Json | null
+          notification_type: string | null
+          severity: string | null
+          title: string
+          tracked_website_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          metadata?: Json | null
+          notification_type?: string | null
+          severity?: string | null
+          title: string
+          tracked_website_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          metadata?: Json | null
+          notification_type?: string | null
+          severity?: string | null
+          title?: string
+          tracked_website_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_notifications_tracked_website_id_fkey"
+            columns: ["tracked_website_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_websites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      website_scrape_results: {
+        Row: {
+          changed_items: number | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          items_found: number | null
+          new_items: number | null
+          raw_data: Json | null
+          removed_items: number | null
+          scrape_duration_ms: number | null
+          scrape_timestamp: string | null
+          status: string
+          tracked_website_id: string
+        }
+        Insert: {
+          changed_items?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          items_found?: number | null
+          new_items?: number | null
+          raw_data?: Json | null
+          removed_items?: number | null
+          scrape_duration_ms?: number | null
+          scrape_timestamp?: string | null
+          status: string
+          tracked_website_id: string
+        }
+        Update: {
+          changed_items?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          items_found?: number | null
+          new_items?: number | null
+          raw_data?: Json | null
+          removed_items?: number | null
+          scrape_duration_ms?: number | null
+          scrape_timestamp?: string | null
+          status?: string
+          tracked_website_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_scrape_results_tracked_website_id_fkey"
+            columns: ["tracked_website_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_websites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

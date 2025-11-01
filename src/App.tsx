@@ -29,6 +29,7 @@ import Footer from './components/common/Footer';
 import CookieConsent from './components/common/CookieConsent';
 import ScrollToTop from './components/common/ScrollToTop';
 import SiteTracking from './pages/SiteTracking';
+import WebsiteTracking from './pages/WebsiteTracking';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
@@ -53,6 +54,7 @@ function AppContent() {
           <Route path="/admin" element={<PublicAdminDashboard />} />
           <Route path="/pre-deployment" element={<PreDeployment />} />
           <Route path="/site-tracking" element={<SiteTracking />} />
+          <Route path="/website-tracking" element={<WebsiteTracking />} />
           <Route path="/property-search" element={<PropertySearch />} />
           <Route path="/search" element={<PropertySearch />} />
           <Route path="/property/:id" element={<PropertyDetails />} />

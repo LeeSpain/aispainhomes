@@ -11,3 +11,12 @@ verify_jwt = true
 
 [functions.ai-usage-report]
 verify_jwt = true
+
+[functions.scrape-website]
+verify_jwt = true
+
+[functions.add-tracked-website]
+verify_jwt = true
+
+[functions.web-search]
+verify_jwt = true
