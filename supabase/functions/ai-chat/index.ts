@@ -17,7 +17,6 @@ interface ChatRequest {
   sessionId: string;
 }
 
-// Token cost estimates per 1K tokens (as of 2024)
 const TOKEN_COSTS = {
   'gpt-4o': { input: 0.005, output: 0.015 },
   'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
@@ -36,93 +35,110 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get user from auth header
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
+    if (!authHeader) throw new Error('No authorization header');
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
+    if (userError || !user) throw new Error('Unauthorized');
 
     const { messages, sessionId }: ChatRequest = await req.json();
 
-    console.log('Chat request from user:', user.id, 'Session:', sessionId);
-
-    // Fetch user's AI settings
-    const { data: settings, error: settingsError } = await supabase
+    // Fetch AI settings
+    const { data: settings } = await supabase
       .from('ai_settings')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
-    if (settingsError) {
-      console.error('Error fetching settings:', settingsError);
-      throw new Error('Failed to fetch AI settings');
+    if (!settings || !settings.is_enabled) {
+      throw new Error('AI assistant is disabled');
     }
 
-    if (!settings.is_enabled) {
-      throw new Error('AI assistant is disabled for this user');
-    }
-
-    // Fetch active custom instructions
-    const { data: instructions, error: instructionsError } = await supabase
+    // Fetch custom instructions
+    const { data: instructions } = await supabase
       .from('ai_client_instructions')
       .select('instruction')
       .eq('user_id', user.id)
       .eq('is_active', true)
       .order('priority', { ascending: false });
 
-    if (instructionsError) {
-      console.error('Error fetching instructions:', instructionsError);
-    }
-
-    // Fetch tracked websites for context
+    // Fetch tracked websites
     const { data: trackedWebsites } = await supabase
       .from('tracked_websites')
-      .select('name, url, category, last_checked_at')
+      .select('name, url, category')
       .eq('user_id', user.id)
       .eq('is_active', true)
       .limit(10);
+    
+    // Fetch relevant official resources
+    const lastUserMessage = messages[messages.length - 1]?.content || '';
+    const searchTerms = lastUserMessage.toLowerCase();
+    
+    const { data: officialResources } = await supabase
+      .from('official_resources')
+      .select('*')
+      .eq('is_active', true)
+      .or(`title.ilike.%${searchTerms}%,description.ilike.%${searchTerms}%`)
+      .limit(5);
+    
+    // Build resources context
+    let resourcesContext = '';
+    if (officialResources && officialResources.length > 0) {
+      resourcesContext = '\n\n=== OFFICIAL SPANISH GOVERNMENT RESOURCES ===\n';
+      resourcesContext += 'You have access to these verified official resources. ALWAYS cite them when relevant:\n\n';
+      officialResources.forEach((resource: any, index: number) => {
+        resourcesContext += `${index + 1}. [${resource.title}](${resource.url})\n`;
+        resourcesContext += `   Authority: ${resource.authority}\n`;
+        resourcesContext += `   Category: ${resource.category}\n`;
+        resourcesContext += `   Description: ${resource.description}\n\n`;
+      });
+    }
 
-    // Build system prompt with custom instructions
+    // Build system prompt
     let systemPrompt = settings.system_prompt || 'You are a helpful AI assistant.';
     
     if (instructions && instructions.length > 0) {
       systemPrompt += '\n\nAdditional Instructions:\n';
-      systemPrompt += instructions.map(i => `- ${i.instruction}`).join('\n');
+      systemPrompt += instructions.map((i: any) => `- ${i.instruction}`).join('\n');
     }
 
     if (trackedWebsites && trackedWebsites.length > 0) {
-      const websiteList = trackedWebsites.map(w => `- ${w.name} (${w.category}): ${w.url}`).join('\n');
+      const websiteList = trackedWebsites.map((w: any) => `- ${w.name} (${w.category}): ${w.url}`).join('\n');
       systemPrompt += `\n\nUser's Tracked Websites:\n${websiteList}`;
     }
+    
+    systemPrompt += resourcesContext;
+    
+    // Add legal disclaimer guidance
+    const legalKeywords = ['nie', 'visa', 'tax', 'property', 'mortgage', 'healthcare', 'work permit', 'legal'];
+    const requiresDisclaimer = legalKeywords.some(keyword => searchTerms.includes(keyword));
+    
+    if (requiresDisclaimer) {
+      systemPrompt += '\n\nIMPORTANT: This query involves legal/official matters. Include this disclaimer:\n';
+      systemPrompt += '"⚖️ Legal Disclaimer: This information is for general guidance only and does not constitute legal advice. Always consult qualified professionals or official authorities."\n';
+    }
 
-    systemPrompt += `\n\nIMPORTANT: If the user asks questions outside of your knowledge (about current events, recent data, or information you don't have), use the web_search function to find accurate, up-to-date information.`;
+    systemPrompt += `\n\nIMPORTANT: When answering questions, prioritize official resources first. Only use web_search for topics not covered by official resources.`;
 
-    // Prepare messages for OpenAI
     const openaiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages
     ];
 
-    // Define tools for function calling
     const tools = [
       {
         type: "function",
         function: {
           name: "web_search",
-          description: "Search the web for current information, recent events, or data you don't have. Use this when you need up-to-date information or when the user asks about things outside your knowledge base.",
+          description: "Search the web for current information ONLY when official resources don't cover the topic",
           parameters: {
             type: "object",
             properties: {
               query: {
                 type: "string",
-                description: "The search query to find information on the web"
+                description: "The search query"
               }
             },
             required: ["query"]
@@ -131,13 +147,8 @@ serve(async (req) => {
       }
     ];
 
-    // Call OpenAI API
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
-    }
-
-    console.log('Calling OpenAI with model:', settings.model);
+    if (!OPENAI_API_KEY) throw new Error('OpenAI API key not configured');
 
     let openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -157,8 +168,8 @@ serve(async (req) => {
 
     if (!openaiResponse.ok) {
       const errorText = await openaiResponse.text();
-      console.error('OpenAI API error:', openaiResponse.status, errorText);
-      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+      console.error('OpenAI error:', openaiResponse.status, errorText);
+      throw new Error(`OpenAI error: ${openaiResponse.status}`);
     }
 
     let responseData = await openaiResponse.json();
@@ -167,20 +178,16 @@ serve(async (req) => {
 
     // Handle function calls
     if (toolCalls && toolCalls.length > 0) {
-      console.log('AI requested function calls:', toolCalls.length);
-      
       for (const toolCall of toolCalls) {
         if (toolCall.function.name === 'web_search') {
           const args = JSON.parse(toolCall.function.arguments);
-          console.log('Performing web search:', args.query);
-
-          // Call web search function
+          
           const searchResponse = await fetch(
             `${Deno.env.get('SUPABASE_URL')}/functions/v1/web-search`,
             {
               method: 'POST',
               headers: {
-                'Authorization': req.headers.get('Authorization')!,
+                'Authorization': authHeader,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({ query: args.query, numResults: 5 }),
@@ -190,10 +197,8 @@ serve(async (req) => {
           let searchResults: any = { results: [] };
           if (searchResponse.ok) {
             searchResults = await searchResponse.json();
-            console.log('Search completed:', searchResults.count, 'results');
           }
 
-          // Add function result to messages
           openaiMessages.push({
             role: 'assistant',
             content: null,
@@ -208,7 +213,7 @@ serve(async (req) => {
         }
       }
 
-      // Make second API call with function results
+      // Second API call with function results
       openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -223,27 +228,32 @@ serve(async (req) => {
         }),
       });
 
-      if (!openaiResponse.ok) {
-        const errorText = await openaiResponse.text();
-        console.error('OpenAI API error on second call:', openaiResponse.status, errorText);
-        throw new Error(`OpenAI API error: ${openaiResponse.status}`);
-      }
+      if (!openaiResponse.ok) throw new Error('OpenAI error on second call');
 
       responseData = await openaiResponse.json();
       assistantMessage = responseData.choices[0].message.content;
     }
+
     const tokensUsed = responseData.usage.total_tokens;
     const inputTokens = responseData.usage.prompt_tokens;
     const outputTokens = responseData.usage.completion_tokens;
 
-    console.log('OpenAI response - Tokens used:', tokensUsed);
-
-    // Calculate cost
     const costs = TOKEN_COSTS[settings.model as keyof typeof TOKEN_COSTS] || TOKEN_COSTS['gpt-4o-mini'];
     const estimatedCost = (inputTokens / 1000 * costs.input) + (outputTokens / 1000 * costs.output);
 
-    // Store conversation in database
-    const conversationEntries = [
+    // Extract cited resource URLs
+    const citedUrls: string[] = [];
+    if (officialResources) {
+      officialResources.forEach((resource: any) => {
+        if (assistantMessage.includes(resource.url)) {
+          citedUrls.push(resource.url);
+        }
+      });
+    }
+
+    // Store conversation
+    const conversationId = crypto.randomUUID();
+    await supabase.from('ai_conversations').insert([
       {
         user_id: user.id,
         session_id: sessionId,
@@ -253,33 +263,43 @@ serve(async (req) => {
         model: settings.model,
       },
       {
+        id: conversationId,
         user_id: user.id,
         session_id: sessionId,
         role: 'assistant',
         content: assistantMessage,
         tokens_used: outputTokens,
         model: settings.model,
+        cited_resources: citedUrls
       },
-    ];
-
-    const { error: conversationError } = await supabase
-      .from('ai_conversations')
-      .insert(conversationEntries);
-
-    if (conversationError) {
-      console.error('Error saving conversation:', conversationError);
+    ]);
+    
+    // Save citations
+    if (citedUrls.length > 0 && officialResources) {
+      const citations = citedUrls.map(url => {
+        const resource = officialResources.find((r: any) => r.url === url);
+        return resource ? {
+          conversation_id: conversationId,
+          user_id: user.id,
+          resource_id: resource.id,
+          query_context: lastUserMessage
+        } : null;
+      }).filter(c => c !== null);
+      
+      if (citations.length > 0) {
+        await supabase.from('ai_response_citations').insert(citations);
+      }
     }
 
     // Update usage metrics
     const today = new Date().toISOString().split('T')[0];
-    
     const { data: existingMetrics } = await supabase
       .from('ai_usage_metrics')
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
       .eq('model', settings.model)
-      .single();
+      .maybeSingle();
 
     if (existingMetrics) {
       await supabase
@@ -305,15 +325,17 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       message: assistantMessage,
+      response: assistantMessage,
       tokensUsed,
       estimatedCost: estimatedCost.toFixed(4),
       model: settings.model,
+      citedResources: citedUrls
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in ai-chat function:', error);
+    console.error('Error in ai-chat:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error' 
     }), {

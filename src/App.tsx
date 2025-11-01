@@ -30,6 +30,7 @@ import CookieConsent from './components/common/CookieConsent';
 import ScrollToTop from './components/common/ScrollToTop';
 import SiteTracking from './pages/SiteTracking';
 import WebsiteTracking from './pages/WebsiteTracking';
+import OfficialResources from './pages/OfficialResources';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
@@ -55,6 +56,7 @@ function AppContent() {
           <Route path="/pre-deployment" element={<PreDeployment />} />
           <Route path="/site-tracking" element={<SiteTracking />} />
           <Route path="/website-tracking" element={<WebsiteTracking />} />
+          <Route path="/official-resources" element={<OfficialResources />} />
           <Route path="/property-search" element={<PropertySearch />} />
           <Route path="/search" element={<PropertySearch />} />
           <Route path="/property/:id" element={<PropertyDetails />} />

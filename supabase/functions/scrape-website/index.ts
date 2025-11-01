@@ -24,6 +24,15 @@ interface ExtractedItem {
   metadata?: Record<string, any>;
 }
 
+// Helper to generate content hash
+const generateHash = (content: string): string => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(content);
+  return Array.from(new Uint8Array(data))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+};
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -72,6 +81,97 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Website not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if this is an official resource
+    const isOfficialResource = website.category === 'official_resources';
+    
+    if (isOfficialResource) {
+      console.log('Processing official resource:', website.name);
+      
+      const targetUrl = url || website.url;
+      const response = await fetch(targetUrl);
+      const html = await response.text();
+      
+      // Extract text content
+      const textContent = html
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/<style[^>]*>.*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      const contentHash = generateHash(textContent);
+      
+      // Check for previous snapshot
+      const { data: lastSnapshot } = await supabase
+        .from('resource_content_snapshots')
+        .select('*')
+        .eq('resource_id', websiteId)
+        .order('snapshot_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      const changeDetected = !lastSnapshot || lastSnapshot.content_hash !== contentHash;
+      
+      if (changeDetected) {
+        console.log('Content change detected for official resource');
+        
+        // Create new snapshot
+        await supabase
+          .from('resource_content_snapshots')
+          .insert({
+            resource_id: websiteId,
+            content_hash: contentHash,
+            content_text: textContent.substring(0, 10000),
+            change_detected: !!lastSnapshot,
+            change_summary: lastSnapshot ? 'Content updated' : 'Initial snapshot'
+          });
+        
+        // Create notification if change detected
+        if (lastSnapshot && website.user_id) {
+          await supabase
+            .from('website_notifications')
+            .insert({
+              user_id: website.user_id,
+              tracked_website_id: websiteId,
+              title: 'Official Resource Updated',
+              message: `${website.name} has been updated. Please review the latest information.`,
+              severity: 'info',
+              notification_type: 'content_change',
+              metadata: { url: website.url }
+            });
+        }
+      }
+      
+      // Update tracked website
+      await supabase
+        .from('tracked_websites')
+        .update({
+          last_checked_at: new Date().toISOString(),
+          last_status: 'success'
+        })
+        .eq('id', websiteId);
+      
+      // Create scrape result
+      await supabase
+        .from('website_scrape_results')
+        .insert({
+          tracked_website_id: websiteId,
+          status: 'success',
+          items_found: changeDetected ? 1 : 0,
+          new_items: changeDetected ? 1 : 0,
+          scrape_duration_ms: Date.now() - startTime
+        });
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          changeDetected,
+          message: changeDetected ? 'Content updated' : 'No changes detected'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

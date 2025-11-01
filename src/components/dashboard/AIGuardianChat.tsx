@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bot, Send, User, RefreshCw } from 'lucide-react';
+import { Bot, Send, User, RefreshCw, ExternalLink } from 'lucide-react';
 import { User as UserType } from '@/contexts/auth/types';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,7 @@ interface Message {
   sender: 'user' | 'assistant';
   timestamp: Date;
   tokensUsed?: number;
+  citedResources?: string[];
 }
 
 interface AIGuardianChatProps {
@@ -53,14 +54,15 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
           sender: msg.role as 'user' | 'assistant',
           timestamp: new Date(msg.created_at),
           tokensUsed: msg.tokens_used,
+          citedResources: Array.isArray(msg.cited_resources) ? msg.cited_resources as string[] : []
         })));
       } else {
-        // Add welcome message
         setMessages([{
           id: '1',
-          content: `Hello ${user.name}, I'm your AI Guardian assistant. How can I help you with your property search or relocation needs today?`,
+          content: `Hello ${user.name}, I'm your AI Guardian assistant. I have access to 100+ official Spanish government resources to help with your relocation and property needs.`,
           sender: 'assistant',
           timestamp: new Date(),
+          citedResources: []
         }]);
       }
     } catch (error) {
@@ -76,6 +78,7 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
       content: input,
       sender: 'user',
       timestamp: new Date(),
+      citedResources: []
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -102,10 +105,11 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.message,
+        content: data.message || data.response,
         sender: 'assistant',
         timestamp: new Date(),
         tokensUsed: data.tokensUsed,
+        citedResources: data.citedResources || []
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -143,16 +147,35 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
               }`}
             >
               <div className="flex items-start gap-2">
-                {message.sender === 'assistant' && <Bot className="h-4 w-4 mt-1" />}
-                <div>
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.sender === 'assistant' && <Bot className="h-4 w-4 mt-1 flex-shrink-0" />}
+                <div className="flex-1">
+                  <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                  {message.citedResources && message.citedResources.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border/50 space-y-1">
+                      <p className="text-xs font-semibold flex items-center gap-1 text-green-600">
+                        ✓ Verified Official Sources
+                      </p>
+                      {message.citedResources.map((url, idx) => (
+                        <a 
+                          key={idx}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline flex items-center gap-1 group"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span className="group-hover:underline">{url}</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
                   {message.tokensUsed && (
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-2">
                       {message.tokensUsed} tokens
                     </p>
                   )}
                 </div>
-                {message.sender === 'user' && <User className="h-4 w-4 mt-1" />}
+                {message.sender === 'user' && <User className="h-4 w-4 mt-1 flex-shrink-0" />}
               </div>
             </div>
           </div>
@@ -163,7 +186,7 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
               <div className="flex items-center gap-2">
                 <Bot className="h-4 w-4" />
                 <RefreshCw className="h-3 w-3 animate-spin" />
-                <p>Typing...</p>
+                <p className="text-sm">Typing...</p>
               </div>
             </div>
           </div>
@@ -181,7 +204,7 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask your AI Guardian..."
+            placeholder="Ask about NIE, visas, property tax, healthcare..."
             className="flex-1"
           />
           <Button type="submit" size="icon" disabled={isTyping}>

@@ -21,7 +21,15 @@ const DashboardSidebar = ({ user, subscription }: DashboardSidebarProps) => {
       <div className="mt-6">
         <MembershipOverview subscription={subscription} />
       </div>
-      <div className="mt-4">
+      <div className="mt-4 space-y-2">
+        <Button 
+          onClick={() => navigate('/official-resources')} 
+          variant="outline" 
+          className="w-full flex items-center justify-between"
+        >
+          <span>Official Resources</span>
+          <ExternalLink className="h-4 w-4" />
+        </Button>
         <Button 
           onClick={() => navigate('/website-tracking')} 
           variant="outline" 
