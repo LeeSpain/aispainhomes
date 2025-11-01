@@ -6,22 +6,45 @@ import { Button } from '@/components/ui/button';
 import { AddWebsiteForm } from '@/components/sites/AddWebsiteForm';
 import { TrackedWebsitesTable } from '@/components/sites/TrackedWebsitesTable';
 import { useTrackedWebsites } from '@/hooks/useTrackedWebsites';
-import { Bell, Globe, TrendingUp } from 'lucide-react';
+import { Bell, Globe, TrendingUp, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { websiteTrackingService } from '@/services/websiteTracking/websiteTrackingService';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const WebsiteTracking = () => {
+  const queryClient = useQueryClient();
+  const [notificationFilter, setNotificationFilter] = useState<'all' | 'unread'>('unread');
+  
   const {
     websites,
-    notifications,
     isLoading,
     addWebsite,
     removeWebsite,
     updateWebsite,
     scrapeWebsite,
-    clearNotifications,
     isAdding,
     isScraping,
   } = useTrackedWebsites();
+
+  // Separate query for notifications with filter
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['website-notifications', notificationFilter],
+    queryFn: () => websiteTrackingService.getNotifications(notificationFilter === 'unread'),
+    refetchInterval: 30000,
+  });
+
+  const handleMarkAsRead = async (id: string) => {
+    await websiteTrackingService.markNotificationAsRead(id);
+    queryClient.invalidateQueries({ queryKey: ['website-notifications'] });
+  };
+
+  const handleClearNotifications = async () => {
+    await websiteTrackingService.clearNotifications();
+    queryClient.invalidateQueries({ queryKey: ['website-notifications'] });
+    toast.success('Notifications cleared');
+  };
 
   const handleToggleActive = async (id: string, isActive: boolean) => {
     await updateWebsite({ id, updates: { is_active: isActive } });
@@ -92,16 +115,26 @@ const WebsiteTracking = () => {
 
           <TabsContent value="notifications" className="space-y-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Property Updates</CardTitle>
-                  <CardDescription>New listings and changes from tracked websites</CardDescription>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle>Property Updates</CardTitle>
+                    <CardDescription>New listings and changes from tracked websites</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Tabs value={notificationFilter} onValueChange={(val: any) => setNotificationFilter(val)}>
+                      <TabsList>
+                        <TabsTrigger value="unread">Unread</TabsTrigger>
+                        <TabsTrigger value="all">All</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                    {notifications.length > 0 && (
+                      <Button variant="outline" size="sm" onClick={handleClearNotifications}>
+                        Clear Read
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                {notifications.length > 0 && (
-                  <Button variant="outline" size="sm" onClick={() => clearNotifications()}>
-                    Clear All
-                  </Button>
-                )}
               </CardHeader>
               <CardContent>
                 {notifications.length === 0 ? (
@@ -114,7 +147,9 @@ const WebsiteTracking = () => {
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className="flex items-start gap-4 p-4 rounded-lg border bg-card"
+                        className={`flex items-start gap-4 p-4 rounded-lg border ${
+                          notification.is_read ? 'bg-muted/30' : 'bg-card'
+                        }`}
                       >
                         <div className="p-2 rounded-full bg-primary/10">
                           <TrendingUp className="h-4 w-4 text-primary" />
@@ -126,10 +161,33 @@ const WebsiteTracking = () => {
                               <p className="text-sm text-muted-foreground mt-1">
                                 {notification.message}
                               </p>
+                              {notification.metadata?.url && (
+                                <a
+                                  href={notification.metadata.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-500 hover:underline mt-1 inline-flex items-center gap-1"
+                                >
+                                  <Eye className="h-3 w-3" />
+                                  View listing
+                                </a>
+                              )}
                             </div>
-                            <Badge variant={notification.severity === 'success' ? 'default' : 'secondary'}>
-                              {notification.severity}
-                            </Badge>
+                            <div className="flex flex-col gap-2 items-end">
+                              <Badge variant={notification.severity === 'success' ? 'default' : 'secondary'}>
+                                {notification.severity}
+                              </Badge>
+                              {!notification.is_read && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleMarkAsRead(notification.id)}
+                                  className="h-6 text-xs"
+                                >
+                                  Mark read
+                                </Button>
+                              )}
+                            </div>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
                             {formatDistanceToNow(new Date(notification.created_at), {

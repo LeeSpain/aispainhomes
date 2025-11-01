@@ -78,15 +78,49 @@ Deno.serve(async (req) => {
     const targetUrl = url || website.url;
     console.log(`Scraping website: ${website.name} (${targetUrl})`);
 
-    // Fetch the website HTML
-    const fetchResponse = await fetch(targetUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
+    // Retry logic with exponential backoff
+    let lastError: Error | null = null;
+    let fetchResponse: Response | null = null;
+    const maxRetries = 3;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Fetch attempt ${attempt}/${maxRetries} for ${targetUrl}`);
+        
+        fetchResponse = await fetch(targetUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        });
 
-    if (!fetchResponse.ok) {
-      throw new Error(`Failed to fetch website: ${fetchResponse.status} ${fetchResponse.statusText}`);
+        if (fetchResponse.ok) {
+          break; // Success, exit retry loop
+        } else if (fetchResponse.status === 403 || fetchResponse.status === 404) {
+          // Don't retry on these errors
+          throw new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
+        } else if (attempt < maxRetries) {
+          // Retry on other errors with exponential backoff
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          console.log(`Retrying in ${delay}ms after status ${fetchResponse.status}`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          lastError = new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
+        } else {
+          throw new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
+        }
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error('Unknown fetch error');
+        if (attempt < maxRetries && !err.message.includes('403') && !err.message.includes('404')) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          console.log(`Network error, retrying in ${delay}ms:`, err.message);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw lastError;
+        }
+      }
+    }
+
+    if (!fetchResponse || !fetchResponse.ok) {
+      throw lastError || new Error('Failed to fetch website after retries');
     }
 
     const html = await fetchResponse.text();
@@ -287,10 +321,69 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error in scrape-website:', error);
     const duration = Date.now() - startTime;
+    
+    // Categorize error
+    let errorCategory = 'unknown';
+    let errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    if (errorMessage.includes('403')) {
+      errorCategory = 'blocked';
+      errorMessage = 'Website blocked access (403 Forbidden)';
+    } else if (errorMessage.includes('404')) {
+      errorCategory = 'not_found';
+      errorMessage = 'Website not found (404)';
+    } else if (errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT')) {
+      errorCategory = 'timeout';
+      errorMessage = 'Request timed out';
+    } else if (errorMessage.includes('Failed to parse')) {
+      errorCategory = 'invalid_html';
+    } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+      errorCategory = 'network_error';
+    }
+
+    console.log(`Error category: ${errorCategory}`);
+
+    // Save error to database
+    try {
+      const { data: websiteData } = await supabase
+        .from('tracked_websites')
+        .select('id')
+        .eq('id', websiteId)
+        .single();
+
+      if (websiteData) {
+        // Update website with error
+        await supabase
+          .from('tracked_websites')
+          .update({
+            last_checked_at: new Date().toISOString(),
+            last_status: 'error',
+            last_error: `[${errorCategory}] ${errorMessage}`,
+          })
+          .eq('id', websiteId);
+
+        // Save error result
+        await supabase
+          .from('website_scrape_results')
+          .insert({
+            tracked_website_id: websiteId,
+            status: 'error',
+            items_found: 0,
+            new_items: 0,
+            changed_items: 0,
+            removed_items: 0,
+            scrape_duration_ms: duration,
+            error_message: `[${errorCategory}] ${errorMessage}`,
+          });
+      }
+    } catch (dbError) {
+      console.error('Error saving error state:', dbError);
+    }
 
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage,
+        error_category: errorCategory,
         duration_ms: duration,
       }),
       {
@@ -325,6 +418,16 @@ function extractItemsByCategory(
 }
 
 function extractProperties(document: any, baseUrl: string): ExtractedItem[] {
+  // Check if it's a known Spanish property site
+  if (baseUrl.includes('idealista.com')) {
+    return extractIdealista(document, baseUrl);
+  } else if (baseUrl.includes('fotocasa.es')) {
+    return extractFotocasa(document, baseUrl);
+  } else if (baseUrl.includes('kyero.com')) {
+    return extractKyero(document, baseUrl);
+  }
+
+  // Fallback to generic property extraction
   const items: ExtractedItem[] = [];
   
   // Common property listing selectors
@@ -524,3 +627,121 @@ function extractPrice(priceText?: string): number | undefined {
   
   return match ? parseFloat(match[0]) : undefined;
 }
+
+// Site-specific extractors for popular Spanish property sites
+
+function extractIdealista(document: any, baseUrl: string): ExtractedItem[] {
+  const items: ExtractedItem[] = [];
+  const propertyElements = document.querySelectorAll('article.item, .item-info-container');
+
+  propertyElements.forEach((element: any, index: number) => {
+    try {
+      const titleEl = element.querySelector('.item-link, a.item-link');
+      const title = titleEl?.textContent?.trim() || `Property ${index + 1}`;
+      const priceEl = element.querySelector('.item-price, .price-row .item-price');
+      const priceText = priceEl?.textContent?.trim();
+      const locationEl = element.querySelector('.item-detail-char:first-child, .item-detail');
+      const location = locationEl?.textContent?.trim();
+      const linkEl = element.querySelector('a.item-link');
+      const relativeUrl = linkEl?.getAttribute('href');
+      const url = relativeUrl ? new URL(relativeUrl, baseUrl).href : undefined;
+      const imageEl = element.querySelector('img.item-multimedia, picture img');
+      const imageSrc = imageEl?.getAttribute('src') || imageEl?.getAttribute('data-src');
+      const externalId = relativeUrl?.split('/').filter(Boolean).pop() || `idealista-${index}`;
+
+      items.push({
+        external_id: externalId,
+        title,
+        price: extractPrice(priceText),
+        currency: 'EUR',
+        location,
+        url,
+        images: imageSrc ? [imageSrc] : [],
+        item_type: 'property',
+        metadata: { source: 'idealista', raw_price_text: priceText },
+      });
+    } catch (error) {
+      console.error(`Error extracting Idealista property ${index}:`, error);
+    }
+  });
+
+  return items;
+}
+
+function extractFotocasa(document: any, baseUrl: string): ExtractedItem[] {
+  const items: ExtractedItem[] = [];
+  const propertyElements = document.querySelectorAll('.re-CardPackAdvance, .re-CardPackMinimal, .re-SearchResult');
+
+  propertyElements.forEach((element: any, index: number) => {
+    try {
+      const titleEl = element.querySelector('.re-CardTitle, h3 a, .re-Card-title a');
+      const title = titleEl?.textContent?.trim() || `Property ${index + 1}`;
+      const priceEl = element.querySelector('.re-CardPrice, .re-Card-price');
+      const priceText = priceEl?.textContent?.trim();
+      const locationEl = element.querySelector('.re-CardFeaturesWithIcons-feature--location, .re-CardLocation');
+      const location = locationEl?.textContent?.trim();
+      const linkEl = element.querySelector('a.re-Card-link, a[href*="/inmueble/"]');
+      const relativeUrl = linkEl?.getAttribute('href');
+      const url = relativeUrl ? new URL(relativeUrl, baseUrl).href : undefined;
+      const imageEl = element.querySelector('img.re-CardMedia-img, picture img');
+      const imageSrc = imageEl?.getAttribute('src') || imageEl?.getAttribute('data-src');
+      const externalId = relativeUrl?.split('/').filter(Boolean).pop()?.split('?')[0] || `fotocasa-${index}`;
+
+      items.push({
+        external_id: externalId,
+        title,
+        price: extractPrice(priceText),
+        currency: 'EUR',
+        location,
+        url,
+        images: imageSrc ? [imageSrc] : [],
+        item_type: 'property',
+        metadata: { source: 'fotocasa', raw_price_text: priceText },
+      });
+    } catch (error) {
+      console.error(`Error extracting Fotocasa property ${index}:`, error);
+    }
+  });
+
+  return items;
+}
+
+function extractKyero(document: any, baseUrl: string): ExtractedItem[] {
+  const items: ExtractedItem[] = [];
+  const propertyElements = document.querySelectorAll('.listing-item, .property-card, article.property');
+
+  propertyElements.forEach((element: any, index: number) => {
+    try {
+      const titleEl = element.querySelector('.listing-title, h2 a, h3 a');
+      const title = titleEl?.textContent?.trim() || `Property ${index + 1}`;
+      const priceEl = element.querySelector('.listing-price, .price');
+      const priceText = priceEl?.textContent?.trim();
+      const locationEl = element.querySelector('.listing-location, .location');
+      const location = locationEl?.textContent?.trim();
+      const linkEl = element.querySelector('a[href*="/property/"]');
+      const relativeUrl = linkEl?.getAttribute('href');
+      const url = relativeUrl ? new URL(relativeUrl, baseUrl).href : undefined;
+      const imageEl = element.querySelector('img');
+      const imageSrc = imageEl?.getAttribute('src') || imageEl?.getAttribute('data-src');
+      const idAttr = element.getAttribute('data-property-id') || element.getAttribute('data-id');
+      const externalId = idAttr || relativeUrl?.split('/').filter(Boolean).pop() || `kyero-${index}`;
+
+      items.push({
+        external_id: externalId,
+        title,
+        price: extractPrice(priceText),
+        currency: 'EUR',
+        location,
+        url,
+        images: imageSrc ? [imageSrc] : [],
+        item_type: 'property',
+        metadata: { source: 'kyero', raw_price_text: priceText },
+      });
+    } catch (error) {
+      console.error(`Error extracting Kyero property ${index}:`, error);
+    }
+  });
+
+  return items;
+}
+
