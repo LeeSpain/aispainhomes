@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import PropertyGrid from "@/components/properties/PropertyGrid";
 import { Property } from "@/components/properties/PropertyCard";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Home as HomeIcon, DollarSign, FileQuestion } from "lucide-react";
+import { MapPin, Home as HomeIcon, DollarSign, FileQuestion, RefreshCw, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ManualClaraButton from "./ManualClaraButton";
 import { useAuth } from "@/contexts/auth/useAuth";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface PropertiesTabProps {
   properties: Property[];
@@ -27,6 +30,68 @@ const PropertiesTab = ({
 }: PropertiesTabProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshMatches = async () => {
+    if (!user?.id) {
+      toast.error('Please log in to refresh matches');
+      return;
+    }
+
+    if (!hasCompletedQuestionnaire) {
+      toast.warning('Please complete the questionnaire first');
+      navigate('/questionnaire');
+      return;
+    }
+
+    setIsRefreshing(true);
+    
+    try {
+      const progressToast = toast.info('🤖 Clara is searching...', {
+        description: 'Searching property websites and local services',
+        duration: Infinity,
+      });
+
+      const { data, error } = await supabase.functions.invoke('clara-curate-recommendations', {
+        body: { userId: user.id }
+      });
+
+      toast.dismiss(progressToast);
+
+      if (error) {
+        console.error('Clara error:', error);
+        
+        if (error.message?.includes('429')) {
+          toast.error('Rate limit reached. Please wait a moment and try again.');
+        } else if (error.message?.includes('402')) {
+          toast.error('AI service temporarily unavailable. Please try again later.');
+        } else {
+          toast.error('Failed to generate recommendations. Please try again.');
+        }
+        return;
+      }
+
+      const propertiesCount = data?.propertiesCount || 0;
+      const servicesCount = data?.servicesCount || 0;
+
+      if (propertiesCount > 0 || servicesCount > 0) {
+        toast.success(`✨ Clara found ${propertiesCount} properties and ${servicesCount} services!`, {
+          description: 'Refreshing your dashboard...',
+        });
+        
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        toast.warning('No new matches found. Check back later!');
+      }
+    } catch (error) {
+      console.error('Exception triggering Clara:', error);
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
   
   // Show user's key preferences if available
   const showPreferences = questionnaireData && (
@@ -37,17 +102,40 @@ const PropertiesTab = ({
 
   return (
     <div className="mt-6 space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-2">Your Property Matches</h2>
-        {properties.length > 0 && matchScores && matchScores.size > 0 && (
-          <p className="text-sm text-muted-foreground">
-            Showing {properties.length} properties personalized for your preferences
-          </p>
-        )}
-        {!hasCompletedQuestionnaire && (
-          <p className="text-sm text-amber-600 dark:text-amber-400">
-            Complete the questionnaire to get personalized match scores
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2">Your Property Matches</h2>
+          {properties.length > 0 && matchScores && matchScores.size > 0 && (
+            <p className="text-sm text-muted-foreground">
+              Showing {properties.length} properties personalized for your preferences
+            </p>
+          )}
+          {!hasCompletedQuestionnaire && (
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              Complete the questionnaire to get personalized match scores
+            </p>
+          )}
+        </div>
+        {hasCompletedQuestionnaire && (
+          <Button 
+            onClick={handleRefreshMatches}
+            disabled={isRefreshing || isLoading}
+            variant="outline"
+            size="sm"
+            className="gap-2 shrink-0"
+          >
+            {isRefreshing ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Searching...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Refresh Matches
+              </>
+            )}
+          </Button>
         )}
       </div>
 
