@@ -416,6 +416,75 @@ export type Database = {
         }
         Relationships: []
       }
+      property_recommendations: {
+        Row: {
+          area_sqm: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          features: string[] | null
+          id: string
+          images: Json | null
+          is_active: boolean | null
+          location: string
+          match_reasons: string[] | null
+          match_score: number | null
+          price: number
+          property_id: string | null
+          property_type: string | null
+          source_url: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          area_sqm?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          location: string
+          match_reasons?: string[] | null
+          match_score?: number | null
+          price: number
+          property_id?: string | null
+          property_type?: string | null
+          source_url: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          area_sqm?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          location?: string
+          match_reasons?: string[] | null
+          match_score?: number | null
+          price?: number
+          property_id?: string | null
+          property_type?: string | null
+          source_url?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       questionnaire_responses: {
         Row: {
           additional_notes: string | null
@@ -534,6 +603,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_recommendations: {
+        Row: {
+          business_name: string
+          contact_info: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          metadata: Json | null
+          rating: number | null
+          service_category: string
+          source_url: string | null
+          updated_at: string | null
+          user_id: string
+          why_recommended: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          metadata?: Json | null
+          rating?: number | null
+          service_category: string
+          source_url?: string | null
+          updated_at?: string | null
+          user_id: string
+          why_recommended?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          metadata?: Json | null
+          rating?: number | null
+          service_category?: string
+          source_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+          why_recommended?: string | null
+        }
+        Relationships: []
       }
       subscriptions: {
         Row: {

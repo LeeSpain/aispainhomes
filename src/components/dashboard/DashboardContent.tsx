@@ -36,6 +36,7 @@ interface DashboardContentProps {
   matchReasons?: Map<string, string[]>;
   questionnaireData?: any;
   hasCompletedQuestionnaire?: boolean;
+  claraServiceRecommendations?: any[];
 }
 
 const DashboardContent = ({ 
@@ -51,15 +52,42 @@ const DashboardContent = ({
   matchScores,
   matchReasons,
   questionnaireData,
-  hasCompletedQuestionnaire = false
+  hasCompletedQuestionnaire = false,
+  claraServiceRecommendations = []
 }: DashboardContentProps) => {
   
+  // Filter Clara services by category, fallback to mock data
+  const getClaraServicesByCategory = (category: string) => {
+    const claraFiltered = claraServiceRecommendations.filter(s => s.service_category === category);
+    if (claraFiltered.length > 0) {
+      return claraFiltered.map((s: any) => ({
+        id: s.id,
+        name: s.business_name,
+        type: s.service_category,
+        location: s.location || '',
+        contact: s.contact_info?.phone || s.contact_info?.email || s.contact_info?.website || 'Contact via website',
+        details: s.description || '',
+        locations: [s.location],
+        serviceCategory: s.service_category,
+        suitableFor: [],
+      }));
+    }
+    // Fallback to mock data
+    return [];
+  };
+
+  const claraLawyers = getClaraServicesByCategory('legal');
+  const claraUtilities = getClaraServicesByCategory('utilities');
+  const claraMovers = getClaraServicesByCategory('movers');
+  const claraSchools = getClaraServicesByCategory('schools');
+  const claraHealthcare = getClaraServicesByCategory('healthcare');
+  
   // Filter services based on user needs
-  const filteredLawyers = filterServicesByUserNeeds(lawyers, userPreferences, questionnaireData);
-  const filteredUtilities = filterServicesByUserNeeds(utilities, userPreferences, questionnaireData);
-  const filteredMovers = filterServicesByUserNeeds(movers, userPreferences, questionnaireData);
-  const filteredSchools = filterServicesByUserNeeds(schools, userPreferences, questionnaireData);
-  const filteredHealthcare = filterServicesByUserNeeds(healthcare, userPreferences, questionnaireData);
+  const filteredLawyers = claraLawyers.length > 0 ? claraLawyers : filterServicesByUserNeeds(lawyers, userPreferences, questionnaireData).providers;
+  const filteredUtilities = claraUtilities.length > 0 ? claraUtilities : filterServicesByUserNeeds(utilities, userPreferences, questionnaireData).providers;
+  const filteredMovers = claraMovers.length > 0 ? claraMovers : filterServicesByUserNeeds(movers, userPreferences, questionnaireData).providers;
+  const filteredSchools = claraSchools.length > 0 ? claraSchools : filterServicesByUserNeeds(schools, userPreferences, questionnaireData).providers;
+  const filteredHealthcare = claraHealthcare.length > 0 ? claraHealthcare : filterServicesByUserNeeds(healthcare, userPreferences, questionnaireData).providers;
   
   const renderContent = () => {
     // Handle services submenu
@@ -69,54 +97,54 @@ const DashboardContent = ({
           return (
             <ServiceProviderTab 
               title="Legal Services" 
-              providers={filteredLawyers.providers}
-              matchReasons={filteredLawyers.matchReasons}
-              totalAvailable={lawyers.length}
+              providers={filteredLawyers}
+              matchReasons={claraLawyers.length > 0 ? new Map(claraServiceRecommendations.filter(s => s.service_category === 'legal').map(s => [s.business_name, [s.why_recommended]])) : undefined}
+              totalAvailable={claraLawyers.length > 0 ? claraLawyers.length : lawyers.length}
             />
           );
         case 'utilities':
           return (
             <ServiceProviderTab 
               title="Utility Services" 
-              providers={filteredUtilities.providers}
-              matchReasons={filteredUtilities.matchReasons}
-              totalAvailable={utilities.length}
+              providers={filteredUtilities}
+              matchReasons={claraUtilities.length > 0 ? new Map(claraServiceRecommendations.filter(s => s.service_category === 'utilities').map(s => [s.business_name, [s.why_recommended]])) : undefined}
+              totalAvailable={claraUtilities.length > 0 ? claraUtilities.length : utilities.length}
             />
           );
         case 'movers':
           return (
             <ServiceProviderTab 
               title="Moving Services" 
-              providers={filteredMovers.providers}
-              matchReasons={filteredMovers.matchReasons}
-              totalAvailable={movers.length}
+              providers={filteredMovers}
+              matchReasons={claraMovers.length > 0 ? new Map(claraServiceRecommendations.filter(s => s.service_category === 'movers').map(s => [s.business_name, [s.why_recommended]])) : undefined}
+              totalAvailable={claraMovers.length > 0 ? claraMovers.length : movers.length}
             />
           );
         case 'schools':
           return (
             <ServiceProviderTab 
               title="Education Services" 
-              providers={filteredSchools.providers}
-              matchReasons={filteredSchools.matchReasons}
-              totalAvailable={schools.length}
+              providers={filteredSchools}
+              matchReasons={claraSchools.length > 0 ? new Map(claraServiceRecommendations.filter(s => s.service_category === 'schools').map(s => [s.business_name, [s.why_recommended]])) : undefined}
+              totalAvailable={claraSchools.length > 0 ? claraSchools.length : schools.length}
             />
           );
         case 'healthcare':
           return (
             <ServiceProviderTab 
               title="Healthcare Services" 
-              providers={filteredHealthcare.providers}
-              matchReasons={filteredHealthcare.matchReasons}
-              totalAvailable={healthcare.length}
+              providers={filteredHealthcare}
+              matchReasons={claraHealthcare.length > 0 ? new Map(claraServiceRecommendations.filter(s => s.service_category === 'healthcare').map(s => [s.business_name, [s.why_recommended]])) : undefined}
+              totalAvailable={claraHealthcare.length > 0 ? claraHealthcare.length : healthcare.length}
             />
           );
         default:
           return (
             <ServiceProviderTab 
               title="Legal Services" 
-              providers={filteredLawyers.providers}
-              matchReasons={filteredLawyers.matchReasons}
-              totalAvailable={lawyers.length}
+              providers={filteredLawyers}
+              matchReasons={claraLawyers.length > 0 ? new Map(claraServiceRecommendations.filter(s => s.service_category === 'legal').map(s => [s.business_name, [s.why_recommended]])) : undefined}
+              totalAvailable={claraLawyers.length > 0 ? claraLawyers.length : lawyers.length}
             />
           );
       }

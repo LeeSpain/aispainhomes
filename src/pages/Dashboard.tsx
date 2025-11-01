@@ -67,7 +67,8 @@ const Dashboard = () => {
     matchReasons, 
     isLoading: isLoadingProperties,
     questionnaireData,
-    hasCompletedQuestionnaire
+    hasCompletedQuestionnaire,
+    claraServiceRecommendations
   } = useDashboardInit(user?.id);
   
   // Load unread alert count
@@ -369,6 +370,7 @@ const Dashboard = () => {
                 matchReasons={matchReasons}
                 hasCompletedQuestionnaire={hasCompletedQuestionnaire}
                 questionnaireData={questionnaireData}
+                claraServiceRecommendations={claraServiceRecommendations}
               />
             </main>
           </div>

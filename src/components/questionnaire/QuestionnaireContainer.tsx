@@ -76,8 +76,26 @@ const QuestionnaireContainer = () => {
 
         console.log('Questionnaire responses saved successfully');
         
-        // Redirect to dashboard instead of showing results
-        toast.success('Questionnaire completed! Welcome to your dashboard.');
+        // Trigger Clara AI to curate recommendations
+        toast.success('Questionnaire completed! Clara is now finding the best properties and services for you...');
+        
+        // Call Clara edge function to curate recommendations
+        try {
+          const { error: claraError } = await supabase.functions.invoke('clara-curate-recommendations', {
+            body: { userId: user.id }
+          });
+          
+          if (claraError) {
+            console.error('Clara curation error:', claraError);
+            toast.warning('Your dashboard is ready, but some recommendations may be delayed.');
+          } else {
+            toast.success('Clara has curated your personalized recommendations!');
+          }
+        } catch (claraErr) {
+          console.error('Error calling Clara:', claraErr);
+        }
+        
+        // Navigate to dashboard
         navigate('/dashboard');
       } catch (error) {
         console.error('Error saving questionnaire responses:', error?.message ?? error, error);

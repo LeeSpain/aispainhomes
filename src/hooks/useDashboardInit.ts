@@ -12,6 +12,8 @@ interface DashboardInitData {
   profileData: any;
   isLoading: boolean;
   hasCompletedQuestionnaire: boolean;
+  claraPropertyRecommendations: any[];
+  claraServiceRecommendations: any[];
 }
 
 export const useDashboardInit = (userId: string | undefined) => {
@@ -23,6 +25,8 @@ export const useDashboardInit = (userId: string | undefined) => {
     profileData: null,
     isLoading: true,
     hasCompletedQuestionnaire: false,
+    claraPropertyRecommendations: [],
+    claraServiceRecommendations: [],
   });
 
   useEffect(() => {
@@ -35,7 +39,7 @@ export const useDashboardInit = (userId: string | undefined) => {
         setData(prev => ({ ...prev, isLoading: true }));
 
         // Fetch all user data in parallel
-        const [questionnaireResult, profileResult, scrapedProperties] = await Promise.all([
+        const [questionnaireResult, profileResult, scrapedProperties, claraProperties, claraServices] = await Promise.all([
           supabase
             .from('questionnaire_responses')
             .select('*')
@@ -48,7 +52,20 @@ export const useDashboardInit = (userId: string | undefined) => {
             .select('*')
             .eq('user_id', userId)
             .maybeSingle(),
-          scrapedPropertiesService.getScrapedProperties(userId)
+          scrapedPropertiesService.getScrapedProperties(userId),
+          supabase
+            .from('property_recommendations')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('is_active', true)
+            .order('match_score', { ascending: false })
+            .limit(6),
+          supabase
+            .from('service_recommendations')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('is_active', true)
+            .limit(10)
         ]);
 
         if (!mounted) return;
@@ -56,9 +73,29 @@ export const useDashboardInit = (userId: string | undefined) => {
         const questionnaireData = questionnaireResult.data;
         const profileData = profileResult.data;
         const hasCompletedQuestionnaire = !!questionnaireData;
+        const claraPropertyRecommendations = claraProperties.data || [];
+        const claraServiceRecommendations = claraServices.data || [];
 
-        // Use live scraped properties only
-        const allProperties = scrapedProperties;
+        // Prioritize Clara's curated properties, then fallback to scraped properties
+        const allProperties: Property[] = claraPropertyRecommendations.length > 0 
+          ? claraPropertyRecommendations.map((rec: any) => ({
+              id: rec.id,
+              title: rec.title,
+              location: rec.location,
+              price: rec.price,
+              priceUnit: 'total',
+              image: rec.images?.[0] || '/placeholder.svg',
+              images: rec.images || [],
+              type: rec.property_type || 'apartment',
+              bedrooms: rec.bedrooms || 0,
+              bathrooms: rec.bathrooms || 0,
+              area: rec.area_sqm || 0,
+              features: rec.features || [],
+              description: rec.description || '',
+              status: 'forSale' as const,
+              createdAt: rec.created_at || new Date().toISOString(),
+            }))
+          : scrapedProperties;
 
         // Calculate match scores if questionnaire exists
         if (hasCompletedQuestionnaire && allProperties.length > 0) {
@@ -148,18 +185,28 @@ export const useDashboardInit = (userId: string | undefined) => {
             .sort((a, b) => b.score - a.score)
             .slice(0, 20);
 
-          const matchScores = new Map(sortedProperties.map(item => [item.property.id, item.score]));
-          const matchReasons = new Map(sortedProperties.map(item => [item.property.id, item.reasons]));
+          // If Clara has recommendations, use those scores/reasons
+          const matchScores = claraPropertyRecommendations.length > 0
+            ? new Map(claraPropertyRecommendations.map((rec: any) => [rec.id, rec.match_score || 0]))
+            : new Map(sortedProperties.map(item => [item.property.id, item.score]));
+          
+          const matchReasons = claraPropertyRecommendations.length > 0
+            ? new Map(claraPropertyRecommendations.map((rec: any) => [rec.id, rec.match_reasons || []]))
+            : new Map(sortedProperties.map(item => [item.property.id, item.reasons]));
 
           if (mounted) {
             setData({
-              properties: sortedProperties.map(item => item.property),
+              properties: claraPropertyRecommendations.length > 0 
+                ? allProperties 
+                : sortedProperties.map(item => item.property),
               matchScores,
               matchReasons,
               questionnaireData,
               profileData,
               isLoading: false,
               hasCompletedQuestionnaire: true,
+              claraPropertyRecommendations,
+              claraServiceRecommendations,
             });
           }
         } else {
@@ -173,6 +220,8 @@ export const useDashboardInit = (userId: string | undefined) => {
               profileData,
               isLoading: false,
               hasCompletedQuestionnaire: false,
+              claraPropertyRecommendations,
+              claraServiceRecommendations,
             });
           }
         }
