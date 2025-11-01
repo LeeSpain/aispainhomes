@@ -29,11 +29,11 @@ const SearchHeader = () => {
         </Button>
         <Button 
           variant="outline" 
-          onClick={() => navigate('/ai-guardian')}
+          onClick={() => navigate('/clara')}
           className="flex items-center gap-2"
         >
           <ShieldCheck className="h-4 w-4" />
-          Learn About AI Guardian
+          Learn About Clara
         </Button>
       </div>
     </div>

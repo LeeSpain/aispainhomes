@@ -19,7 +19,7 @@ import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
 import EmailPreferences from './pages/EmailPreferences';
-import AIGuardian from './pages/AIGuardian';
+import Clara from './pages/Clara';
 import Property from './pages/Property';
 import NotFound from './pages/NotFound';
 import Forbidden from './pages/Forbidden';
@@ -71,7 +71,8 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/email-preferences" element={<EmailPreferences />} />
-          <Route path="/ai-guardian" element={<AIGuardian />} />
+          <Route path="/clara" element={<Clara />} />
+          <Route path="/ai-guardian" element={<Clara />} /> {/* Legacy redirect */}
           <Route path="/forbidden" element={<Forbidden />} />
           <Route path="/server-error" element={<ServerError />} />
           <Route path="*" element={<NotFound />} />

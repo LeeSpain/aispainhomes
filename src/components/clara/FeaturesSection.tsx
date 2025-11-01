@@ -11,7 +11,7 @@ const FeaturesSection = () => {
 
   const handleGetStarted = () => {
     if (!user) {
-      navigate('/login?redirect=ai-guardian');
+      navigate('/login?redirect=clara');
     } else {
       navigate('/subscription');
     }
@@ -230,7 +230,7 @@ const FeaturesSection = () => {
             Ask questions anytime and get immediate answers about your relocation to Spain.
           </p>
           <div className="bg-primary/5 p-4 rounded-lg border mb-6">
-            <h4 className="font-medium mb-2">How AI Guardian helps you:</h4>
+            <h4 className="font-medium mb-2">How Clara helps you:</h4>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <Check className="h-4 w-4 text-primary mt-1" />
@@ -250,7 +250,7 @@ const FeaturesSection = () => {
               </li>
             </ul>
           </div>
-          <Button onClick={handleGetStarted} className="w-full">Try AI Guardian Now</Button>
+          <Button onClick={handleGetStarted} className="w-full">Try Clara Now</Button>
         </CardContent>
       </Card>
     </div>

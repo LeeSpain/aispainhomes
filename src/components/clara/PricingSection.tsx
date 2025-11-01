@@ -14,7 +14,7 @@ const PricingSection = () => {
     if (!user) {
       navigate('/login?redirect=subscription');
     } else {
-      navigate('/subscription?plan=guardian');
+      navigate('/subscription?plan=clara');
     }
   };
 
@@ -24,7 +24,7 @@ const PricingSection = () => {
         <CardHeader className="bg-primary/5 border-b">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-2xl">AI Guardian Premium</CardTitle>
+              <CardTitle className="text-2xl">Clara Premium</CardTitle>
               <CardDescription className="text-lg">Full relocation support package</CardDescription>
             </div>
             <ShieldCheck className="h-10 w-10 text-primary" />
@@ -46,7 +46,7 @@ const PricingSection = () => {
             <h3 className="font-semibold text-lg">All-inclusive package includes:</h3>
             <ul className="space-y-3">
               {[
-                'AI Guardian for full relocation support',
+                'Clara - Your AI assistant for full relocation support',
                 'Personalized relocation timeline',
                 'Document checklist and reminders',
                 'Visa and residency guidance',
@@ -78,7 +78,7 @@ const PricingSection = () => {
       
       <div className="mt-8 text-center">
         <p className="text-muted-foreground">
-          Questions about AI Guardian? <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/contact')}>Contact our team</Button>
+          Questions about Clara? <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/contact')}>Contact our team</Button>
         </p>
       </div>
     </div>

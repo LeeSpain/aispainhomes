@@ -32,7 +32,7 @@ const Hero = () => {
             </h1>
             
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Discover perfect properties with AI-powered matching and get complete relocation support from our intelligent Guardian platform.
+              Discover perfect properties with AI-powered matching and get complete relocation support from Clara, your intelligent AI assistant.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

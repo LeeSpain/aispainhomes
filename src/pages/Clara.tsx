@@ -1,18 +1,17 @@
-
 import { Helmet } from 'react-helmet';
 import { Separator } from '@/components/ui/separator';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
-import HeroSection from '@/components/ai-guardian/HeroSection';
-import StatsSection from '@/components/ai-guardian/StatsSection';
-import TabsContainer from '@/components/ai-guardian/TabsContainer';
+import HeroSection from '@/components/clara/HeroSection';
+import StatsSection from '@/components/clara/StatsSection';
+import TabsContainer from '@/components/clara/TabsContainer';
 
-const AIGuardian = () => {
+const Clara = () => {
   return (
     <>
       <Helmet>
-        <title>AI Guardian | SunnyHomeFinder</title>
-        <meta name="description" content="AI Guardian - Your personal AI assistant for every step of your relocation journey to Spain" />
+        <title>Clara - Your AI Assistant | SunnyHomeFinder</title>
+        <meta name="description" content="Clara - Your personal AI assistant for every step of your relocation journey to Spain" />
       </Helmet>
       
       <div className="min-h-screen flex flex-col">
@@ -41,4 +40,4 @@ const AIGuardian = () => {
   );
 };
 
-export default AIGuardian;
+export default Clara;

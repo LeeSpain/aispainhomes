@@ -98,7 +98,7 @@ const DashboardContent = ({
               Welcome back, <span className="text-primary">{user.name}</span>
             </h2>
             <p className="text-muted-foreground mt-1">
-              Your AI Guardian is monitoring your property search and relocation needs
+              Clara is monitoring your property search and relocation needs
             </p>
           </div>
         </div>

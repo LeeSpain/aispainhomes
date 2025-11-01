@@ -30,8 +30,8 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
       icon: <Building2 className="h-4 w-4" />
     },
     { 
-      label: "AI Guardian", 
-      href: "/ai-guardian",
+      label: "Clara", 
+      href: "/clara",
       icon: <ShieldCheck className="h-4 w-4" />
     },
   ];

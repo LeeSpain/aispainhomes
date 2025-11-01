@@ -15,7 +15,7 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: "Relocation Guardian",
+    title: "Clara - Your AI Assistant",
     description: "Your AI assistant guides you through every step of your Spanish relocation journey.",
   },
   {
@@ -130,7 +130,7 @@ const Features = () => {
           </div>
         </div>
 
-        {/* AI Guardian Section */}
+        {/* Clara Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 items-center">
           <div className="space-y-8 order-2 lg:order-1">
             <div>
@@ -138,10 +138,10 @@ const Features = () => {
                 <ShieldCheck className="h-8 w-8" />
               </div>
               <h3 className="text-3xl md:text-4xl font-bold mb-4">
-                Your Personal AI Guardian
+                Meet Clara - Your Personal AI Assistant
               </h3>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                Get 24/7 support from your AI Guardian throughout your entire relocation journey. From answering questions about documentation to connecting you with local services, your Guardian is always ready to help.
+                Get 24/7 support from Clara throughout your entire relocation journey. From answering questions about documentation to connecting you with local services, Clara is always ready to help.
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
@@ -165,7 +165,7 @@ const Features = () => {
             <div className="relative p-8 rounded-3xl bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm border border-border">
               <img 
                 src={aiAssistant}
-                alt="AI Guardian assistant providing relocation support"
+                alt="Clara AI assistant providing relocation support"
                 className="w-full h-auto rounded-2xl"
               />
             </div>

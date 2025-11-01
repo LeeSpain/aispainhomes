@@ -54,13 +54,13 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
           Property
         </Link>
         <Link 
-          to="/ai-guardian" 
+          to="/clara" 
           className={`py-2 transition-colors hover:text-primary flex items-center gap-2 ${
-            location.pathname === '/ai-guardian' ? 'text-primary font-medium' : ''
+            location.pathname === '/clara' || location.pathname === '/ai-guardian' ? 'text-primary font-medium' : ''
           }`}
         >
           <ShieldCheck className="h-4 w-4" />
-          AI Guardian
+          Clara
         </Link>
         
         {isAdmin && (

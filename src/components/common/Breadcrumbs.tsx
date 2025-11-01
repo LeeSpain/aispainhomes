@@ -35,8 +35,8 @@ const Breadcrumbs = () => {
         // Handle special cases
         if (path === 'property' && paths[index + 1]) {
           label = 'Property Details';
-        } else if (path === 'ai-guardian') {
-          label = 'AI Guardian';
+        } else if (path === 'clara' || path === 'ai-guardian') {
+          label = 'Clara';
         } else if (path === 'email-preferences') {
           label = 'Email Preferences';
         } else if (path === 'profile-settings') {

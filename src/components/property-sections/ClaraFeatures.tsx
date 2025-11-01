@@ -4,7 +4,7 @@ import {
   Users, HeartHandshake 
 } from "lucide-react";
 
-const AIGuardianFeatures = () => {
+const ClaraFeatures = () => {
   return (
     <div className="py-16 bg-white dark:bg-black">
       <div className="container mx-auto px-4">
@@ -14,10 +14,10 @@ const AIGuardianFeatures = () => {
             <span className="text-xs font-medium uppercase tracking-wider">Comprehensive Support</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
-            Your AI Guardian Throughout the Journey
+            Clara - Your AI Assistant Throughout the Journey
           </h2>
           <p className="text-lg text-muted-foreground">
-            Finding your perfect property is just the beginning. Our AI Guardian provides comprehensive support throughout your entire property search and relocation process.
+            Finding your perfect property is just the beginning. Clara provides comprehensive support throughout your entire property search and relocation process.
           </p>
         </div>
 
@@ -75,4 +75,4 @@ const AIGuardianFeatures = () => {
   );
 };
 
-export default AIGuardianFeatures;
+export default ClaraFeatures;

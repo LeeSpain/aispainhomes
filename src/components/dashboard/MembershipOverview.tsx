@@ -58,12 +58,12 @@ const MembershipOverview = ({ subscription }: MembershipOverviewProps) => {
 
   const planFeatures = {
     basic: [
-      "AI Guardian Assistant",
+      "Clara - Your AI Assistant",
       "Property Matching",
       "Service Provider Access"
     ],
     premium: [
-      "AI Guardian Assistant",
+      "Clara - Your AI Assistant",
       "Priority Property Matching",
       "Full Service Provider Network",
       "Document Storage",

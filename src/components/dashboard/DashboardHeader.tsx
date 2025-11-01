@@ -21,7 +21,7 @@ const DashboardHeader = ({ user, variant = "default" }: DashboardHeaderProps) =>
             Welcome back, <span className="text-primary">{user.name}</span>
           </h1>
           <p className="text-muted-foreground mt-1">
-            Your AI Guardian is monitoring your property search and relocation needs
+            Clara is monitoring your property search and relocation needs
           </p>
         </div>
         
@@ -31,9 +31,9 @@ const DashboardHeader = ({ user, variant = "default" }: DashboardHeaderProps) =>
               <Home className="mr-1 h-4 w-4" />
               Property Search
             </Button>
-            <Button size="sm" variant="default" onClick={() => navigate("/questionnaire?service=guardian")} className="flex items-center">
+            <Button size="sm" variant="default" onClick={() => navigate("/questionnaire?service=clara")} className="flex items-center">
               <ShieldCheck className="mr-1 h-4 w-4" />
-              AI Guardian
+              Clara Assistant
             </Button>
             <Button size="sm" variant="ghost" className="relative">
               <Bell className="h-4 w-4" />
@@ -55,7 +55,7 @@ const DashboardHeader = ({ user, variant = "default" }: DashboardHeaderProps) =>
       <div className="mt-4 flex">
         <div className="bg-muted/50 px-3 py-1 rounded-md text-sm text-muted-foreground flex items-center">
           <Search className="h-3 w-3 mr-1" />
-          <span>Quick tip: Use AI Guardian chat to get personalized assistance with your property search</span>
+          <span>Quick tip: Use Clara chat to get personalized assistance with your property search</span>
         </div>
       </div>
     </div>

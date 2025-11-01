@@ -11,7 +11,7 @@ const OverviewSection = () => {
 
   const handleGetStarted = () => {
     if (!user) {
-      navigate('/login?redirect=ai-guardian');
+      navigate('/login?redirect=clara');
     } else {
       navigate('/subscription');
     }
@@ -164,7 +164,7 @@ const OverviewSection = () => {
   return (
     <div className="prose prose-lg max-w-none dark:prose-invert">
       <p className="text-xl leading-relaxed mb-6">
-        Relocating to Spain is a complex journey. Our AI Guardian provides comprehensive assistance through every step of finding your perfect property and settling into your new Spanish lifestyle.
+        Relocating to Spain is a complex journey. Clara, your AI assistant, provides comprehensive assistance through every step of finding your perfect property and settling into your new Spanish lifestyle.
       </p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-10">
@@ -173,7 +173,7 @@ const OverviewSection = () => {
             <ShieldCheck className="h-5 w-5 text-primary" /> Personalized Guidance
           </h3>
           <p className="text-muted-foreground">
-            AI Guardian analyzes your specific situation to create a customized relocation plan tailored to your needs, preferences, and timeline.
+            Clara analyzes your specific situation to create a customized relocation plan tailored to your needs, preferences, and timeline.
           </p>
         </div>
         <div className="bg-card border rounded-lg p-6">
@@ -228,7 +228,7 @@ const OverviewSection = () => {
       </Tabs>
       
       <p className="text-xl leading-relaxed mt-8">
-        Your AI Guardian subscription provides access to all these services, personalized to your specific relocation needs, with expert guidance available at every step of your journey to Spain.
+        Your Clara subscription provides access to all these services, personalized to your specific relocation needs, with expert guidance available at every step of your journey to Spain.
       </p>
       
       <div className="mt-8 flex justify-center">

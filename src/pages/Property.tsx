@@ -1,7 +1,7 @@
 
 import PropertyHero from "@/components/property-sections/PropertyHero";
 import IntelligentMatching from "@/components/property-sections/IntelligentMatching";
-import AIGuardianFeatures from "@/components/property-sections/AIGuardianFeatures";
+import ClaraFeatures from "@/components/property-sections/ClaraFeatures";
 import RelocationAssistance from "@/components/property-sections/RelocationAssistance";
 import CallToAction from "@/components/property-sections/CallToAction";
 
@@ -14,7 +14,7 @@ const Property = () => {
         <IntelligentMatching />
       </div>
       
-      <AIGuardianFeatures />
+      <ClaraFeatures />
       
       <div className="container mx-auto px-4">
         <RelocationAssistance />

@@ -16,11 +16,11 @@ interface Message {
   citedResources?: string[];
 }
 
-interface AIGuardianChatProps {
+interface AIClaraChatProps {
   user: UserType;
 }
 
-const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
+const AIClaraChat = ({ user }: AIClaraChatProps) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -59,7 +59,7 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
       } else {
         setMessages([{
           id: '1',
-          content: `Hello ${user.name}, I'm your AI Guardian assistant. I have access to 100+ official Spanish government resources to help with your relocation and property needs.`,
+          content: `Hello ${user.name}, I'm Clara, your AI assistant. I have access to 100+ official Spanish government resources to help with your relocation and property needs.`,
           sender: 'assistant',
           timestamp: new Date(),
           citedResources: []
@@ -130,7 +130,7 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
       <CardHeader className="bg-primary/10 border-b">
         <CardTitle className="flex items-center text-lg">
           <Bot className="mr-2 h-5 w-5 text-primary" />
-          AI Guardian Assistant
+          Clara - Your AI Assistant
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -204,7 +204,7 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about NIE, visas, property tax, healthcare..."
+            placeholder="Ask Clara about NIE, visas, property tax, healthcare..."
             className="flex-1"
           />
           <Button type="submit" size="icon" disabled={isTyping}>
@@ -216,4 +216,4 @@ const AIGuardianChat = ({ user }: AIGuardianChatProps) => {
   );
 };
 
-export default AIGuardianChat;
+export default AIClaraChat;
