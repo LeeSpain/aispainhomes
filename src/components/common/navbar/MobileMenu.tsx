@@ -74,33 +74,6 @@ const MobileMenu = ({ isOpen, user }: MobileMenuProps) => {
             {t('nav.admin_dashboard')}
           </Link>
         )}
-        
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="quick-access" className="border-b-0">
-            <AccordionTrigger className="py-2 text-left flex items-center gap-2 hover:text-primary">
-              <Zap className="h-4 w-4" />
-              <span>{t('nav.quick_access')}</span>
-            </AccordionTrigger>
-            <AccordionContent className="pl-7">
-              <div className="flex flex-col space-y-2">
-                <Link 
-                  to="/dashboard" 
-                  className="py-2 transition-colors hover:text-primary flex items-center gap-2"
-                >
-                  <Users className="h-4 w-4" />
-                  {t('nav.user_dashboard')}
-                </Link>
-                <Link 
-                  to="/admin" 
-                  className="py-2 transition-colors hover:text-primary flex items-center gap-2"
-                >
-                  <Zap className="h-4 w-4" />
-                  {t('nav.admin_dashboard')}
-                </Link>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
       </nav>
     </div>
   );

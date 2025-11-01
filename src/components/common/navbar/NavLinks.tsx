@@ -66,32 +66,6 @@ const NavLinks = ({ className, onLinkClick }: NavLinksProps) => {
           </Link>
         </Button>
       ))}
-      
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="default"
-            className="ml-2 flex items-center gap-1"
-          >
-            <Zap className="h-4 w-4" />
-            {t('nav.quick_access')}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link to="/dashboard" className="flex items-center gap-2 w-full">
-              <Users className="h-4 w-4" />
-              {t('nav.user_dashboard')}
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to="/admin" className="flex items-center gap-2 w-full">
-              <Zap className="h-4 w-4" />
-              {t('nav.admin_dashboard')}
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </nav>
   );
 };
