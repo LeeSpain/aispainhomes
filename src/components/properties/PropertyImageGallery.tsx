@@ -12,14 +12,13 @@ interface PropertyImageGalleryProps {
 const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState<boolean[]>([]);
-  const [allImagesPreloaded, setAllImagesPreloaded] = useState(false);
   
   // If no images are provided, use a placeholder
   const displayImages = images.length > 0 
     ? images 
     : ['/placeholder.svg'];
   
-  // Preload all images to prevent flickering
+  // Preload images in background - show first image as soon as it loads
   useEffect(() => {
     const imageObjects: HTMLImageElement[] = [];
     const loadedStatus = new Array(displayImages.length).fill(false);
@@ -31,15 +30,9 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
       img.onload = () => {
         loadedStatus[index] = true;
         setImagesLoaded([...loadedStatus]);
-        
-        // Check if all images are loaded
-        if (loadedStatus.every(status => status)) {
-          setAllImagesPreloaded(true);
-        }
       };
       
       img.onerror = () => {
-        // On error, mark as loaded but use placeholder
         loadedStatus[index] = true;
         setImagesLoaded([...loadedStatus]);
       };
@@ -47,17 +40,15 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
       imageObjects.push(img);
     });
     
-    // Initial setup
     setImagesLoaded(loadedStatus);
     
-    // Cleanup
     return () => {
       imageObjects.forEach(img => {
         img.onload = null;
         img.onerror = null;
       });
     };
-  }, [displayImages]);
+  }, [images.join("|")]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -76,7 +67,7 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg bg-muted">
-        {(!allImagesPreloaded || !isCurrentImageLoaded) && (
+        {!isCurrentImageLoaded && (
           <Skeleton className="absolute inset-0 h-full w-full" />
         )}
         
@@ -85,9 +76,11 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
             key={index}
             src={src}
             alt={`${title} - Image ${index + 1}`}
+            loading={index === 0 ? "eager" : "lazy"}
+            decoding={index === 0 ? "sync" : "async"}
             className={cn(
               "h-full w-full object-cover absolute inset-0 transition-opacity duration-300",
-              currentImageIndex === index && allImagesPreloaded && isCurrentImageLoaded
+              currentImageIndex === index && isCurrentImageLoaded
                 ? "opacity-100" 
                 : "opacity-0"
             )}
@@ -95,7 +88,7 @@ const PropertyImageGallery = ({ images, title }: PropertyImageGalleryProps) => {
         ))}
       </div>
       
-      {displayImages.length > 1 && allImagesPreloaded && (
+      {displayImages.length > 1 && imagesLoaded.filter(Boolean).length > 1 && (
         <>
           <button 
             onClick={prevImage}

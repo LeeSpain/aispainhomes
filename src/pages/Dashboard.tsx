@@ -11,11 +11,12 @@ import { PropertyService } from '@/services/PropertyService';
 import { UserPreferences } from '@/contexts/auth/types';
 
 const Dashboard = () => {
-  const { user, userPreferences, logout } = useAuth();
+  const { user, userPreferences, isLoading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [favoriteProperties, setFavoriteProperties] = useState<Property[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingProperties, setIsLoadingProperties] = useState(true);
+  const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   
   // Create a mock user if none exists (for direct access)
   const mockUser = {
@@ -48,36 +49,70 @@ const Dashboard = () => {
   const currentUser = user || mockUser;
   const currentPreferences = userPreferences || mockPreferences;
   
+  // Load recommended properties once when auth is ready
   useEffect(() => {
-    const loadUserData = async () => {
-      setIsLoading(true);
-      try {
-        // Load recommended properties
-        const propertiesData = await PropertyService.getFilteredProperties({});
-        setProperties(propertiesData.slice(0, 4)); // Show only 4 recommendations
-        
-        // Load favorite properties
-        if (currentPreferences?.favorites && currentPreferences.favorites.length > 0) {
-          const promises = currentPreferences.favorites.map(id => 
-            PropertyService.getPropertyById(id)
-          );
-          
-          const results = await Promise.all(promises);
+    if (authLoading) return;
+    
+    let mounted = true;
+    setIsLoadingProperties(true);
+    
+    PropertyService.getFilteredProperties({})
+      .then(propertiesData => {
+        if (mounted) {
+          setProperties(propertiesData.slice(0, 4));
+        }
+      })
+      .catch(error => {
+        console.error("Error loading properties:", error);
+        if (mounted) {
+          toast.error("Failed to load properties.");
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoadingProperties(false);
+        }
+      });
+    
+    return () => { mounted = false; };
+  }, [authLoading]);
+  
+  // Load favorite properties when favorites list changes
+  useEffect(() => {
+    if (authLoading) return;
+    
+    const favoriteIds = currentPreferences?.favorites || [];
+    
+    if (favoriteIds.length === 0) {
+      setFavoriteProperties([]);
+      setIsLoadingFavorites(false);
+      return;
+    }
+    
+    let mounted = true;
+    setIsLoadingFavorites(true);
+    
+    Promise.all(favoriteIds.map(id => PropertyService.getPropertyById(id)))
+      .then(results => {
+        if (mounted) {
           const validResults = results.filter(item => item !== null) as Property[];
           setFavoriteProperties(validResults);
-        } else {
-          setFavoriteProperties([]);
         }
-      } catch (error) {
-        console.error("Error loading data:", error);
-        toast.error("Failed to load data. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      })
+      .catch(error => {
+        console.error("Error loading favorites:", error);
+        if (mounted) {
+          toast.error("Failed to load favorite properties.");
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoadingFavorites(false);
+        }
+      });
     
-    loadUserData();
-  }, [currentPreferences?.favorites]);
+    return () => { mounted = false; };
+  }, [authLoading, currentPreferences?.favorites?.join(",")]);
   
   // Handle logout
   const handleLogout = () => {
@@ -105,7 +140,8 @@ const Dashboard = () => {
             userPreferences={currentPreferences}
             properties={properties}
             favoriteProperties={favoriteProperties}
-            isLoading={isLoading}
+            isLoadingProperties={isLoadingProperties}
+            isLoadingFavorites={isLoadingFavorites}
             onLogout={handleLogout}
           />
         </div>

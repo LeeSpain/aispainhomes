@@ -27,7 +27,8 @@ interface DashboardContentProps {
   userPreferences: UserPreferences | null;
   properties: Property[];
   favoriteProperties: Property[];
-  isLoading: boolean;
+  isLoadingProperties: boolean;
+  isLoadingFavorites: boolean;
   onLogout: () => void;
 }
 
@@ -36,7 +37,8 @@ const DashboardContent = ({
   userPreferences, 
   properties, 
   favoriteProperties, 
-  isLoading,
+  isLoadingProperties,
+  isLoadingFavorites,
   onLogout 
 }: DashboardContentProps) => {
   const [activeTab, setActiveTab] = useState('properties');
@@ -54,13 +56,13 @@ const DashboardContent = ({
         <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>
           <TabsContent value="properties">
             <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <PropertiesTab properties={properties} isLoading={isLoading} />
+              <PropertiesTab properties={properties} isLoading={isLoadingProperties} />
             </div>
           </TabsContent>
           
           <TabsContent value="favorites">
             <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <FavoritesTab favorites={favoriteProperties} isLoading={isLoading} />
+              <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />
             </div>
           </TabsContent>
           

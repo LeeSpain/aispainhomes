@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
 import { Heart } from 'lucide-react';
@@ -124,4 +124,4 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   );
 };
 
-export default PropertyCard;
+export default memo(PropertyCard);
