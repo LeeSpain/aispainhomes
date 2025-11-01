@@ -4,9 +4,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface PropertyGridProps {
   properties: Property[];
   isLoading?: boolean;
+  matchScores?: Map<string, number>;
+  matchReasons?: Map<string, string[]>;
 }
 
-const PropertyGrid = ({ properties, isLoading = false }: PropertyGridProps) => {
+const PropertyGrid = ({ 
+  properties, 
+  isLoading = false,
+  matchScores,
+  matchReasons 
+}: PropertyGridProps) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -43,7 +50,12 @@ const PropertyGrid = ({ properties, isLoading = false }: PropertyGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {properties.map((property) => (
-        <PropertyCard key={property.id} property={property} />
+        <PropertyCard 
+          key={property.id} 
+          property={property}
+          matchScore={matchScores?.get(property.id)}
+          matchReasons={matchReasons?.get(property.id)}
+        />
       ))}
     </div>
   );

@@ -10,6 +10,7 @@ import ServiceProviderTab from '@/components/dashboard/ServiceProviderTab';
 import SettingsTab from '@/components/dashboard/SettingsTab';
 import { Property } from '@/components/properties/PropertyCard';
 import { User, UserPreferences } from '@/contexts/auth/types';
+import { filterServicesByUserNeeds } from '@/services/serviceFilter';
 
 // Import mock service provider data
 import { 
@@ -30,6 +31,9 @@ interface DashboardContentProps {
   onLogout: () => void;
   activeTab: string;
   activeSubTab: string | null;
+  matchScores?: Map<string, number>;
+  matchReasons?: Map<string, string[]>;
+  questionnaireData?: any;
 }
 
 const DashboardContent = ({ 
@@ -41,32 +45,92 @@ const DashboardContent = ({
   isLoadingFavorites,
   onLogout,
   activeTab,
-  activeSubTab
+  activeSubTab,
+  matchScores,
+  matchReasons,
+  questionnaireData
 }: DashboardContentProps) => {
+  
+  // Filter services based on user needs
+  const filteredLawyers = filterServicesByUserNeeds(lawyers, userPreferences, questionnaireData);
+  const filteredUtilities = filterServicesByUserNeeds(utilities, userPreferences, questionnaireData);
+  const filteredMovers = filterServicesByUserNeeds(movers, userPreferences, questionnaireData);
+  const filteredSchools = filterServicesByUserNeeds(schools, userPreferences, questionnaireData);
+  const filteredHealthcare = filterServicesByUserNeeds(healthcare, userPreferences, questionnaireData);
   
   const renderContent = () => {
     // Handle services submenu
     if (activeTab === 'services' && activeSubTab) {
       switch (activeSubTab) {
         case 'lawyers':
-          return <ServiceProviderTab title="Legal Services" providers={lawyers} />;
+          return (
+            <ServiceProviderTab 
+              title="Legal Services" 
+              providers={filteredLawyers.providers}
+              matchReasons={filteredLawyers.matchReasons}
+              totalAvailable={lawyers.length}
+            />
+          );
         case 'utilities':
-          return <ServiceProviderTab title="Utility Services" providers={utilities} />;
+          return (
+            <ServiceProviderTab 
+              title="Utility Services" 
+              providers={filteredUtilities.providers}
+              matchReasons={filteredUtilities.matchReasons}
+              totalAvailable={utilities.length}
+            />
+          );
         case 'movers':
-          return <ServiceProviderTab title="Moving Services" providers={movers} />;
+          return (
+            <ServiceProviderTab 
+              title="Moving Services" 
+              providers={filteredMovers.providers}
+              matchReasons={filteredMovers.matchReasons}
+              totalAvailable={movers.length}
+            />
+          );
         case 'schools':
-          return <ServiceProviderTab title="Education Services" providers={schools} />;
+          return (
+            <ServiceProviderTab 
+              title="Education Services" 
+              providers={filteredSchools.providers}
+              matchReasons={filteredSchools.matchReasons}
+              totalAvailable={schools.length}
+            />
+          );
         case 'healthcare':
-          return <ServiceProviderTab title="Healthcare Services" providers={healthcare} />;
+          return (
+            <ServiceProviderTab 
+              title="Healthcare Services" 
+              providers={filteredHealthcare.providers}
+              matchReasons={filteredHealthcare.matchReasons}
+              totalAvailable={healthcare.length}
+            />
+          );
         default:
-          return <ServiceProviderTab title="Legal Services" providers={lawyers} />;
+          return (
+            <ServiceProviderTab 
+              title="Legal Services" 
+              providers={filteredLawyers.providers}
+              matchReasons={filteredLawyers.matchReasons}
+              totalAvailable={lawyers.length}
+            />
+          );
       }
     }
 
     // Handle main tabs
     switch (activeTab) {
       case 'properties':
-        return <PropertiesTab properties={properties} isLoading={isLoadingProperties} />;
+        return (
+          <PropertiesTab 
+            properties={properties} 
+            isLoading={isLoadingProperties}
+            matchScores={matchScores}
+            matchReasons={matchReasons}
+            questionnaireData={questionnaireData}
+          />
+        );
       case 'profile':
         return <ProfileTab />;
       case 'favorites':
@@ -84,7 +148,15 @@ const DashboardContent = ({
           />
         );
       default:
-        return <PropertiesTab properties={properties} isLoading={isLoadingProperties} />;
+        return (
+          <PropertiesTab 
+            properties={properties} 
+            isLoading={isLoadingProperties}
+            matchScores={matchScores}
+            matchReasons={matchReasons}
+            questionnaireData={questionnaireData}
+          />
+        );
     }
   };
   

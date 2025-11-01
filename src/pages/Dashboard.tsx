@@ -22,17 +22,25 @@ import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
 import { UserPreferences } from '@/contexts/auth/types';
 import { cn } from '@/lib/utils';
+import { usePersonalizedDashboard } from '@/hooks/usePersonalizedDashboard';
 
 const Dashboard = () => {
   const { user, userPreferences, isLoading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
-  const [properties, setProperties] = useState<Property[]>([]);
   const [favoriteProperties, setFavoriteProperties] = useState<Property[]>([]);
-  const [isLoadingProperties, setIsLoadingProperties] = useState(true);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('properties');
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
+  
+  // Use personalized dashboard hook for AI-enhanced property matching
+  const { 
+    properties, 
+    matchScores, 
+    matchReasons, 
+    isLoading: isLoadingProperties,
+    questionnaireData 
+  } = usePersonalizedDashboard(user?.id);
   
   // Debug logging
   useEffect(() => {
@@ -47,33 +55,7 @@ const Dashboard = () => {
     }
   }, [user, authLoading, navigate]);
   
-  // Load recommended properties once when auth is ready
-  useEffect(() => {
-    if (authLoading || !user) return;
-    
-    let mounted = true;
-    setIsLoadingProperties(true);
-    
-    PropertyService.getFilteredProperties({})
-      .then(propertiesData => {
-        if (mounted) {
-          setProperties(propertiesData.slice(0, 4));
-        }
-      })
-      .catch(error => {
-        console.error("Error loading properties:", error);
-        if (mounted) {
-          toast.error("Failed to load properties.");
-        }
-      })
-      .finally(() => {
-        if (mounted) {
-          setIsLoadingProperties(false);
-        }
-      });
-    
-    return () => { mounted = false; };
-  }, [authLoading, user]);
+  // Properties are now loaded via usePersonalizedDashboard hook
   
   // Load favorite properties when favorites list changes
   useEffect(() => {
@@ -312,6 +294,9 @@ const Dashboard = () => {
                 onLogout={handleLogout}
                 activeTab={activeTab}
                 activeSubTab={activeSubTab}
+                matchScores={matchScores}
+                matchReasons={matchReasons}
+                questionnaireData={questionnaireData}
               />
             </main>
           </div>

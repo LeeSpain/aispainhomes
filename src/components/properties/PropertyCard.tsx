@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import PropertyImageGallery from './PropertyImageGallery';
 import { toast } from 'sonner';
 
@@ -37,13 +38,16 @@ export interface Property {
 
 interface PropertyCardProps {
   property: Property;
+  matchScore?: number;
+  matchReasons?: string[];
 }
 
-const PropertyCard = ({ property }: PropertyCardProps) => {
+const PropertyCard = ({ property, matchScore, matchReasons }: PropertyCardProps) => {
   const { user, userPreferences, updateUserPreferences } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
   const isFavorite = userPreferences?.favorites?.includes(property.id) || false;
+  const displayMatchScore = matchScore ? Math.min(100, Math.round(matchScore)) : undefined;
   
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -89,6 +93,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         <div className="relative">
           <PropertyImageGallery images={property.images} title={property.title} />
           
+          {displayMatchScore && (
+            <div className="absolute top-2 left-2 z-10 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+              {displayMatchScore}% Match
+            </div>
+          )}
+          
           <Button
             variant="ghost"
             size="icon"
@@ -107,6 +117,17 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </h3>
           
           <p className="text-muted-foreground text-sm mb-3">{property.location}</p>
+          
+          {matchReasons && matchReasons.length > 0 && (
+            <div className="mb-3 space-y-1">
+              {matchReasons.slice(0, 2).map((reason, idx) => (
+                <div key={idx} className="text-xs text-primary flex items-start gap-1">
+                  <span>✓</span>
+                  <span>{reason}</span>
+                </div>
+              ))}
+            </div>
+          )}
           
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
             <div>{property.bedrooms} beds</div>
