@@ -180,17 +180,59 @@ serve(async (req) => {
   }
 
   try {
-    const { userId } = await req.json();
-    
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'User ID is required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'No authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Check rate limits - Clara recommendations are expensive
+    const { data: rateLimitResult } = await supabase.rpc('check_rate_limit', {
+      _user_id: user.id,
+      _endpoint: 'clara-curate-recommendations',
+      _max_requests_per_minute: 5,
+      _max_requests_per_hour: 20,
+      _max_requests_per_day: 50
+    });
+
+    if (rateLimitResult && !rateLimitResult.allowed) {
+      return new Response(JSON.stringify({
+        error: `Rate limit exceeded. Clara can only curate recommendations ${rateLimitResult.limit} times per ${rateLimitResult.limit_type}. Please try again later.`,
+        limit_type: rateLimitResult.limit_type,
+        limit: rateLimitResult.limit,
+        current: rateLimitResult.current
+      }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': String(rateLimitResult.limit),
+          'X-RateLimit-Remaining': '0',
+          'Retry-After': String(rateLimitResult.retry_after)
+        }
+      });
+    }
+
+    // Use authenticated user ID instead of request body
+    const userId = user.id;
+
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 
     if (!lovableApiKey) {
@@ -200,8 +242,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Fetch user's questionnaire data
     const { data: questionnaireData, error: qError } = await supabase

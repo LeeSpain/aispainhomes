@@ -25,6 +25,33 @@ serve(async (req) => {
     
     if (userError || !user) throw new Error('Unauthorized');
 
+    // Check rate limits
+    const { data: rateLimitResult } = await supabase.rpc('check_rate_limit', {
+      _user_id: user.id,
+      _endpoint: 'ai-property-search',
+      _max_requests_per_minute: 30,
+      _max_requests_per_hour: 200,
+      _max_requests_per_day: 1000
+    });
+
+    if (rateLimitResult && !rateLimitResult.allowed) {
+      return new Response(JSON.stringify({
+        error: `Rate limit exceeded. You have reached the ${rateLimitResult.limit_type}ly limit of ${rateLimitResult.limit} requests. Please try again later.`,
+        limit_type: rateLimitResult.limit_type,
+        limit: rateLimitResult.limit,
+        current: rateLimitResult.current
+      }), {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': String(rateLimitResult.limit),
+          'X-RateLimit-Remaining': '0',
+          'Retry-After': String(rateLimitResult.retry_after)
+        }
+      });
+    }
+
     // Fetch user's questionnaire data
     const { data: questionnaireData } = await supabase
       .from('questionnaire_responses')

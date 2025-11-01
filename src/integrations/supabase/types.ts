@@ -578,6 +578,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          request_count: number
+          tokens_used: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          request_count?: number
+          tokens_used?: number
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          request_count?: number
+          tokens_used?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       resource_content_snapshots: {
         Row: {
           change_detected: boolean | null
@@ -1038,6 +1068,17 @@ export type Database = {
       check_questionnaire_rate_limit: {
         Args: { p_user_id: string }
         Returns: boolean
+      }
+      check_rate_limit: {
+        Args: {
+          _endpoint: string
+          _max_requests_per_day?: number
+          _max_requests_per_hour?: number
+          _max_requests_per_minute?: number
+          _tokens_used?: number
+          _user_id: string
+        }
+        Returns: Json
       }
       generate_invitation_code: { Args: never; Returns: string }
       has_role: {
