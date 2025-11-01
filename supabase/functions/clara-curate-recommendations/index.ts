@@ -6,6 +6,174 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper to search and scrape properties
+async function searchLiveProperties(
+  location: string,
+  budgetMin: number,
+  budgetMax: number,
+  propertyTypes: string[],
+  supabase: any
+): Promise<any[]> {
+  console.log(`🔍 Clara searching for properties in ${location}...`);
+  
+  // Get top property websites from official_resources
+  const { data: propertyWebsites } = await supabase
+    .from('official_resources')
+    .select('*')
+    .eq('category', 'property_portals')
+    .eq('is_active', true)
+    .limit(5);
+
+  if (!propertyWebsites || propertyWebsites.length === 0) {
+    console.log('No property websites configured, using fallback');
+    return [];
+  }
+
+  const allProperties: any[] = [];
+  const propertyTypeStr = propertyTypes.join(' OR ');
+  
+  // Search each property website
+  for (const website of propertyWebsites) {
+    try {
+      console.log(`Searching ${website.authority}...`);
+      
+      // Construct search query targeting specific website
+      const searchQuery = `${propertyTypeStr} for sale in ${location} ${budgetMin}-${budgetMax} EUR site:${new URL(website.url).hostname}`;
+      
+      // Call web-search function
+      const searchResponse = await supabase.functions.invoke('web-search', {
+        body: { query: searchQuery, numResults: 5 }
+      });
+
+      if (searchResponse.error) {
+        console.error(`Search error for ${website.authority}:`, searchResponse.error);
+        continue;
+      }
+
+      const searchResults = searchResponse.data?.results || [];
+      console.log(`Found ${searchResults.length} results from ${website.authority}`);
+
+      // Extract property URLs from search results
+      for (const result of searchResults) {
+        const propertyUrl = result.url;
+        
+        // Try to scrape the property page
+        try {
+          // Find or create tracked_website entry for scraping
+          let trackedWebsiteId = website.id;
+          
+          // Check if we have a tracked_website for this
+          const { data: trackedWebsite } = await supabase
+            .from('tracked_websites')
+            .select('id')
+            .eq('url', website.url)
+            .maybeSingle();
+
+          if (trackedWebsite) {
+            trackedWebsiteId = trackedWebsite.id;
+          }
+
+          // Scrape the property page
+          const scrapeResponse = await supabase.functions.invoke('scrape-website', {
+            body: { 
+              websiteId: trackedWebsiteId,
+              url: propertyUrl 
+            }
+          });
+
+          if (!scrapeResponse.error && scrapeResponse.data?.sample_items) {
+            const properties = scrapeResponse.data.sample_items || [];
+            properties.forEach((prop: any) => {
+              allProperties.push({
+                ...prop,
+                source_website: website.authority,
+                search_query: searchQuery,
+              });
+            });
+          }
+        } catch (scrapeError) {
+          console.error(`Failed to scrape ${propertyUrl}:`, scrapeError);
+        }
+      }
+    } catch (error) {
+      console.error(`Error processing ${website.authority}:`, error);
+    }
+  }
+
+  console.log(`✅ Clara found ${allProperties.length} total properties from live search`);
+  return allProperties;
+}
+
+// Helper to search for local services
+async function searchLocalServices(
+  location: string,
+  servicesNeeded: any,
+  hasChildren: boolean,
+  supabase: any
+): Promise<any[]> {
+  console.log(`🔍 Clara searching for local services in ${location}...`);
+  
+  const serviceCategories = [];
+  
+  // Determine which services to search for based on questionnaire
+  if (servicesNeeded.legal) serviceCategories.push('immigration lawyers');
+  if (servicesNeeded.utilities) serviceCategories.push('utility setup services');
+  if (servicesNeeded.moving) serviceCategories.push('international moving companies');
+  if (hasChildren) serviceCategories.push('English-speaking schools');
+  
+  // If no specific services, default to critical ones
+  if (serviceCategories.length === 0) {
+    serviceCategories.push('immigration lawyers', 'utility setup services');
+  }
+
+  const allServices: any[] = [];
+
+  for (const category of serviceCategories) {
+    try {
+      const searchQuery = `${category} in ${location} Spain`;
+      console.log(`Searching for: ${searchQuery}`);
+
+      const searchResponse = await supabase.functions.invoke('web-search', {
+        body: { query: searchQuery, numResults: 3 }
+      });
+
+      if (searchResponse.error) {
+        console.error(`Service search error for ${category}:`, searchResponse.error);
+        continue;
+      }
+
+      const results = searchResponse.data?.results || [];
+      
+      for (const result of results) {
+        // Extract business info from search result
+        const businessInfo = {
+          service_category: category.includes('lawyer') ? 'legal' : 
+                           category.includes('utility') ? 'utilities' :
+                           category.includes('moving') ? 'movers' :
+                           category.includes('school') ? 'schools' : 'other',
+          business_name: result.title.split('|')[0].split('-')[0].trim(),
+          description: result.snippet || `${category} service in ${location}`,
+          location: location,
+          contact_info: {
+            website: result.url,
+            address: location
+          },
+          why_recommended: `Found through live search for ${category}`,
+          source_url: result.url,
+          search_query: searchQuery,
+        };
+        
+        allServices.push(businessInfo);
+      }
+    } catch (error) {
+      console.error(`Error searching for ${category}:`, error);
+    }
+  }
+
+  console.log(`✅ Clara found ${allServices.length} local services`);
+  return allServices.slice(0, 6); // Limit to 6 services
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -52,159 +220,75 @@ serve(async (req) => {
       });
     }
 
-    console.log('Processing recommendations for user:', userId);
+    console.log('🤖 Clara starting live search for user:', userId);
 
     // Extract key information from questionnaire
     const location = Array.isArray(questionnaireData.location_preferences) 
       ? questionnaireData.location_preferences[0] 
-      : 'Spain';
+      : (questionnaireData.location_preferences?.location || 'Spain');
     const budgetRange = questionnaireData.budget_range as any || {};
     const household = questionnaireData.household_details as any || {};
     const servicesNeeded = questionnaireData.services_needed as any || {};
-    const propertyTypes = questionnaireData.property_types || [];
+    const propertyTypes = questionnaireData.property_types || ['apartment'];
+    const hasChildren = (household.children || 0) > 0;
 
-    // Use AI to analyze needs and search for services
-    const systemPrompt = `You are Clara, an AI relocation assistant for Spain. Analyze the user's questionnaire data and provide real, specific service recommendations in their target location. Use tool calling to return structured data.`;
+    const budgetMin = Number(budgetRange.min) || 100000;
+    const budgetMax = Number(budgetRange.max) || 500000;
 
-    const userPrompt = `
-User is relocating to: ${location}
-Budget: €${budgetRange.min || 0} - €${budgetRange.max || 500000}
-Household: ${household.adults || 1} adults, ${household.children || 0} children
-Property types interested in: ${propertyTypes.join(', ')}
-Services needed: ${JSON.stringify(servicesNeeded)}
+    console.log(`📍 Target: ${location}`);
+    console.log(`💰 Budget: €${budgetMin} - €${budgetMax}`);
+    console.log(`🏠 Property types: ${propertyTypes.join(', ')}`);
 
-Based on this information, recommend exactly 3 real, reputable local service providers in ${location}, Spain. Focus on the most critical services for their relocation (legal, utilities, or moving services). Return business name, description, contact info, location, and why you recommend them.`;
+    // PHASE 1: Search for live properties
+    const liveProperties = await searchLiveProperties(
+      location,
+      budgetMin,
+      budgetMax,
+      propertyTypes,
+      supabase
+    );
 
-    // Call Lovable AI with tool calling for structured output
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        tools: [
-          {
-            type: 'function',
-            function: {
-              name: 'recommend_services',
-              description: 'Return 3 real service provider recommendations',
-              parameters: {
-                type: 'object',
-                properties: {
-                  services: {
-                    type: 'array',
-                    minItems: 3,
-                    maxItems: 3,
-                    items: {
-                      type: 'object',
-                      properties: {
-                        service_category: { type: 'string', enum: ['legal', 'utilities', 'movers', 'schools', 'healthcare'] },
-                        business_name: { type: 'string' },
-                        description: { type: 'string' },
-                        contact_info: {
-                          type: 'object',
-                          properties: {
-                            phone: { type: 'string' },
-                            email: { type: 'string' },
-                            website: { type: 'string' },
-                            address: { type: 'string' }
-                          }
-                        },
-                        location: { type: 'string' },
-                        rating: { type: 'number' },
-                        why_recommended: { type: 'string' },
-                        source_url: { type: 'string' }
-                      },
-                      required: ['service_category', 'business_name', 'description', 'why_recommended', 'location']
-                    }
-                  }
-                },
-                required: ['services']
-              }
-            }
-          }
-        ],
-        tool_choice: { type: 'function', function: { name: 'recommend_services' } }
-      }),
-    });
+    // PHASE 2: Search for local services
+    const liveServices = await searchLocalServices(
+      location,
+      servicesNeeded,
+      hasChildren,
+      supabase
+    );
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI gateway error:', aiResponse.status, errorText);
-      return new Response(JSON.stringify({ error: 'AI service error' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const aiData = await aiResponse.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+    // PHASE 3: Score and rank all properties (live + database)
+    console.log('📊 Clara scoring properties...');
     
-    if (!toolCall) {
-      console.error('No tool call in AI response');
-      return new Response(JSON.stringify({ error: 'AI returned invalid response' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const serviceRecommendations = JSON.parse(toolCall.function.arguments).services;
-
-    // Save service recommendations to database
-    const serviceInserts = serviceRecommendations.map((service: any) => ({
-      user_id: userId,
-      service_category: service.service_category,
-      business_name: service.business_name,
-      description: service.description,
-      contact_info: service.contact_info || {},
-      location: service.location,
-      rating: service.rating || null,
-      why_recommended: service.why_recommended,
-      source_url: service.source_url || null,
-    }));
-
-    const { error: serviceError } = await supabase
-      .from('service_recommendations')
-      .insert(serviceInserts);
-
-    if (serviceError) {
-      console.error('Error saving services:', serviceError);
-    }
-
-    // Get existing scraped properties and match them
-    const { data: scrapedProperties } = await supabase
+    // Also get existing database properties as fallback
+    const { data: dbProperties } = await supabase
       .from('extracted_items')
       .select('*')
       .eq('item_type', 'property')
       .eq('is_active', true)
-      .limit(50);
+      .limit(20);
 
-    const properties = scrapedProperties || [];
-    
-    // Score and rank properties
-    const scoredProperties = properties.map((property: any) => {
+    // Combine live properties with database properties
+    const allCandidateProperties = [...liveProperties];
+    if (dbProperties && liveProperties.length < 10) {
+      allCandidateProperties.push(...dbProperties);
+    }
+
+    // Score properties
+    const scoredProperties = allCandidateProperties.map((property: any) => {
       let score = 0;
       const reasons: string[] = [];
 
       const propertyPrice = Number(property.price) || 0;
-      const minBudget = Number(budgetRange.min) || 0;
-      const maxBudget = Number(budgetRange.max) || Infinity;
 
       // Budget matching (30 points)
-      if (propertyPrice >= minBudget && propertyPrice <= maxBudget) {
+      if (propertyPrice >= budgetMin && propertyPrice <= budgetMax) {
         score += 30;
         reasons.push('Within your budget');
-      } else if (propertyPrice < minBudget) {
-        score += (propertyPrice / minBudget) * 30;
+      } else if (propertyPrice < budgetMin) {
+        score += (propertyPrice / budgetMin) * 30;
         reasons.push('Below budget');
       } else {
-        const overBudget = ((propertyPrice - maxBudget) / maxBudget) * 100;
+        const overBudget = ((propertyPrice - budgetMax) / budgetMax) * 100;
         if (overBudget < 20) {
           score += 15;
           reasons.push('Slightly over budget but excellent value');
@@ -239,24 +323,32 @@ Based on this information, recommend exactly 3 real, reputable local service pro
         reasons.push('Has desirable features');
       }
 
+      // Bonus for live search results
+      if (property.source_website) {
+        score += 5;
+        reasons.push('Fresh from live search');
+      }
+
       return { property, score, reasons };
     });
 
-    // Get top 6 properties
+    // Get top 10 properties
     const topProperties = scoredProperties
       .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
+      .slice(0, 10);
 
-    // Save property recommendations
+    console.log(`📝 Saving ${topProperties.length} properties and ${liveServices.length} services`);
+
+    // Save property recommendations with search metadata
     const propertyInserts = topProperties.map(({ property, score, reasons }: any) => ({
       user_id: userId,
-      property_id: property.id,
+      property_id: property.id || null,
       title: property.title || 'Property',
       description: property.description || '',
       location: property.location || location,
       price: Number(property.price) || 0,
       currency: property.currency || 'EUR',
-      property_type: property.metadata?.type || 'apartment',
+      property_type: property.metadata?.type || propertyTypes[0] || 'apartment',
       bedrooms: Number(property.metadata?.bedrooms) || null,
       bathrooms: Number(property.metadata?.bathrooms) || null,
       area_sqm: Number(property.metadata?.area_sqm) || null,
@@ -265,6 +357,10 @@ Based on this information, recommend exactly 3 real, reputable local service pro
       source_url: property.url || '',
       match_score: Math.round(score),
       match_reasons: reasons,
+      source_website: property.source_website || null,
+      search_query: property.search_query || null,
+      search_timestamp: new Date().toISOString(),
+      search_method: property.source_website ? 'live_search' : 'database_match',
     }));
 
     const { error: propertyError } = await supabase
@@ -275,18 +371,44 @@ Based on this information, recommend exactly 3 real, reputable local service pro
       console.error('Error saving properties:', propertyError);
     }
 
-    console.log(`Saved ${serviceInserts.length} services and ${propertyInserts.length} properties for user ${userId}`);
+    // Save service recommendations with search metadata
+    const serviceInserts = liveServices.map((service: any) => ({
+      user_id: userId,
+      service_category: service.service_category,
+      business_name: service.business_name,
+      description: service.description,
+      contact_info: service.contact_info || {},
+      location: service.location,
+      rating: service.rating || null,
+      why_recommended: service.why_recommended,
+      source_url: service.source_url || null,
+      search_query: service.search_query || null,
+      search_timestamp: new Date().toISOString(),
+      search_method: 'live_search',
+    }));
+
+    const { error: serviceError } = await supabase
+      .from('service_recommendations')
+      .insert(serviceInserts);
+
+    if (serviceError) {
+      console.error('Error saving services:', serviceError);
+    }
+
+    console.log(`✅ Clara completed! Saved ${propertyInserts.length} properties and ${serviceInserts.length} services`);
 
     return new Response(
       JSON.stringify({
         success: true,
         servicesCount: serviceInserts.length,
         propertiesCount: propertyInserts.length,
+        liveSearchUsed: true,
+        searchTimestamp: new Date().toISOString(),
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in clara-curate-recommendations:', error);
+    console.error('❌ Error in clara-curate-recommendations:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

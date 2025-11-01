@@ -434,7 +434,11 @@ export type Database = {
           price: number
           property_id: string | null
           property_type: string | null
+          search_method: string | null
+          search_query: string | null
+          search_timestamp: string | null
           source_url: string
+          source_website: string | null
           title: string
           updated_at: string | null
           user_id: string
@@ -456,7 +460,11 @@ export type Database = {
           price: number
           property_id?: string | null
           property_type?: string | null
+          search_method?: string | null
+          search_query?: string | null
+          search_timestamp?: string | null
           source_url: string
+          source_website?: string | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -478,7 +486,11 @@ export type Database = {
           price?: number
           property_id?: string | null
           property_type?: string | null
+          search_method?: string | null
+          search_query?: string | null
+          search_timestamp?: string | null
           source_url?: string
+          source_website?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
@@ -615,6 +627,9 @@ export type Database = {
           location: string | null
           metadata: Json | null
           rating: number | null
+          search_method: string | null
+          search_query: string | null
+          search_timestamp: string | null
           service_category: string
           source_url: string | null
           updated_at: string | null
@@ -631,6 +646,9 @@ export type Database = {
           location?: string | null
           metadata?: Json | null
           rating?: number | null
+          search_method?: string | null
+          search_query?: string | null
+          search_timestamp?: string | null
           service_category: string
           source_url?: string | null
           updated_at?: string | null
@@ -647,6 +665,9 @@ export type Database = {
           location?: string | null
           metadata?: Json | null
           rating?: number | null
+          search_method?: string | null
+          search_query?: string | null
+          search_timestamp?: string | null
           service_category?: string
           source_url?: string | null
           updated_at?: string | null
