@@ -1,7 +1,9 @@
 
 import { Property } from '@/components/properties/PropertyCard';
 
-// Sample property images for development
+// ⚠️ DEPRECATED: This file contains sample data for development/fallback only
+// Production app now uses live scraped data from tracked websites
+// Sample property images for development/fallback
 export const samplePropertyImages: Record<string, string[]> = {
   '1': [
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200',

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Property } from '@/components/properties/PropertyCard';
-import { PropertyService } from '@/services/PropertyService';
 import { scrapedPropertiesService } from '@/services/scrapedPropertiesService';
 import { toast } from 'sonner';
 
@@ -36,7 +35,7 @@ export const useDashboardInit = (userId: string | undefined) => {
         setData(prev => ({ ...prev, isLoading: true }));
 
         // Fetch all user data in parallel
-        const [questionnaireResult, profileResult, sampleProperties, scrapedProperties] = await Promise.all([
+        const [questionnaireResult, profileResult, scrapedProperties] = await Promise.all([
           supabase
             .from('questionnaire_responses')
             .select('*')
@@ -49,7 +48,6 @@ export const useDashboardInit = (userId: string | undefined) => {
             .select('*')
             .eq('user_id', userId)
             .maybeSingle(),
-          PropertyService.getFilteredProperties({}),
           scrapedPropertiesService.getScrapedProperties(userId)
         ]);
 
@@ -59,8 +57,8 @@ export const useDashboardInit = (userId: string | undefined) => {
         const profileData = profileResult.data;
         const hasCompletedQuestionnaire = !!questionnaireData;
 
-        // Merge properties from both sources
-        const allProperties = [...sampleProperties, ...scrapedProperties];
+        // Use live scraped properties only
+        const allProperties = scrapedProperties;
 
         // Calculate match scores if questionnaire exists
         if (hasCompletedQuestionnaire && allProperties.length > 0) {

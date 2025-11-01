@@ -2,7 +2,9 @@
 import { Property } from '@/components/properties/PropertyCard';
 import { sampleProperties, samplePropertyImages } from '@/data/sampleProperties';
 
-// Core property services
+// ⚠️ NOTE: This service uses sample/fallback data
+// Main dashboard now uses live scraped properties from scrapedPropertiesService
+// This is kept for favorites lookup and legacy features
 export const propertyCore = {
   // Get all properties
   getAllProperties: async (): Promise<Property[]> => {
