@@ -88,28 +88,120 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
     
-    // Fetch relevant official resources
+    // Fetch relevant official resources with better matching
     const lastUserMessage = messages[messages.length - 1]?.content || '';
     const searchTerms = lastUserMessage.toLowerCase();
     
-    const { data: officialResources } = await supabase
+    // Keywords to category mapping for better resource matching
+    const categoryKeywords: Record<string, string[]> = {
+      immigration: ['visa', 'nie', 'residence', 'permit', 'immigration', 'foreigner', 'extranjero', 'passport'],
+      property: ['property', 'buy', 'buying', 'purchase', 'house', 'apartment', 'flat', 'registro', 'deed', 'title', 'ownership', 'rental', 'rent', 'lease', 'tenant'],
+      finance: ['tax', 'banking', 'bank', 'mortgage', 'social security', 'seguridad social', 'iva', 'irpf', 'hacienda', 'investment'],
+      healthcare: ['health', 'doctor', 'hospital', 'medical', 'insurance', 'salud', 'seguro', 'ehic'],
+      education: ['school', 'university', 'education', 'study', 'degree', 'diploma', 'homologation'],
+      utilities: ['electricity', 'water', 'gas', 'internet', 'phone', 'utilities', 'luz', 'agua'],
+      transport: ['car', 'driver', 'license', 'vehicle', 'registration', 'dgt', 'traffic', 'permiso', 'conducir'],
+      work: ['work', 'job', 'employment', 'autonomo', 'self-employed', 'labor', 'contract', 'sepe'],
+      integration: ['citizenship', 'nationality', 'culture', 'padron', 'empadronamiento', 'local'],
+      lifestyle: ['consumer', 'environment', 'tourism', 'travel'],
+      property_websites: ['idealista', 'fotocasa', 'kyero', 'property', 'listing', 'real estate', 'search']
+    };
+    
+    // Determine relevant categories from user query
+    const relevantCategories: string[] = [];
+    for (const [category, keywords] of Object.entries(categoryKeywords)) {
+      if (keywords.some(keyword => searchTerms.includes(keyword))) {
+        relevantCategories.push(category);
+      }
+    }
+    
+    // Fetch official resources - prioritize government resources over property websites
+    let officialResources: any[] = [];
+    
+    if (relevantCategories.length > 0) {
+      // Fetch resources by relevant categories
+      const { data: categoryResources } = await supabase
+        .from('official_resources')
+        .select('*')
+        .eq('is_active', true)
+        .in('category', relevantCategories)
+        .order('trust_level', { ascending: false })
+        .limit(10);
+      
+      officialResources = categoryResources || [];
+    }
+    
+    // Also do text search as fallback
+    const { data: searchResults } = await supabase
       .from('official_resources')
       .select('*')
       .eq('is_active', true)
-      .or(`title.ilike.%${searchTerms}%,description.ilike.%${searchTerms}%`)
-      .limit(5);
+      .or(`title.ilike.%${searchTerms}%,description.ilike.%${searchTerms}%,authority.ilike.%${searchTerms}%`)
+      .order('trust_level', { ascending: false })
+      .limit(8);
+    
+    // Merge results, remove duplicates, prioritize government resources
+    if (searchResults && searchResults.length > 0) {
+      searchResults.forEach(result => {
+        if (!officialResources.find(r => r.id === result.id)) {
+          officialResources.push(result);
+        }
+      });
+    }
+    
+    // Sort to prioritize government resources over property websites
+    officialResources.sort((a, b) => {
+      if (a.category === 'property_websites' && b.category !== 'property_websites') return 1;
+      if (a.category !== 'property_websites' && b.category === 'property_websites') return -1;
+      return 0;
+    });
+    
+    // Limit to top 12 most relevant
+    officialResources = officialResources.slice(0, 12);
     
     // Build resources context
     let resourcesContext = '';
     if (officialResources && officialResources.length > 0) {
-      resourcesContext = '\n\n=== OFFICIAL SPANISH GOVERNMENT RESOURCES ===\n';
-      resourcesContext += 'You have access to these verified official resources. ALWAYS cite them when relevant:\n\n';
-      officialResources.forEach((resource: any, index: number) => {
-        resourcesContext += `${index + 1}. [${resource.title}](${resource.url})\n`;
-        resourcesContext += `   Authority: ${resource.authority}\n`;
-        resourcesContext += `   Category: ${resource.category}\n`;
-        resourcesContext += `   Description: ${resource.description}\n\n`;
-      });
+      // Separate government resources from property websites
+      const govResources = officialResources.filter(r => r.category !== 'property_websites');
+      const propertyWebsites = officialResources.filter(r => r.category === 'property_websites');
+      
+      if (govResources.length > 0) {
+        resourcesContext += '\n\n=== OFFICIAL SPANISH GOVERNMENT RESOURCES ===\n';
+        resourcesContext += 'You have access to these verified official resources. ALWAYS cite them when providing official information:\n\n';
+        govResources.forEach((resource: any, index: number) => {
+          resourcesContext += `${index + 1}. [${resource.title}](${resource.url})\n`;
+          resourcesContext += `   Authority: ${resource.authority}\n`;
+          resourcesContext += `   Category: ${resource.category} ${resource.subcategory ? `(${resource.subcategory})` : ''}\n`;
+          resourcesContext += `   Description: ${resource.description}\n`;
+          resourcesContext += `   Trust Level: ${resource.trust_level}\n\n`;
+        });
+      }
+      
+      if (propertyWebsites.length > 0) {
+        resourcesContext += '\n=== PROPERTY WEBSITES ===\n';
+        resourcesContext += 'Property listing portals available for property searches:\n\n';
+        propertyWebsites.forEach((resource: any, index: number) => {
+          resourcesContext += `${index + 1}. ${resource.title} - ${resource.url}\n`;
+          resourcesContext += `   ${resource.description}\n\n`;
+        });
+      }
+    }
+    
+    // If no specific resources found, provide general guidance
+    if (officialResources.length === 0) {
+      resourcesContext += '\n\n=== AVAILABLE RESOURCE CATEGORIES ===\n';
+      resourcesContext += 'When users ask about these topics, search for specific resources:\n';
+      resourcesContext += '- Immigration & Visas (NIE, residence permits, work authorization)\n';
+      resourcesContext += '- Property & Housing (registration, rentals, taxes)\n';
+      resourcesContext += '- Finance & Banking (taxes, social security, banking)\n';
+      resourcesContext += '- Healthcare (public health, insurance, EHIC)\n';
+      resourcesContext += '- Education (schools, universities, language courses)\n';
+      resourcesContext += '- Utilities (electricity, water, telecommunications)\n';
+      resourcesContext += '- Transport (driver\'s license, vehicle registration)\n';
+      resourcesContext += '- Work & Employment (jobs, contracts, self-employment)\n';
+      resourcesContext += '- Integration & Culture (citizenship, local registration)\n';
+      resourcesContext += '- Property Websites (47 tracked property listing portals)\n';
     }
 
     // Build system prompt
@@ -244,13 +336,17 @@ serve(async (req) => {
     }
 
     systemPrompt += '\n\n=== AI ASSISTANT GUIDELINES ===\n';
-    systemPrompt += '1. Use the user\'s complete profile when making recommendations\n';
-    systemPrompt += '2. Consider their legal status (NIE, visa) when discussing property options\n';
-    systemPrompt += '3. Factor in their lifestyle preferences (climate, area type, community)\n';
-    systemPrompt += '4. Suggest relevant services based on their stated needs\n';
-    systemPrompt += '5. Be mindful of their relocation timeline when advising on urgency\n';
-    systemPrompt += '6. Consider family composition (children, pets) in all recommendations\n';
-    systemPrompt += `\n\nIMPORTANT: When answering questions, prioritize official resources first. Only use web_search for topics not covered by official resources.`;
+    systemPrompt += '1. ALWAYS CITE OFFICIAL SOURCES: When providing official information (visas, taxes, healthcare, etc.), cite the specific government resources provided above\n';
+    systemPrompt += '2. CITATION FORMAT: Use markdown links like "[Ministry of Foreign Affairs](URL)" when citing sources\n';
+    systemPrompt += '3. PRIORITIZE OFFICIAL RESOURCES: Use official government resources first, only use web_search for current news or topics not covered\n';
+    systemPrompt += '4. USER CONTEXT: Use the user\'s complete profile when making recommendations\n';
+    systemPrompt += '5. LEGAL STATUS: Consider their legal status (NIE, visa) when discussing property options\n';
+    systemPrompt += '6. LIFESTYLE: Factor in their lifestyle preferences (climate, area type, community)\n';
+    systemPrompt += '7. SERVICES: Suggest relevant services based on their stated needs\n';
+    systemPrompt += '8. TIMING: Be mindful of their relocation timeline when advising on urgency\n';
+    systemPrompt += '9. FAMILY: Consider family composition (children, pets) in all recommendations\n';
+    systemPrompt += '10. DISCLAIMERS: Include legal disclaimer when discussing official procedures\n\n';
+    systemPrompt += 'IMPORTANT: We have 80+ official resources (33 government resources + 47 property websites). Always check if an official resource covers the topic before using web search.';
 
     const openaiMessages = [
       { role: 'system', content: systemPrompt },
@@ -306,13 +402,35 @@ serve(async (req) => {
         type: "function",
         function: {
           name: "web_search",
-          description: "Search the web for current information ONLY when official resources don't cover the topic",
+          description: "Search the web for current information ONLY when official resources don't cover the topic. Use this for: current news, recent changes, specific property listings not in database. DO NOT use for official procedures - use official resources instead",
           parameters: {
             type: "object",
             properties: {
               query: {
                 type: "string",
                 description: "The search query"
+              }
+            },
+            required: ["query"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_official_resources",
+          description: "Search through official Spanish government resources and property websites. Use this when users ask about: visas, NIE, taxes, healthcare, education, utilities, transport, work permits, property listings, or any official Spanish procedures",
+          parameters: {
+            type: "object",
+            properties: {
+              category: {
+                type: "string",
+                enum: ["immigration", "property", "finance", "healthcare", "education", "utilities", "transport", "work", "integration", "lifestyle", "property_websites"],
+                description: "Category of resources to search"
+              },
+              query: {
+                type: "string",
+                description: "Keywords to search for within the category"
               }
             },
             required: ["query"]
@@ -433,6 +551,55 @@ serve(async (req) => {
             tool_call_id: toolCall.id,
             content: JSON.stringify(searchResults.results || [])
           } as any);
+        } else if (toolCall.function.name === 'search_official_resources') {
+          const args = JSON.parse(toolCall.function.arguments);
+          
+          let resourceQuery = supabase
+            .from('official_resources')
+            .select('*')
+            .eq('is_active', true);
+          
+          // Filter by category if provided
+          if (args.category) {
+            resourceQuery = resourceQuery.eq('category', args.category);
+          }
+          
+          // Search by query terms
+          if (args.query) {
+            resourceQuery = resourceQuery.or(
+              `title.ilike.%${args.query}%,description.ilike.%${args.query}%,authority.ilike.%${args.query}%`
+            );
+          }
+          
+          const { data: foundResources } = await resourceQuery
+            .order('trust_level', { ascending: false })
+            .limit(10);
+          
+          const resourceSummary = foundResources?.map((r: any) => ({
+            title: r.title,
+            authority: r.authority,
+            url: r.url,
+            category: r.category,
+            subcategory: r.subcategory,
+            description: r.description,
+            trust_level: r.trust_level
+          })) || [];
+          
+          openaiMessages.push({
+            role: 'assistant',
+            content: null,
+            tool_calls: [toolCall]
+          } as any);
+          
+          openaiMessages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: JSON.stringify({
+              count: resourceSummary.length,
+              resources: resourceSummary,
+              message: `Found ${resourceSummary.length} official resources. IMPORTANT: Cite these in your response using markdown links.`
+            })
+          } as any);
         }
       }
 
@@ -464,12 +631,37 @@ serve(async (req) => {
     const costs = TOKEN_COSTS[settings.model as keyof typeof TOKEN_COSTS] || TOKEN_COSTS['gpt-4o-mini'];
     const estimatedCost = (inputTokens / 1000 * costs.input) + (outputTokens / 1000 * costs.output);
 
-    // Extract cited resource URLs
+    // Extract cited resource URLs and titles
     const citedUrls: string[] = [];
-    if (officialResources) {
+    const citedResourceIds: string[] = [];
+    
+    if (officialResources && officialResources.length > 0) {
       officialResources.forEach((resource: any) => {
+        // Check if URL is mentioned in the response
         if (assistantMessage.includes(resource.url)) {
           citedUrls.push(resource.url);
+          if (!citedResourceIds.includes(resource.id)) {
+            citedResourceIds.push(resource.id);
+          }
+        }
+        // Check if resource title is mentioned
+        if (assistantMessage.includes(resource.title) || 
+            assistantMessage.toLowerCase().includes(resource.title.toLowerCase())) {
+          if (!citedUrls.includes(resource.url)) {
+            citedUrls.push(resource.url);
+          }
+          if (!citedResourceIds.includes(resource.id)) {
+            citedResourceIds.push(resource.id);
+          }
+        }
+        // Check if authority is mentioned
+        if (assistantMessage.includes(resource.authority)) {
+          if (!citedUrls.includes(resource.url)) {
+            citedUrls.push(resource.url);
+          }
+          if (!citedResourceIds.includes(resource.id)) {
+            citedResourceIds.push(resource.id);
+          }
         }
       });
     }
@@ -497,15 +689,15 @@ serve(async (req) => {
       },
     ]);
     
-    // Save citations
-    if (citedUrls.length > 0 && officialResources) {
-      const citations = citedUrls.map(url => {
-        const resource = officialResources.find((r: any) => r.url === url);
+    // Save citations for all mentioned resources
+    if (citedResourceIds.length > 0 && officialResources) {
+      const citations = citedResourceIds.map(resourceId => {
+        const resource = officialResources.find((r: any) => r.id === resourceId);
         return resource ? {
           conversation_id: conversationId,
           user_id: user.id,
           resource_id: resource.id,
-          query_context: lastUserMessage
+          query_context: lastUserMessage.substring(0, 500) // Limit context length
         } : null;
       }).filter(c => c !== null);
       
