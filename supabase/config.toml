@@ -1,0 +1,13 @@
+project_id = "hwuzrpvvswraruhgrwco"
+
+[functions.ai-chat]
+verify_jwt = true
+
+[functions.ai-settings-update]
+verify_jwt = true
+
+[functions.ai-test-connection]
+verify_jwt = true
+
+[functions.ai-usage-report]
+verify_jwt = true
