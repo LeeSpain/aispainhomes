@@ -20,7 +20,7 @@ async function searchLiveProperties(
   const { data: propertyWebsites } = await supabase
     .from('official_resources')
     .select('*')
-    .eq('category', 'property_portals')
+    .eq('category', 'property_websites')
     .eq('is_active', true)
     .limit(5);
 
