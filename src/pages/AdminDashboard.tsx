@@ -11,6 +11,7 @@ import UsersTab from '@/components/admin/UsersTab';
 import AdminWebsiteTrackingTab from '@/components/admin/AdminWebsiteTrackingTab';
 import AISettingsTab from '@/components/admin/AISettingsTab';
 import SystemSettingsTab from '@/components/admin/SystemSettingsTab';
+import OfficialResourcesManager from '@/components/admin/OfficialResourcesManager';
 import { siteTrackingService, TrackedSite } from '@/services/site/siteTrackingService';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
@@ -80,6 +81,8 @@ const AdminDashboard = () => {
         return <UsersTab users={users} />;
       case 'websites':
         return <AdminWebsiteTrackingTab />;
+      case 'resources':
+        return <OfficialResourcesManager />;
       case 'ai':
         return <AISettingsTab />;
       case 'system':

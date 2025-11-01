@@ -36,6 +36,7 @@ const menuItems = [
   { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'websites', label: 'Website Tracking', icon: Globe },
+  { id: 'resources', label: 'Official Resources', icon: Globe },
   { id: 'ai', label: 'AI Settings', icon: Bot },
   { id: 'system', label: 'System', icon: Settings },
 ];
