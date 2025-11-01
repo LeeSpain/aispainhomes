@@ -64,9 +64,54 @@ Deno.serve(async (req) => {
 
     if (!websiteId) {
       return new Response(
-        JSON.stringify({ error: 'websiteId is required' }),
+        JSON.stringify({ error: 'Invalid request parameters' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Validate URL if provided
+    if (url) {
+      // Check URL length
+      if (url.length > 2000) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid request parameters' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Validate URL format and scheme
+      try {
+        const parsedUrl = new URL(url);
+        if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+          return new Response(
+            JSON.stringify({ error: 'Invalid request parameters' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Block internal/private IP addresses (SSRF protection)
+        const hostname = parsedUrl.hostname.toLowerCase();
+        const blockedHosts = [
+          'localhost', '127.0.0.1', '0.0.0.0', '::1',
+          '169.254.169.254', // AWS metadata
+          '10.', '172.16.', '172.17.', '172.18.', '172.19.', 
+          '172.20.', '172.21.', '172.22.', '172.23.', '172.24.',
+          '172.25.', '172.26.', '172.27.', '172.28.', '172.29.',
+          '172.30.', '172.31.', '192.168.'
+        ];
+        
+        if (blockedHosts.some(blocked => hostname === blocked || hostname.startsWith(blocked))) {
+          return new Response(
+            JSON.stringify({ error: 'Invalid request parameters' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      } catch (e) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid request parameters' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Get website details from database
@@ -422,51 +467,36 @@ Deno.serve(async (req) => {
     console.error('Error in scrape-website:', error);
     const duration = Date.now() - startTime;
     
-    // Categorize error
+    // Categorize error for internal logging only
     let errorCategory = 'unknown';
     let errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
     if (errorMessage.includes('403')) {
       errorCategory = 'blocked';
-      errorMessage = 'Website blocked access (403 Forbidden)';
-    } else if (errorMessage.includes('404')) {
-      errorCategory = 'not_found';
-      errorMessage = 'Website not found (404)';
-    } else if (errorMessage.includes('timeout') || errorMessage.includes('ETIMEDOUT')) {
+    } else if (errorMessage.includes('timeout') || errorMessage.includes('ECONNREFUSED')) {
       errorCategory = 'timeout';
-      errorMessage = 'Request timed out';
-    } else if (errorMessage.includes('Failed to parse')) {
-      errorCategory = 'invalid_html';
+    } else if (errorMessage.includes('parse') || errorMessage.includes('selector')) {
+      errorCategory = 'extraction';
     } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
-      errorCategory = 'network_error';
+      errorCategory = 'network';
     }
 
-    console.log(`Error category: ${errorCategory}`);
+    // Log detailed error server-side
+    console.error('Categorized error:', {
+      category: errorCategory,
+      message: errorMessage,
+      duration,
+    });
 
-    // Save error to database
+    // Save error state to database
     try {
-      const { data: websiteData } = await supabase
-        .from('tracked_websites')
-        .select('id')
-        .eq('id', websiteId)
-        .single();
-
-      if (websiteData) {
-        // Update website with error
+      const { websiteId } = await req.json();
+      if (websiteId) {
         await supabase
-          .from('tracked_websites')
-          .update({
-            last_checked_at: new Date().toISOString(),
-            last_status: 'error',
-            last_error: `[${errorCategory}] ${errorMessage}`,
-          })
-          .eq('id', websiteId);
-
-        // Save error result
-        await supabase
-          .from('website_scrape_results')
+          .from('scrape_history')
           .insert({
             tracked_website_id: websiteId,
+            user_id: userId,
             status: 'error',
             items_found: 0,
             new_items: 0,
@@ -482,7 +512,7 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        error: errorMessage,
+        error: 'An error occurred processing your request',
         error_category: errorCategory,
         duration_ms: duration,
       }),

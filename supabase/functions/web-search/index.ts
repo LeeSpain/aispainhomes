@@ -25,8 +25,25 @@ serve(async (req) => {
   try {
     const { query, numResults = 5 }: SearchRequest = await req.json();
 
+    // Input validation
     if (!query || query.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Query is required' }), {
+      return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate query length to prevent DoS
+    if (query.length > 500) {
+      return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Validate numResults is reasonable
+    if (numResults < 1 || numResults > 20) {
+      return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -102,7 +119,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: 'An error occurred processing your request',
       }),
       {
         status: 500,
