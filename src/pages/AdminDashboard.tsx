@@ -13,6 +13,7 @@ import AdminWebsiteTrackingTab from '@/components/admin/AdminWebsiteTrackingTab'
 import AISettingsTab from '@/components/admin/AISettingsTab';
 import SystemSettingsTab from '@/components/admin/SystemSettingsTab';
 import OfficialResourcesManager from '@/components/admin/OfficialResourcesManager';
+import StripeSettingsTab from '@/components/admin/StripeSettingsTab';
 
 import { siteTrackingService, TrackedSite } from '@/services/site/siteTrackingService';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -160,6 +161,8 @@ const AdminDashboard = () => {
         return <AdminWebsiteTrackingTab />;
       case 'resources':
         return <OfficialResourcesManager />;
+      case 'stripe':
+        return <StripeSettingsTab />;
       case 'ai':
         return <AISettingsTab />;
       case 'system':
@@ -176,6 +179,7 @@ const AdminDashboard = () => {
       users: 'User Management',
       websites: 'Website Tracking',
       resources: 'Official Resources',
+      stripe: 'Stripe Payment Settings',
       ai: 'AI Settings',
       system: 'System Settings'
     };
@@ -189,6 +193,7 @@ const AdminDashboard = () => {
       users: 'View and manage registered users and invitations',
       websites: 'Track and monitor website performance',
       resources: 'Manage official government resources',
+      stripe: 'Configure Stripe API keys and payment processing',
       ai: 'Configure AI assistant settings',
       system: 'System configuration and maintenance'
     };

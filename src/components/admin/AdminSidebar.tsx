@@ -9,7 +9,8 @@ import {
   Server,
   Menu,
   X,
-  FileText
+  FileText,
+  Wallet
 } from 'lucide-react';
 import {
   Sidebar,
@@ -38,6 +39,7 @@ const menuItems = [
   { id: 'users', label: 'Users', icon: Users },
   { id: 'websites', label: 'Website Tracking', icon: Globe },
   { id: 'resources', label: 'Official Resources', icon: FileText },
+  { id: 'stripe', label: 'Stripe Settings', icon: Wallet },
   { id: 'ai', label: 'AI Settings', icon: Bot },
   { id: 'system', label: 'System', icon: Settings },
 ];
