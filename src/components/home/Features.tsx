@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import propertyMockup from "@/assets/property-app-mockup.png";
 import aiAssistant from "@/assets/ai-assistant-visual.png";
-import relocationJourney from "@/assets/relocation-journey.png";
+import relocationSteps from "@/assets/relocation-steps.png";
 
 const features = [
   {
@@ -172,119 +172,117 @@ const Features = () => {
           </div>
         </div>
 
-        {/* Relocation Journey Visual */}
-        <div className="mb-20">
+        {/* Combined Services & Roadmap Section */}
+        <div className="mb-16">
           <div className="text-center mb-12">
             <h3 className="text-3xl md:text-4xl font-bold mb-4">
               Your Complete Relocation Roadmap
             </h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We guide you through every step of your Spanish relocation with expert support and AI-powered assistance.
-            </p>
-          </div>
-          
-          <div className="relative max-w-2xl mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl blur-3xl"></div>
-            <div className="relative p-6 rounded-3xl bg-card/50 backdrop-blur-sm border border-border">
-              <img 
-                src={relocationJourney}
-                alt="Complete relocation journey from property search to settling in Spain"
-                className="w-full h-auto rounded-2xl"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Service Categories Grid */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              Comprehensive Services at Your Fingertips
-            </h3>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Access all the support you need in one integrated platform.
+              Access comprehensive services at every stage of your Spanish journey - all in one integrated platform.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Scale className="h-5 w-5" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* Timeline Visual - Smaller and on the side */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-8">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl blur-2xl"></div>
+                  <div className="relative p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border">
+                    <img 
+                      src={relocationSteps}
+                      alt="Step-by-step relocation journey timeline"
+                      className="w-full h-auto rounded-xl"
+                    />
+                  </div>
+                </div>
               </div>
-              <h4 className="font-semibold mb-2">Legal Support</h4>
-              <p className="text-sm text-muted-foreground">NIE, visas & documentation assistance</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Landmark className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Financial Planning</h4>
-              <p className="text-sm text-muted-foreground">Bank accounts, mortgages & taxes</p>
-            </div>
+            {/* Service Cards Grid */}
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Scale className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Legal Support</h4>
+                  <p className="text-sm text-muted-foreground">NIE, visas & documentation assistance</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <TruckIcon className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Moving Logistics</h4>
-              <p className="text-sm text-muted-foreground">Compare movers & plan timeline</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Landmark className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Financial Planning</h4>
+                  <p className="text-sm text-muted-foreground">Bank accounts, mortgages & taxes</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Tv className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Utilities Setup</h4>
-              <p className="text-sm text-muted-foreground">Electricity, internet & mobile plans</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <TruckIcon className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Moving Logistics</h4>
+                  <p className="text-sm text-muted-foreground">Compare movers & plan timeline</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <HeartPulse className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Healthcare</h4>
-              <p className="text-sm text-muted-foreground">Registration, insurance & doctors</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Tv className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Utilities Setup</h4>
+                  <p className="text-sm text-muted-foreground">Electricity, internet & mobile plans</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <GraduationCap className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Education</h4>
-              <p className="text-sm text-muted-foreground">Schools, enrollment & credentials</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <HeartPulse className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Healthcare</h4>
+                  <p className="text-sm text-muted-foreground">Registration, insurance & doctors</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Globe className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Community</h4>
-              <p className="text-sm text-muted-foreground">Connect with expats & locals</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Education</h4>
+                  <p className="text-sm text-muted-foreground">Schools, enrollment & credentials</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Car className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Transportation</h4>
-              <p className="text-sm text-muted-foreground">Transit, licenses & vehicles</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Globe className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Community</h4>
+                  <p className="text-sm text-muted-foreground">Connect with expats & locals</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Briefcase className="h-5 w-5" />
-              </div>
-              <h4 className="font-semibold mb-2">Work & Business</h4>
-              <p className="text-sm text-muted-foreground">Coworking, visas & setup</p>
-            </div>
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Car className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Transportation</h4>
+                  <p className="text-sm text-muted-foreground">Transit, licenses & vehicles</p>
+                </div>
 
-            <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-              <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Home className="h-5 w-5" />
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Briefcase className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Work & Business</h4>
+                  <p className="text-sm text-muted-foreground">Coworking, visas & setup</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Home className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Lifestyle</h4>
+                  <p className="text-sm text-muted-foreground">Shopping, dining & local events</p>
+                </div>
               </div>
-              <h4 className="font-semibold mb-2">Lifestyle</h4>
-              <p className="text-sm text-muted-foreground">Shopping, dining & local events</p>
             </div>
           </div>
         </div>
