@@ -2,7 +2,9 @@ import PropertyGrid from "@/components/properties/PropertyGrid";
 import { Property } from "@/components/properties/PropertyCard";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Home as HomeIcon, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Home as HomeIcon, DollarSign, FileQuestion } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PropertiesTabProps {
   properties: Property[];
@@ -10,6 +12,7 @@ interface PropertiesTabProps {
   matchScores?: Map<string, number>;
   matchReasons?: Map<string, string[]>;
   questionnaireData?: any;
+  hasCompletedQuestionnaire?: boolean;
 }
 
 const PropertiesTab = ({ 
@@ -17,8 +20,10 @@ const PropertiesTab = ({
   isLoading, 
   matchScores, 
   matchReasons,
-  questionnaireData 
+  questionnaireData,
+  hasCompletedQuestionnaire = false
 }: PropertiesTabProps) => {
+  const navigate = useNavigate();
   
   // Show user's key preferences if available
   const showPreferences = questionnaireData && (
@@ -36,7 +41,34 @@ const PropertiesTab = ({
             Showing {properties.length} properties personalized for your preferences
           </p>
         )}
+        {!hasCompletedQuestionnaire && (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            Complete the questionnaire to get personalized match scores
+          </p>
+        )}
       </div>
+
+      {/* Questionnaire Prompt */}
+      {!hasCompletedQuestionnaire && (
+        <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <FileQuestion className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">Get Personalized Property Recommendations</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Complete our quick questionnaire to receive AI-powered property matches tailored to your specific needs, budget, and lifestyle preferences.
+                </p>
+                <Button onClick={() => navigate('/questionnaire')} size="sm">
+                  Complete Questionnaire
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* User Preferences Summary */}
       {showPreferences && (

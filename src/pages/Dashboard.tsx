@@ -22,7 +22,7 @@ import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
 import { UserPreferences } from '@/contexts/auth/types';
 import { cn } from '@/lib/utils';
-import { usePersonalizedDashboard } from '@/hooks/usePersonalizedDashboard';
+import { useDashboardInit } from '@/hooks/useDashboardInit';
 
 const Dashboard = () => {
   const { user, userPreferences, isLoading: authLoading, logout } = useAuth();
@@ -33,14 +33,15 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('properties');
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   
-  // Use personalized dashboard hook for AI-enhanced property matching
+  // Use comprehensive dashboard initialization hook
   const { 
     properties, 
     matchScores, 
     matchReasons, 
     isLoading: isLoadingProperties,
-    questionnaireData 
-  } = usePersonalizedDashboard(user?.id);
+    questionnaireData,
+    hasCompletedQuestionnaire
+  } = useDashboardInit(user?.id);
   
   // Debug logging
   useEffect(() => {
@@ -296,6 +297,7 @@ const Dashboard = () => {
                 activeSubTab={activeSubTab}
                 matchScores={matchScores}
                 matchReasons={matchReasons}
+                hasCompletedQuestionnaire={hasCompletedQuestionnaire}
                 questionnaireData={questionnaireData}
               />
             </main>

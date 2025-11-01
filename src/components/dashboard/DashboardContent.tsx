@@ -34,6 +34,7 @@ interface DashboardContentProps {
   matchScores?: Map<string, number>;
   matchReasons?: Map<string, string[]>;
   questionnaireData?: any;
+  hasCompletedQuestionnaire?: boolean;
 }
 
 const DashboardContent = ({ 
@@ -48,7 +49,8 @@ const DashboardContent = ({
   activeSubTab,
   matchScores,
   matchReasons,
-  questionnaireData
+  questionnaireData,
+  hasCompletedQuestionnaire = false
 }: DashboardContentProps) => {
   
   // Filter services based on user needs
@@ -129,6 +131,7 @@ const DashboardContent = ({
             matchScores={matchScores}
             matchReasons={matchReasons}
             questionnaireData={questionnaireData}
+            hasCompletedQuestionnaire={hasCompletedQuestionnaire}
           />
         );
       case 'profile':
@@ -155,6 +158,7 @@ const DashboardContent = ({
             matchScores={matchScores}
             matchReasons={matchReasons}
             questionnaireData={questionnaireData}
+            hasCompletedQuestionnaire={hasCompletedQuestionnaire}
           />
         );
     }

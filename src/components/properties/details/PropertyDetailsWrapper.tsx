@@ -15,6 +15,7 @@ import PropertyDetailsSidebar from './PropertyDetailsSidebar';
 import PropertyDetailsLoading from './PropertyDetailsLoading';
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import SocialShare from '@/components/common/SocialShare';
+import { useDashboardInit } from '@/hooks/useDashboardInit';
 
 const PropertyDetailsWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +25,9 @@ const PropertyDetailsWrapper = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
+  
+  // Get match data from dashboard init
+  const { matchScores, matchReasons } = useDashboardInit(user?.id);
   
   useEffect(() => {
     const loadProperty = async () => {
@@ -150,7 +154,9 @@ const PropertyDetailsWrapper = () => {
               <div className="lg:col-span-2 property-details">
                 <PropertyDetailsContent 
                   property={property} 
-                  similarProperties={similarProperties} 
+                  similarProperties={similarProperties}
+                  matchScore={matchScores.get(property.id)}
+                  matchReasons={matchReasons.get(property.id)}
                 />
               </div>
               

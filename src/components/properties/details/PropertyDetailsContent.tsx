@@ -6,13 +6,16 @@ import { Bed, Bath, Square, Home, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PropertyFeatures from './PropertyFeatures';
 import SimilarProperties from './SimilarProperties';
+import PropertyMatchDetails from '@/components/properties/PropertyMatchDetails';
 
 interface PropertyDetailsContentProps {
   property: Property;
   similarProperties: Property[];
+  matchScore?: number;
+  matchReasons?: string[];
 }
 
-const PropertyDetailsContent = ({ property, similarProperties }: PropertyDetailsContentProps) => {
+const PropertyDetailsContent = ({ property, similarProperties, matchScore, matchReasons }: PropertyDetailsContentProps) => {
   return (
     <>
       <h1 className="text-2xl sm:text-3xl font-bold mb-2">{property.title}</h1>
@@ -47,6 +50,21 @@ const PropertyDetailsContent = ({ property, similarProperties }: PropertyDetails
           <span>Built in {property.yearBuilt || "N/A"}</span>
         </div>
       </div>
+      
+      {/* Match Analysis Section */}
+      {(matchScore || matchReasons) && (
+        <>
+          <Separator className="my-6" />
+          <PropertyMatchDetails
+            matchScore={matchScore}
+            matchReasons={matchReasons}
+            propertyPrice={property.price}
+            propertyLocation={property.location}
+            propertyBedrooms={property.bedrooms}
+            propertyType={property.type}
+          />
+        </>
+      )}
       
       <Separator className="my-6" />
       
