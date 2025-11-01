@@ -36,10 +36,7 @@ export interface UserPreferences {
   profile?: {
     fullName?: string;
     phone?: string;
-    address?: string;
-    city?: string;
     country?: string;
-    postalCode?: string;
   };
 }
 
@@ -57,4 +54,7 @@ export interface AuthContextType {
   addRecentSearch: (query: string) => void;
   clearRecentSearches: () => void;
   subscribeToEmailUpdates: (email: string) => Promise<void>;
+  cancelSubscription: () => Promise<any>;
+  getPaymentHistory: () => Promise<any>;
+  updatePaymentMethod: (paymentMethodId: string) => Promise<void>;
 }

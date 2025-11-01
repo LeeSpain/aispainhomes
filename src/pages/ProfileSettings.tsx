@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import Navbar from '@/components/common/Navbar';
 import Footer from '@/components/common/Footer';
 import { Button } from '@/components/ui/button';
@@ -21,10 +20,7 @@ const ProfileSettings = () => {
     email: '',
     fullName: '',
     phone: '',
-    address: '',
-    city: '',
     country: '',
-    postalCode: '',
   });
 
   useEffect(() => {
@@ -39,10 +35,7 @@ const ProfileSettings = () => {
       email: user.email || '',
       fullName: userPreferences?.profile?.fullName || '',
       phone: userPreferences?.profile?.phone || '',
-      address: userPreferences?.profile?.address || '',
-      city: userPreferences?.profile?.city || '',
       country: userPreferences?.profile?.country || '',
-      postalCode: userPreferences?.profile?.postalCode || '',
     });
   }, [user, userPreferences, navigate]);
 
@@ -63,15 +56,12 @@ const ProfileSettings = () => {
       name: profileData.name,
     });
 
-    // Update user preferences with address info
+    // Update user preferences with profile info
     updateUserPreferences({
       profile: {
         fullName: profileData.fullName,
         phone: profileData.phone,
-        address: profileData.address,
-        city: profileData.city,
         country: profileData.country,
-        postalCode: profileData.postalCode,
       }
     });
 
@@ -162,43 +152,13 @@ const ProfileSettings = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="address">Address</Label>
+                          <Label htmlFor="country">Country</Label>
                           <Input 
-                            id="address" 
-                            name="address" 
-                            value={profileData.address} 
+                            id="country" 
+                            name="country" 
+                            value={profileData.country} 
                             onChange={handleChange} 
                           />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="city">City</Label>
-                            <Input 
-                              id="city" 
-                              name="city" 
-                              value={profileData.city} 
-                              onChange={handleChange} 
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="country">Country</Label>
-                            <Input 
-                              id="country" 
-                              name="country" 
-                              value={profileData.country} 
-                              onChange={handleChange} 
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="postalCode">Postal Code</Label>
-                            <Input 
-                              id="postalCode" 
-                              name="postalCode" 
-                              value={profileData.postalCode} 
-                              onChange={handleChange} 
-                            />
-                          </div>
                         </div>
 
                         <div className="pt-4">

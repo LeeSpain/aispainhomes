@@ -1,13 +1,14 @@
-
 import { useState } from 'react';
+import { Elements } from '@stripe/react-stripe-js';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { CreditCard, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
-import { Separator } from '@/components/ui/separator';
+import { stripePromise } from '@/lib/stripe';
+import StripePaymentForm from './StripePaymentForm';
 
 interface PaymentFormProps {
   selectedPlan: string | null;
@@ -27,38 +28,6 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
   const [country, setCountry] = useState('');
   const [postalCode, setPostalCode] = useState('');
   
-  // Payment details
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvc, setCvc] = useState('');
-  const [cardName, setCardName] = useState('');
-  
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const formatCardNumber = (value: string) => {
-    const val = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = val.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
-    
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return value;
-    }
-  };
-
-  const formatExpiryDate = (value: string) => {
-    const val = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    if (val.length > 2) {
-      return val.substring(0, 2) + '/' + val.substring(2, 4);
-    }
-    return val;
-  };
 
   const handlePersonalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,61 +37,16 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
       return;
     }
     
-    // Auto-fill card name from full name
-    setCardName(fullName);
-    
     // Move to payment step
     setStep('payment');
   };
 
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePaymentSuccess = () => {
+    setStep('completed');
     
-    if (!selectedPlan) {
-      toast.error('Please select a plan');
-      return;
-    }
-    
-    if (!cardNumber || !expiryDate || !cvc || !cardName) {
-      toast.error('Please fill in all payment details');
-      return;
-    }
-    
-    setIsProcessing(true);
-    
-    // Simulate payment processing
+    // Notify parent component after a brief delay
     setTimeout(() => {
-      setIsProcessing(false);
-      setStep('completed');
-      
-      // Calculate trial end date (7 days from now)
-      const trialEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      
-      // Update user subscription and profile in context
-      updateUserPreferences({
-        subscription: {
-          plan: 'guardian',
-          status: 'trial',
-          startDate: new Date().toISOString(),
-          trialEndDate: trialEndDate.toISOString(),
-          nextBillingDate: trialEndDate.toISOString(),
-        },
-        profile: {
-          fullName,
-          phone,
-          address,
-          city,
-          country,
-          postalCode
-        }
-      });
-      
-      toast.success(`Your 7-day free trial has started!`);
-      
-      // Notify parent component of success
-      setTimeout(() => {
-        onSuccess();
-      }, 2000);
+      onSuccess();
     }, 2000);
   };
 
@@ -216,80 +140,20 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
   );
 
   const renderPaymentForm = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>Payment Details</CardTitle>
-        <CardDescription>
-          Enter your payment details to begin your 7-day free trial. You won't be charged until after your trial ends.
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handlePaymentSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="cardName">Name on Card</Label>
-            <Input
-              id="cardName"
-              placeholder="John Smith"
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="cardNumber">Card Number</Label>
-            <div className="relative">
-              <Input
-                id="cardNumber"
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                maxLength={19}
-                required
-              />
-              <CreditCard className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="expiryDate">Expiry Date</Label>
-              <Input
-                id="expiryDate"
-                placeholder="MM/YY"
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
-                maxLength={5}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="cvc">CVC</Label>
-              <Input
-                id="cvc"
-                placeholder="123"
-                value={cvc}
-                onChange={(e) => setCvc(e.target.value.replace(/\D/g, ''))}
-                maxLength={3}
-                required
-              />
-            </div>
-          </div>
-          
-          <div className="bg-primary/5 p-3 rounded-lg border text-sm">
-            <p><strong>Trial Terms:</strong> Your 7-day free trial starts today. Your card will be charged €24.99 after the trial period unless you cancel. Cancel anytime from your dashboard.</p>
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button type="button" variant="outline" onClick={() => setStep('personal')}>
-            Back
-          </Button>
-          <Button type="submit" disabled={isProcessing}>
-            {isProcessing ? 'Processing...' : 'Start Free Trial'}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+    <Elements stripe={stripePromise}>
+      <StripePaymentForm
+        personalDetails={{
+          fullName,
+          phone,
+          address,
+          city,
+          country,
+          postalCode,
+        }}
+        onSuccess={handlePaymentSuccess}
+        onBack={() => setStep('personal')}
+      />
+    </Elements>
   );
 
   const renderCompletionCard = () => (

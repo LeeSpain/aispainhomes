@@ -64,13 +64,45 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loadUserPreferences = async (userId: string) => {
     try {
-      // Fetch user preferences from localStorage for now
+      // Fetch subscription from database
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .in('status', ['active', 'trial'])
+        .single();
+
+      // Fetch profile from database
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      // Get localStorage preferences for other data
       const storedPrefs = localStorage.getItem(`userPreferences_${userId}`);
-      if (storedPrefs) {
-        setUserPreferences(JSON.parse(storedPrefs));
-      } else {
-        setUserPreferences(defaultUserPreferences);
-      }
+      const localPrefs = storedPrefs ? JSON.parse(storedPrefs) : defaultUserPreferences;
+
+      // Merge database data with local preferences
+      setUserPreferences({
+        ...localPrefs,
+        subscription: subscription ? {
+          plan: subscription.plan as 'guardian',
+          status: subscription.status as 'active' | 'cancelled' | 'expired' | 'trial' | 'inactive',
+          startDate: subscription.start_date,
+          trialEndDate: subscription.trial_end_date,
+          nextBillingDate: subscription.next_billing_date,
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          stripeCustomerId: subscription.stripe_customer_id,
+          stripeSubscriptionId: subscription.stripe_subscription_id,
+          lastFourDigits: subscription.stripe_payment_method_id?.slice(-4),
+        } : defaultUserPreferences.subscription,
+        profile: profile ? {
+          fullName: profile.full_name,
+          phone: profile.phone,
+          country: profile.current_country || '',
+        } : defaultUserPreferences.profile,
+      });
     } catch (error) {
       console.error('Error loading preferences:', error);
       setUserPreferences(defaultUserPreferences);
@@ -248,6 +280,72 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const cancelSubscription = async () => {
+    if (!user) {
+      toast.error('Please log in to cancel your subscription');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('cancel-subscription', {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      // Refresh subscription data
+      await loadUserPreferences(user.id);
+      
+      toast.success(data.message || 'Subscription cancelled successfully');
+      return data;
+    } catch (error: any) {
+      console.error('Cancel subscription error:', error);
+      toast.error(error.message || 'Failed to cancel subscription');
+      throw error;
+    }
+  };
+
+  const getPaymentHistory = async () => {
+    if (!user) {
+      toast.error('Please log in to view payment history');
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('get-payment-history', {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error: any) {
+      console.error('Get payment history error:', error);
+      toast.error(error.message || 'Failed to fetch payment history');
+      return null;
+    }
+  };
+
+  const updatePaymentMethod = async (paymentMethodId: string) => {
+    if (!user) {
+      toast.error('Please log in to update payment method');
+      return;
+    }
+
+    try {
+      // TODO: Implement when Stripe is configured
+      toast.info('Payment method update coming soon');
+      return;
+    } catch (error: any) {
+      console.error('Update payment method error:', error);
+      toast.error(error.message || 'Failed to update payment method');
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -262,7 +360,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       removeFromFavorites,
       addRecentSearch,
       clearRecentSearches,
-      subscribeToEmailUpdates
+      subscribeToEmailUpdates,
+      cancelSubscription,
+      getPaymentHistory,
+      updatePaymentMethod,
     }}>
       {children}
     </AuthContext.Provider>

@@ -21,9 +21,6 @@ export const defaultUserPreferences: UserPreferences = {
   profile: {
     fullName: '',
     phone: '',
-    address: '',
-    city: '',
     country: '',
-    postalCode: '',
   }
 };
