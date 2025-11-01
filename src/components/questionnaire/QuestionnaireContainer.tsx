@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import Navbar from '@/components/common/Navbar';
-import Footer from '@/components/common/Footer';
 import QuestionnaireFlow from './QuestionnaireFlow';
 import PropertyResults from './results/PropertyResults';
 import { useQuestionnaireForm } from './hooks/useQuestionnaireForm';
@@ -83,23 +81,17 @@ const QuestionnaireContainer = () => {
           <title>Your Property Matches | SunnyHomeFinder</title>
         </Helmet>
         
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          
-          <main className="flex-1 pt-28 pb-16">
-            <PropertyResults 
-              properties={sampleProperties}
-              user={user}
-              showAuthForms={showAuthForms}
-              authTab={authTab}
-              subscriptionTier={subscriptionTier}
-              onAuthTabChange={setAuthTab}
-              onContinueToAuth={handleContinueToAuth}
-              onAuthSuccess={handleAuthSuccess}
-            />
-          </main>
-          
-          <Footer />
+        <div className="pt-28 pb-16">
+          <PropertyResults 
+            properties={sampleProperties}
+            user={user}
+            showAuthForms={showAuthForms}
+            authTab={authTab}
+            subscriptionTier={subscriptionTier}
+            onAuthTabChange={setAuthTab}
+            onContinueToAuth={handleContinueToAuth}
+            onAuthSuccess={handleAuthSuccess}
+          />
         </div>
       </>
     );
@@ -111,20 +103,14 @@ const QuestionnaireContainer = () => {
         <title>Find Your Perfect Property | SunnyHomeFinder</title>
       </Helmet>
       
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        
-        <main className="flex-1">
-          <QuestionnaireFlow
-            formData={formData}
-            onFormChange={handleChange}
-            togglePropertyType={togglePropertyType}
-            toggleAmenity={toggleAmenity}
-            onComplete={handleShowResults}
-          />
-        </main>
-        
-        <Footer />
+      <div>
+        <QuestionnaireFlow
+          formData={formData}
+          onFormChange={handleChange}
+          togglePropertyType={togglePropertyType}
+          toggleAmenity={toggleAmenity}
+          onComplete={handleShowResults}
+        />
       </div>
     </>
   );

@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Rocket, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import PreDeploymentChecklist from "@/components/admin/PreDeploymentChecklist";
 import { useChecklist } from "@/components/admin/checklist/useChecklist";
 import DeploymentSummary from "@/components/admin/checklist/DeploymentSummary";
@@ -54,10 +59,7 @@ const PreDeployment = () => {
         <title>Pre-Deployment Checklist | AI Spain Homes</title>
       </Helmet>
       
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        
-        <main className="flex-1 pt-28 pb-16 bg-gradient-to-b from-background to-muted/20">
+      <div className="pt-28 pb-16 bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto px-4">
             <Button 
               variant="ghost" 
@@ -170,9 +172,6 @@ const PreDeployment = () => {
               </div>
             </div>
           </div>
-        </main>
-        
-        <Footer />
       </div>
     </>
   );

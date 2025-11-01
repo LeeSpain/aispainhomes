@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import Navbar from '@/components/common/Navbar';
-import Footer from '@/components/common/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { PropertyService } from '@/services/PropertyService';
@@ -116,63 +114,57 @@ const PropertyDetailsWrapper = () => {
         <meta name="description" content={property.description} />
       </Helmet>
       
-      <div className="min-h-screen flex flex-col print-content">
-        <Navbar />
-        
-        <main className="flex-1 pt-28 pb-16">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
-              <Button 
-                variant="ghost" 
-                className="pl-0 no-print" 
-                onClick={() => navigate(-1)}
+      <div className="pt-28 pb-16 print-content">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+            <Button 
+              variant="ghost" 
+              className="pl-0 no-print" 
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to listings
+            </Button>
+            
+            <div className="flex space-x-2 no-print">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to listings
+                <Printer className="mr-2 h-4 w-4" />
+                Print
               </Button>
               
-              <div className="flex space-x-2 no-print">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePrint}
-                >
-                  <Printer className="mr-2 h-4 w-4" />
-                  Print
-                </Button>
-                
-                <SocialShare 
-                  title={`${property.title} - AI Spain Homes`}
-                  description={`${property.bedrooms} bed, ${property.bathrooms} bath ${property.type} in ${property.location} for ${property.isForRent ? 'rent' : 'sale'} at ${property.currency}${property.price.toLocaleString()}`}
-                />
-              </div>
-            </div>
-            
-            <Breadcrumbs />
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 property-details">
-                <PropertyDetailsContent 
-                  property={property} 
-                  similarProperties={similarProperties}
-                  matchScore={matchScores.get(property.id)}
-                  matchReasons={matchReasons.get(property.id)}
-                />
-              </div>
-              
-              <div className="lg:col-span-1">
-                <PropertyDetailsSidebar 
-                  property={property}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={handleToggleFavorite}
-                  onShare={handleShare}
-                />
-              </div>
+              <SocialShare 
+                title={`${property.title} - AI Spain Homes`}
+                description={`${property.bedrooms} bed, ${property.bathrooms} bath ${property.type} in ${property.location} for ${property.isForRent ? 'rent' : 'sale'} at ${property.currency}${property.price.toLocaleString()}`}
+              />
             </div>
           </div>
-        </main>
-        
-        <Footer />
+          
+          <Breadcrumbs />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 property-details">
+              <PropertyDetailsContent 
+                property={property} 
+                similarProperties={similarProperties}
+                matchScore={matchScores.get(property.id)}
+                matchReasons={matchReasons.get(property.id)}
+              />
+            </div>
+            
+            <div className="lg:col-span-1">
+              <PropertyDetailsSidebar 
+                property={property}
+                isFavorite={isFavorite}
+                onToggleFavorite={handleToggleFavorite}
+                onShare={handleShare}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
