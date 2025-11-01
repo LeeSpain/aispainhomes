@@ -25,7 +25,7 @@ const AIClaraChat = ({ user }: AIClaraChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,7 +33,11 @@ const AIClaraChat = ({ user }: AIClaraChatProps) => {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const toBottom = () => el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
+    toBottom();
+    requestAnimationFrame(toBottom);
   }, [messages]);
 
   const loadConversationHistory = async () => {
@@ -134,7 +138,7 @@ const AIClaraChat = ({ user }: AIClaraChatProps) => {
           Clara - Your AI Assistant
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+      <CardContent ref={scrollContainerRef} className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
         {messages.map((message) => (
           <div 
             key={message.id} 
@@ -192,7 +196,7 @@ const AIClaraChat = ({ user }: AIClaraChatProps) => {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
+        
       </CardContent>
       <CardFooter className="border-t p-3">
         <form 
