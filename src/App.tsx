@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -36,46 +36,55 @@ import { LanguageProvider } from './contexts/LanguageContext';
 const PublicDashboard = () => <Dashboard />;
 const PublicAdminDashboard = () => <AdminDashboard />;
 
+function AppContent() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      {!isAdminRoute && <Navbar />}
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/dashboard" element={<PublicDashboard />} />
+          <Route path="/admin" element={<PublicAdminDashboard />} />
+          <Route path="/pre-deployment" element={<PreDeployment />} />
+          <Route path="/site-tracking" element={<SiteTracking />} />
+          <Route path="/property-search" element={<PropertySearch />} />
+          <Route path="/search" element={<PropertySearch />} />
+          <Route path="/property/:id" element={<PropertyDetails />} />
+          <Route path="/property" element={<Property />} />
+          <Route path="/questionnaire" element={<Questionnaire />} />
+          <Route path="/subscription" element={<Subscription />} />
+          <Route path="/password-recovery" element={<PasswordRecovery />} />
+          <Route path="/profile-settings" element={<ProfileSettings />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/email-preferences" element={<EmailPreferences />} />
+          <Route path="/ai-guardian" element={<AIGuardian />} />
+          <Route path="/forbidden" element={<Forbidden />} />
+          <Route path="/server-error" element={<ServerError />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {!isAdminRoute && <Footer />}
+      <Toaster />
+      <CookieConsent />
+      <ScrollToTop />
+    </div>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <LanguageProvider>
         <Router>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/dashboard" element={<PublicDashboard />} />
-                <Route path="/admin" element={<PublicAdminDashboard />} />
-                <Route path="/pre-deployment" element={<PreDeployment />} />
-                <Route path="/site-tracking" element={<SiteTracking />} />
-                <Route path="/property-search" element={<PropertySearch />} />
-                <Route path="/search" element={<PropertySearch />} />
-                <Route path="/property/:id" element={<PropertyDetails />} />
-                <Route path="/property" element={<Property />} />
-                <Route path="/questionnaire" element={<Questionnaire />} />
-                <Route path="/subscription" element={<Subscription />} />
-                <Route path="/password-recovery" element={<PasswordRecovery />} />
-                <Route path="/profile-settings" element={<ProfileSettings />} />
-                <Route path="/terms" element={<TermsAndConditions />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/cookies" element={<CookiePolicy />} />
-                <Route path="/email-preferences" element={<EmailPreferences />} />
-                <Route path="/ai-guardian" element={<AIGuardian />} />
-                <Route path="/forbidden" element={<Forbidden />} />
-                <Route path="/server-error" element={<ServerError />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster />
-            <CookieConsent />
-            <ScrollToTop />
-          </div>
+          <AppContent />
         </Router>
       </LanguageProvider>
     </AuthProvider>
