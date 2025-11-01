@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, CreditCard, DollarSign, Globe, LogOut, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import StatsCards from '@/components/admin/StatsCards';
 import OverviewTab from '@/components/admin/OverviewTab';
 import SubscriptionsTab from '@/components/admin/SubscriptionsTab';
@@ -20,6 +21,8 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [users, setUsers] = useState([
     { id: 1, name: 'John Doe', email: 'john@example.com', role: 'User', status: 'Active' },
     { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
@@ -30,18 +33,43 @@ const AdminDashboard = () => {
   const [trackedSites, setTrackedSites] = useState<TrackedSite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Create a mock admin user for direct access
-  const mockAdminUser = {
-    id: 'admin-demo',
-    name: 'Admin Demo',
-    email: 'admin@example.com' // Use admin email to enable admin features
-  };
-  
-  // Use real user or mock admin
-  const currentUser = user || mockAdminUser;
-  
+  // Check admin status
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        // @ts-ignore - Type will be available after database types regenerate
+        const { data, error } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
+
+        if (error) {
+          console.error('Error checking admin role:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, navigate]);
+
+  // Load data
   useEffect(() => {
     const loadData = async () => {
+      if (!isAdmin) return;
+      
       setIsLoading(true);
       try {
         // Load tracked sites
@@ -55,7 +83,25 @@ const AdminDashboard = () => {
     };
     
     loadData();
-  }, []);
+  }, [isAdmin]);
+
+  // Show loading while checking admin status
+  if (checkingAdmin) {
+    return null;
+  }
+
+  // Redirect if not admin
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="text-muted-foreground mb-4">You don't have permission to access this page.</p>
+          <Button onClick={() => navigate('/')}>Go to Home</Button>
+        </div>
+      </div>
+    );
+  }
   
   const stats = [
     { title: 'Monthly Revenue', value: '€74.97', icon: DollarSign },
@@ -64,10 +110,8 @@ const AdminDashboard = () => {
     { title: 'Tracked Websites', value: trackedSites.length, icon: Globe },
   ];
 
-  const handleLogout = () => {
-    if (user) {
-      logout();
-    }
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 

@@ -18,36 +18,17 @@ const Dashboard = () => {
   const [isLoadingProperties, setIsLoadingProperties] = useState(true);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   
-  // Create a mock user if none exists (for direct access)
-  const mockUser = {
-    id: 'demo-user',
-    name: 'Demo User',
-    email: 'demo@example.com'
-  };
-  
-  // Create mock preferences that match the UserPreferences type
-  const mockPreferences: UserPreferences = {
-    favorites: [],
-    recentSearches: [],
-    subscription: {
-      plan: 'basic',
-      status: 'active',
-      startDate: new Date().toISOString(),
-      nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    language: 'en',
-    notificationSettings: {
-      email: true,
-      propertyAlerts: true,
-      weeklyNewsletter: false,
-      marketUpdates: false,
-      promotionalOffers: false
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
     }
-  };
+  }, [user, authLoading, navigate]);
   
-  // Use the real user or the mock user
-  const currentUser = user || mockUser;
-  const currentPreferences = userPreferences || mockPreferences;
+  // Don't render anything until auth check is complete
+  if (authLoading || !user || !userPreferences) {
+    return null;
+  }
   
   // Load recommended properties once when auth is ready
   useEffect(() => {
@@ -79,9 +60,9 @@ const Dashboard = () => {
   
   // Load favorite properties when favorites list changes
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !user) return;
     
-    const favoriteIds = currentPreferences?.favorites || [];
+    const favoriteIds = userPreferences?.favorites || [];
     
     if (favoriteIds.length === 0) {
       setFavoriteProperties([]);
@@ -112,13 +93,11 @@ const Dashboard = () => {
       });
     
     return () => { mounted = false; };
-  }, [authLoading, currentPreferences?.favorites?.join(",")]);
+  }, [authLoading, user, userPreferences?.favorites?.join(",")]);
   
   // Handle logout
-  const handleLogout = () => {
-    if (user) {
-      logout();
-    }
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
   
@@ -128,16 +107,16 @@ const Dashboard = () => {
         {/* Left side - AIGuardian Chat */}
         <div className="lg:col-span-4 xl:col-span-3 space-y-6">
           <DashboardSidebar 
-            user={currentUser} 
-            subscription={currentPreferences.subscription} 
+            user={user} 
+            subscription={userPreferences.subscription} 
           />
         </div>
       
         {/* Right side - Dashboard Content */}
         <div className="lg:col-span-8 xl:col-span-9">
           <DashboardContent
-            user={currentUser}
-            userPreferences={currentPreferences}
+            user={user}
+            userPreferences={userPreferences}
             properties={properties}
             favoriteProperties={favoriteProperties}
             isLoadingProperties={isLoadingProperties}

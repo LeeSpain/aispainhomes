@@ -72,6 +72,22 @@ serve(async (req) => {
       .eq('is_active', true)
       .limit(10);
     
+    // Fetch user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
+    // Fetch latest questionnaire response
+    const { data: questionnaireData } = await supabase
+      .from('questionnaire_responses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
     // Fetch relevant official resources
     const lastUserMessage = messages[messages.length - 1]?.content || '';
     const searchTerms = lastUserMessage.toLowerCase();
@@ -98,6 +114,55 @@ serve(async (req) => {
 
     // Build system prompt
     let systemPrompt = settings.system_prompt || 'You are a helpful AI assistant.';
+    
+    // Add user profile context
+    if (profile) {
+      systemPrompt += '\n\n=== USER PROFILE ===\n';
+      systemPrompt += `Name: ${profile.full_name || 'Not specified'}\n`;
+      if (profile.nationality) systemPrompt += `Nationality: ${profile.nationality}\n`;
+      if (profile.current_country) systemPrompt += `Current Location: ${profile.current_country}\n`;
+      if (profile.relocation_timeline) systemPrompt += `Relocation Timeline: ${profile.relocation_timeline}\n`;
+      if (profile.moving_reason) systemPrompt += `Moving Reason: ${profile.moving_reason}\n`;
+      systemPrompt += `Household Size: ${profile.household_size || 1}\n`;
+      systemPrompt += `Pets: ${profile.has_pets ? 'Yes' : 'No'}\n`;
+      if (profile.budget_min || profile.budget_max) {
+        systemPrompt += `Budget: €${profile.budget_min || '?'} - €${profile.budget_max || '?'}\n`;
+      }
+      if (profile.preferred_locations && profile.preferred_locations.length > 0) {
+        systemPrompt += `Preferred Locations: ${profile.preferred_locations.join(', ')}\n`;
+      }
+      if (profile.property_type_preference) {
+        systemPrompt += `Property Type Preference: ${profile.property_type_preference}\n`;
+      }
+    }
+    
+    // Add questionnaire context
+    if (questionnaireData) {
+      systemPrompt += '\n\n=== QUESTIONNAIRE RESPONSES ===\n';
+      systemPrompt += `Service Type: ${questionnaireData.service_type}\n`;
+      if (questionnaireData.property_type) systemPrompt += `Property Type: ${questionnaireData.property_type}\n`;
+      if (questionnaireData.property_types && questionnaireData.property_types.length > 0) {
+        systemPrompt += `Property Types: ${questionnaireData.property_types.join(', ')}\n`;
+      }
+      if (questionnaireData.budget_range) {
+        systemPrompt += `Budget: €${questionnaireData.budget_range.min || '?'} - €${questionnaireData.budget_range.max || '?'}\n`;
+      }
+      if (questionnaireData.location_preferences) {
+        systemPrompt += `Location Preferences: ${JSON.stringify(questionnaireData.location_preferences)}\n`;
+      }
+      if (questionnaireData.household_details) {
+        const details = questionnaireData.household_details;
+        systemPrompt += `Bedrooms: ${details.bedrooms || 'Not specified'}\n`;
+        systemPrompt += `Bathrooms: ${details.bathrooms || 'Not specified'}\n`;
+        systemPrompt += `Min Area: ${details.minArea || 'Not specified'} m²\n`;
+      }
+      if (questionnaireData.amenities_required && questionnaireData.amenities_required.length > 0) {
+        systemPrompt += `Required Amenities: ${questionnaireData.amenities_required.join(', ')}\n`;
+      }
+      if (questionnaireData.guardian_service_tier) {
+        systemPrompt += `Guardian Service Tier: ${questionnaireData.guardian_service_tier}\n`;
+      }
+    }
     
     if (instructions && instructions.length > 0) {
       systemPrompt += '\n\nAdditional Instructions:\n';
