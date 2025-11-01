@@ -36,9 +36,9 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/questionnaire">
+              <Link to="/register">
                 <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
-                  Get Started Free
+                  Start 7-Day Free Trial
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>

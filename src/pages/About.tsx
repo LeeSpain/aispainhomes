@@ -312,7 +312,7 @@ const About = () => {
                       ))}
                     </div>
                   </div>
-                  <Link to="/questionnaire">
+                  <Link to="/register">
                     <Button size="lg" className="px-8 py-6 text-lg">
                       Start Your Journey
                     </Button>
