@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
+import { scrapedPropertiesService } from '@/services/scrapedPropertiesService';
 import { toast } from 'sonner';
 
 interface PersonalizedDashboardData {
@@ -37,7 +38,7 @@ export const usePersonalizedDashboard = (userId: string | undefined) => {
           .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (qError && qError.code !== 'PGRST116') {
           console.error('Error fetching questionnaire:', qError);
@@ -57,8 +58,14 @@ export const usePersonalizedDashboard = (userId: string | undefined) => {
 
         if (!mounted) return;
 
-        // Get properties with AI-enhanced scoring
-        const allProperties = await PropertyService.getFilteredProperties({});
+        // Fetch both sample and scraped properties
+        const [sampleProperties, scrapedProperties] = await Promise.all([
+          PropertyService.getFilteredProperties({}),
+          scrapedPropertiesService.getScrapedProperties(userId)
+        ]);
+        
+        // Merge both sources
+        const allProperties = [...sampleProperties, ...scrapedProperties];
         
         // Score and sort properties
         const scoredProperties = allProperties.map(property => {

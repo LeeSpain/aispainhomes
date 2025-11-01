@@ -257,7 +257,51 @@ serve(async (req) => {
       ...messages
     ];
 
+    // Fetch scraped properties for context
+    const { data: scrapedProperties } = await supabase
+      .from('extracted_items')
+      .select('id, title, description, location, price, currency, metadata, url')
+      .eq('is_active', true)
+      .order('first_seen_at', { ascending: false })
+      .limit(50);
+    
+    // Add scraped properties context to system prompt
+    if (scrapedProperties && scrapedProperties.length > 0) {
+      systemPrompt += '\n\n=== AVAILABLE SCRAPED PROPERTIES ===\n';
+      systemPrompt += `You have access to ${scrapedProperties.length} real estate listings from tracked websites.\n`;
+      systemPrompt += 'Use the search_scraped_properties tool to find properties matching user criteria.\n';
+      systemPrompt += 'When recommending properties, prioritize these real listings over generic suggestions.\n';
+    }
+
     const tools = [
+      {
+        type: "function",
+        function: {
+          name: "search_scraped_properties",
+          description: "Search through scraped real estate properties from tracked websites. Use this when user asks about available properties, listings, or specific property features.",
+          parameters: {
+            type: "object",
+            properties: {
+              location: {
+                type: "string",
+                description: "Location to search for (e.g., Barcelona, Madrid, Costa del Sol)"
+              },
+              minPrice: {
+                type: "number",
+                description: "Minimum price filter"
+              },
+              maxPrice: {
+                type: "number",
+                description: "Maximum price filter"
+              },
+              propertyType: {
+                type: "string",
+                description: "Type of property (apartment, villa, house, etc.)"
+              }
+            }
+          }
+        }
+      },
       {
         type: "function",
         function: {
@@ -309,7 +353,56 @@ serve(async (req) => {
     // Handle function calls
     if (toolCalls && toolCalls.length > 0) {
       for (const toolCall of toolCalls) {
-        if (toolCall.function.name === 'web_search') {
+        if (toolCall.function.name === 'search_scraped_properties') {
+          const args = JSON.parse(toolCall.function.arguments);
+          
+          let query = supabase
+            .from('extracted_items')
+            .select('id, title, description, location, price, currency, metadata, url, images')
+            .eq('is_active', true)
+            .order('first_seen_at', { ascending: false });
+
+          if (args.location) {
+            query = query.ilike('location', `%${args.location}%`);
+          }
+          if (args.minPrice) {
+            query = query.gte('price', args.minPrice);
+          }
+          if (args.maxPrice) {
+            query = query.lte('price', args.maxPrice);
+          }
+          if (args.propertyType) {
+            query = query.ilike('item_type', `%${args.propertyType}%`);
+          }
+
+          const { data: properties } = await query.limit(20);
+
+          const propertySummary = properties?.map((p: any) => ({
+            title: p.title,
+            location: p.location,
+            price: `${p.currency || 'EUR'} ${p.price?.toLocaleString()}`,
+            description: p.description?.substring(0, 200),
+            url: p.url,
+            bedrooms: p.metadata?.bedrooms,
+            area: p.metadata?.area,
+          })) || [];
+
+          openaiMessages.push({
+            role: 'assistant',
+            content: null,
+            tool_calls: [toolCall]
+          } as any);
+
+          openaiMessages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: JSON.stringify({
+              count: propertySummary.length,
+              properties: propertySummary,
+              message: `Found ${propertySummary.length} properties matching the criteria`
+            })
+          } as any);
+        } else if (toolCall.function.name === 'web_search') {
           const args = JSON.parse(toolCall.function.arguments);
           
           const searchResponse = await fetch(
