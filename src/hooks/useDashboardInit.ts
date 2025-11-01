@@ -214,13 +214,13 @@ export const useDashboardInit = (userId: string | undefined) => {
               profileData,
               isLoading: false,
               isClaraProcessing,
-              hasCompletedQuestionnaire: true,
+              hasCompletedQuestionnaire,
               claraPropertyRecommendations,
               claraServiceRecommendations,
             });
           }
         } else {
-          // No questionnaire, show all properties without scoring
+          // Show properties without scoring - questionnaire status is independent of properties
           if (mounted) {
             setData({
               properties: allProperties.slice(0, 12),
@@ -229,8 +229,8 @@ export const useDashboardInit = (userId: string | undefined) => {
               questionnaireData,
               profileData,
               isLoading: false,
-              isClaraProcessing: false,
-              hasCompletedQuestionnaire: false,
+              isClaraProcessing,
+              hasCompletedQuestionnaire,
               claraPropertyRecommendations,
               claraServiceRecommendations,
             });
