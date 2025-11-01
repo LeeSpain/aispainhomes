@@ -46,18 +46,6 @@ export const usePersonalizedDashboard = (userId: string | undefined) => {
 
         if (!mounted) return;
 
-        // Call AI property search edge function
-        const { data: aiSearchData, error: aiError } = await supabase.functions.invoke('ai-property-search', {
-          body: { userId }
-        });
-
-        if (aiError) {
-          console.error('AI property search error:', aiError);
-          toast.error('Failed to personalize property search');
-        }
-
-        if (!mounted) return;
-
         // Fetch both sample and scraped properties
         const [sampleProperties, scrapedProperties] = await Promise.all([
           PropertyService.getFilteredProperties({}),
