@@ -183,9 +183,9 @@ const Features = () => {
             </p>
           </div>
           
-          <div className="relative max-w-4xl mx-auto">
+          <div className="relative max-w-2xl mx-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-3xl blur-3xl"></div>
-            <div className="relative p-8 md:p-12 rounded-3xl bg-card/50 backdrop-blur-sm border border-border">
+            <div className="relative p-6 rounded-3xl bg-card/50 backdrop-blur-sm border border-border">
               <img 
                 src={relocationJourney}
                 alt="Complete relocation journey from property search to settling in Spain"
