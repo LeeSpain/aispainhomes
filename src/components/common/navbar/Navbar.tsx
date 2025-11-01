@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import LanguageSelector from '../LanguageSelector';
 import BrandLogo from './BrandLogo';
 import NavLinks from './NavLinks';

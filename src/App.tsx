@@ -31,7 +31,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import SiteTracking from './pages/SiteTracking';
 import WebsiteTracking from './pages/WebsiteTracking';
 import OfficialResources from './pages/OfficialResources';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/auth';
 import { LanguageProvider } from './contexts/LanguageContext';
 
 // Create a version of Dashboard that doesn't check for authentication

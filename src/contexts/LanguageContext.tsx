@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './auth';
 
 // Define available languages
 type LanguageCode = 'en' | 'es' | 'fr' | 'de' | 'it' | 'nl';
