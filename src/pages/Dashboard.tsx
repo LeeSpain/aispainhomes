@@ -36,13 +36,28 @@ const Dashboard = () => {
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [unreadAlertCount, setUnreadAlertCount] = useState(0);
   
-  // Force scroll to top whenever dashboard route is accessed
+  // Force scroll to top whenever dashboard route is accessed (including same-path navigations)
   useEffect(() => {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }, [location.pathname]);
+    const toTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      (document.scrollingElement || document.body).scrollTop = 0;
+    };
+    toTop();
+    requestAnimationFrame(toTop);
+    setTimeout(toTop, 0);
+  }, [location.pathname, location.key]);
   
+  // Also scroll to top on in-page dashboard navigation (tabs/subtabs)
+  useEffect(() => {
+    const toTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      (document.scrollingElement || document.body).scrollTop = 0;
+    };
+    toTop();
+    requestAnimationFrame(toTop);
+  }, [activeTab, activeSubTab]);
   // Use comprehensive dashboard initialization hook
   const { 
     properties, 
