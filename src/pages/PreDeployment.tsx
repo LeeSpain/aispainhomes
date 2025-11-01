@@ -56,7 +56,7 @@ const PreDeployment = () => {
   return (
     <>
       <Helmet>
-        <title>Pre-Deployment Checklist | AI Spain Homes</title>
+        <title>Pre-Deployment Checklist | AI Homes Spain</title>
       </Helmet>
       
       <div className="pt-28 pb-16 bg-gradient-to-b from-background to-muted/20">

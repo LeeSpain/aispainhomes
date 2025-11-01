@@ -202,7 +202,7 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Dashboard | AI Spain Homes</title>
+        <title>Dashboard | AI Homes Spain</title>
       </Helmet>
       
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -222,7 +222,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-2">
                 <Home className="h-6 w-6 text-primary" />
                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  AI Spain Homes
+                  AI Homes Spain
                 </h1>
               </div>
 

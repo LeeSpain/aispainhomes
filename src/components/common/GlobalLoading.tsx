@@ -30,11 +30,11 @@ const GlobalLoading = () => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
       <Helmet>
-        <title>Loading... | AI Spain Homes</title>
+        <title>Loading... | AI Homes Spain</title>
       </Helmet>
       <div className="w-full max-w-md px-6">
         <div className="space-y-6 text-center">
-          <h2 className="text-2xl font-bold">AI Spain Homes</h2>
+          <h2 className="text-2xl font-bold">AI Homes Spain</h2>
           <p className="text-muted-foreground">Loading your personalized experience...</p>
           <Progress value={progress} className="h-2" />
           <p className="text-xs text-muted-foreground">

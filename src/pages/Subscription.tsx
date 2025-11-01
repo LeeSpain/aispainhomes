@@ -42,7 +42,7 @@ const Subscription = () => {
   return (
     <>
       <Helmet>
-        <title>Complete Registration | AISpainHomes</title>
+        <title>Complete Registration | AIHomesSpain</title>
       </Helmet>
       
       <div className="pt-28 pb-16">

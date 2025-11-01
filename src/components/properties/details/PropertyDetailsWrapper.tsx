@@ -110,7 +110,7 @@ const PropertyDetailsWrapper = () => {
   return (
     <>
       <Helmet>
-        <title>{property.title} | AI Spain Homes</title>
+        <title>{property.title} | AI Homes Spain</title>
         <meta name="description" content={property.description} />
       </Helmet>
       
@@ -137,7 +137,7 @@ const PropertyDetailsWrapper = () => {
               </Button>
               
               <SocialShare 
-                title={`${property.title} - AI Spain Homes`}
+                title={`${property.title} - AI Homes Spain`}
                 description={`${property.bedrooms} bed, ${property.bathrooms} bath ${property.type} in ${property.location} for ${property.isForRent ? 'rent' : 'sale'} at ${property.currency}${property.price.toLocaleString()}`}
               />
             </div>

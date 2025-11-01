@@ -77,7 +77,7 @@ const EmailVerification = () => {
   return (
     <>
       <Helmet>
-        <title>Verify Your Email | AI Spain Homes</title>
+        <title>Verify Your Email | AI Homes Spain</title>
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-primary/5 via-background to-primary/10">

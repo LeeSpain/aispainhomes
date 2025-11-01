@@ -6,8 +6,8 @@ const PasswordRecoveryPage = () => {
   return (
     <>
       <Helmet>
-        <title>Reset Password | AI Spain Homes</title>
-        <meta name="description" content="Reset your password to access your AI Spain Homes account." />
+        <title>Reset Password | AI Homes Spain</title>
+        <meta name="description" content="Reset your password to access your AI Homes Spain account." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
       </Helmet>
       

@@ -13,7 +13,7 @@ const Forbidden = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <Helmet>
-        <title>Access Forbidden | AI Spain Homes</title>
+        <title>Access Forbidden | AI Homes Spain</title>
       </Helmet>
       <div className="max-w-md w-full space-y-6 text-center">
         <h1 className="text-6xl font-bold text-gray-900">403</h1>

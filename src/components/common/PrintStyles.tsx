@@ -51,7 +51,7 @@ const PrintStyles = () => {
         }
         
         body::after {
-          content: "Printed from AI Spain Homes (www.aispain.homes)" !important;
+          content: "Printed from AI Homes Spain (www.aispain.homes)" !important;
           display: block !important;
           text-align: center !important;
           font-size: 9pt !important;

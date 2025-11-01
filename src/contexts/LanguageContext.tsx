@@ -16,7 +16,7 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 // This would come from JSON files in a real app
 const translations: Record<LanguageCode, Record<string, string>> = {
   en: {
-    'app.name': 'AI Spain Homes',
+    'app.name': 'AI Homes Spain',
     'nav.home': 'Home',
     'nav.search': 'Search',
     'nav.about': 'About Us',
@@ -37,7 +37,7 @@ const translations: Record<LanguageCode, Record<string, string>> = {
     // Add more translations as needed
   },
   es: {
-    'app.name': 'AI Spain Homes',
+    'app.name': 'AI Homes Spain',
     'nav.home': 'Inicio',
     'nav.search': 'Buscar',
     'nav.about': 'Sobre Nosotros',
@@ -58,7 +58,7 @@ const translations: Record<LanguageCode, Record<string, string>> = {
     // Add more translations as needed
   },
   fr: {
-    'app.name': 'AI Spain Homes',
+    'app.name': 'AI Homes Spain',
     'nav.home': 'Accueil',
     'nav.search': 'Rechercher',
     'nav.about': 'À Propos',
@@ -79,7 +79,7 @@ const translations: Record<LanguageCode, Record<string, string>> = {
     // Add more translations as needed
   },
   de: {
-    'app.name': 'AI Spain Homes',
+    'app.name': 'AI Homes Spain',
     'nav.home': 'Startseite',
     'nav.search': 'Suchen',
     'nav.about': 'Über Uns',
@@ -100,7 +100,7 @@ const translations: Record<LanguageCode, Record<string, string>> = {
     // Add more translations as needed
   },
   it: {
-    'app.name': 'AI Spain Homes',
+    'app.name': 'AI Homes Spain',
     'nav.home': 'Home',
     'nav.search': 'Cerca',
     'nav.about': 'Chi Siamo',
@@ -121,7 +121,7 @@ const translations: Record<LanguageCode, Record<string, string>> = {
     // Add more translations as needed
   },
   nl: {
-    'app.name': 'AI Spain Homes',
+    'app.name': 'AI Homes Spain',
     'nav.home': 'Home',
     'nav.search': 'Zoeken',
     'nav.about': 'Over Ons',

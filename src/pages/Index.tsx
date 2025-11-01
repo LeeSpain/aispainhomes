@@ -39,7 +39,7 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>AISpainHomes.com | Find Your Dream Property in Spain</title>
+        <title>AIHomesSpain.com | Find Your Dream Property in Spain</title>
       </Helmet>
       
       <div className="min-h-screen flex flex-col">

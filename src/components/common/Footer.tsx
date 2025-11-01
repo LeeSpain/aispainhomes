@@ -12,7 +12,7 @@ const Footer = () => {
               <span className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-md mr-2">
                 AI
               </span>
-              <span className="text-xl font-semibold">AI Spain Homes</span>
+              <span className="text-xl font-semibold">AI Homes Spain</span>
             </Link>
             <p className="text-muted-foreground mt-2 max-w-xs">
               Your AI-powered assistant for finding the perfect property and relocating to sunny Spain.
@@ -64,7 +64,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} AI Spain Homes. All rights reserved.
+            © {currentYear} AI Homes Spain. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <span className="text-muted-foreground text-sm">

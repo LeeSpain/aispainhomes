@@ -6,7 +6,7 @@ const PropertyHero = () => {
   return (
     <>
       <Helmet>
-        <title>Property Search Services | AISpainHomes.com</title>
+        <title>Property Search Services | AIHomesSpain.com</title>
         <meta name="description" content="Discover how our AI-powered property search and guardian services help you find your perfect Spanish home with comprehensive relocation support." />
       </Helmet>
       

@@ -9,7 +9,7 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>Login | AI Spain Homes</title>
+        <title>Login | AI Homes Spain</title>
         <meta name="description" content="Login to access your property matches, saved favorites, and relocation services." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
       </Helmet>
