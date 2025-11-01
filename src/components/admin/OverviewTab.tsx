@@ -37,23 +37,23 @@ const OverviewTab = () => {
   
   const stats = [
     {
-      title: "Total Properties",
-      value: "245",
+      title: "Monthly Revenue",
+      value: "$149.95",
       icon: Building2
     },
     {
       title: "Active Users",
-      value: "1,892",
+      value: "5",
       icon: Users
     },
     {
-      title: "New Subscriptions",
-      value: "89",
+      title: "Active Subscriptions",
+      value: "3",
       icon: HomeIcon
     },
     {
       title: "Pending Issues",
-      value: "7",
+      value: "2",
       icon: AlertTriangle
     }
   ];
@@ -105,27 +105,27 @@ const OverviewTab = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    New Users
+                    Trial Conversions
                   </p>
                   <p className="text-2xl font-bold">+{userGrowth}%</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    Conversion Rate
+                    Churn Rate
                   </p>
-                  <p className="text-2xl font-bold">4.3%</p>
+                  <p className="text-2xl font-bold">2.1%</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    Avg. Session
+                    ARPU
                   </p>
-                  <p className="text-2xl font-bold">3:12</p>
+                  <p className="text-2xl font-bold">$29.99</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    Bounce Rate
+                    LTV
                   </p>
-                  <p className="text-2xl font-bold">42%</p>
+                  <p className="text-2xl font-bold">$360</p>
                 </div>
               </div>
             </div>

@@ -16,6 +16,8 @@ interface User {
   email: string;
   role: string;
   status: string;
+  subscription?: string;
+  joinedDate?: string;
 }
 
 interface UsersTabProps {
@@ -28,17 +30,16 @@ const UsersTab = ({ users }: UsersTabProps) => {
       <CardHeader>
         <CardTitle>User Management</CardTitle>
         <CardDescription>
-          View and manage user accounts.
+          View and manage user accounts and their subscription status.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-4">
           <div>
             <span className="text-sm text-muted-foreground">
-              Showing {users.length} users
+              Showing {users.length} registered users
             </span>
           </div>
-          <Button size="sm">Add User</Button>
         </div>
         
         <div className="rounded-md border">
