@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,14 +18,16 @@ import {
   Calendar,
   Download
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Subscription {
   id: string;
   userId: string;
-  userName: string;
-  email: string;
-  plan: 'paid' | 'trial';
-  status: 'active' | 'cancelled' | 'expired' | 'trial';
+  userName?: string;
+  email?: string;
+  plan: string;
+  status: string;
   startDate: string;
   nextBillingDate: string;
   revenue: number;
@@ -34,74 +36,46 @@ interface Subscription {
 const MONTHLY_PRICE = 24.99;
 
 const SubscriptionsTab = () => {
-  const [subscriptions] = useState<Subscription[]>([
-    {
-      id: 'sub_001',
-      userId: 'user_1',
-      userName: 'John Doe',
-      email: 'john@example.com',
-      plan: 'paid',
-      status: 'active',
-      startDate: '2025-01-15',
-      nextBillingDate: '2025-02-15',
-      revenue: MONTHLY_PRICE
-    },
-    {
-      id: 'sub_002',
-      userId: 'user_2',
-      userName: 'Jane Smith',
-      email: 'jane@example.com',
-      plan: 'paid',
-      status: 'active',
-      startDate: '2025-01-10',
-      nextBillingDate: '2025-02-10',
-      revenue: MONTHLY_PRICE
-    },
-    {
-      id: 'sub_003',
-      userId: 'user_3',
-      userName: 'Bob Wilson',
-      email: 'bob@example.com',
-      plan: 'paid',
-      status: 'active',
-      startDate: '2025-01-01',
-      nextBillingDate: '2025-02-01',
-      revenue: MONTHLY_PRICE
-    },
-    {
-      id: 'sub_004',
-      userId: 'user_4',
-      userName: 'Alice Brown',
-      email: 'alice@example.com',
-      plan: 'trial',
-      status: 'trial',
-      startDate: '2025-01-25',
-      nextBillingDate: '2025-02-08',
-      revenue: 0
-    },
-    {
-      id: 'sub_005',
-      userId: 'user_5',
-      userName: 'Charlie Davis',
-      email: 'charlie@example.com',
-      plan: 'trial',
-      status: 'trial',
-      startDate: '2025-01-28',
-      nextBillingDate: '2025-02-11',
-      revenue: 0
-    },
-    {
-      id: 'sub_006',
-      userId: 'user_6',
-      userName: 'Emma White',
-      email: 'emma@example.com',
-      plan: 'paid',
-      status: 'cancelled',
-      startDate: '2024-12-01',
-      nextBillingDate: '2025-02-01',
-      revenue: MONTHLY_PRICE
-    },
-  ]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSubscriptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading subscriptions:', error);
+          toast.error('Failed to load subscriptions');
+        } else {
+          // Transform to match Subscription interface
+          const transformed = (data || []).map((sub) => ({
+            id: sub.id,
+            userId: sub.user_id,
+            userName: 'User', // We don't have user names in subscriptions table
+            email: 'N/A', // We don't have emails in subscriptions table
+            plan: sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1),
+            status: sub.status,
+            startDate: new Date(sub.start_date).toLocaleDateString(),
+            nextBillingDate: sub.next_billing_date 
+              ? new Date(sub.next_billing_date).toLocaleDateString()
+              : 'N/A',
+            revenue: sub.status === 'active' ? Number(sub.monthly_price) : 0
+          }));
+          setSubscriptions(transformed);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSubscriptions();
+  }, []);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -131,8 +105,10 @@ const SubscriptionsTab = () => {
   const totalRevenue = subscriptions.reduce((sum, sub) => sum + sub.revenue, 0);
   const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active').length;
   const trialUsers = subscriptions.filter(sub => sub.status === 'trial').length;
-  const monthlyRecurring = activeSubscriptions * MONTHLY_PRICE;
-  const conversionRate = subscriptions.length > 0 
+  const monthlyRecurring = subscriptions
+    .filter(sub => sub.status === 'active')
+    .reduce((sum, sub) => sum + sub.revenue, 0);
+  const conversionRate = subscriptions.length > 0 && (activeSubscriptions + trialUsers) > 0
     ? ((activeSubscriptions / (activeSubscriptions + trialUsers)) * 100).toFixed(1)
     : '0.0';
 
@@ -143,6 +119,10 @@ const SubscriptionsTab = () => {
       minimumFractionDigits: 2,
     }).format(amount);
   };
+
+  if (isLoading) {
+    return <div className="flex justify-center p-8">Loading subscriptions...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -156,7 +136,11 @@ const SubscriptionsTab = () => {
           <CardContent>
             <div className="text-2xl font-bold">{formatEuro(monthlyRecurring)}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              <TrendingUp className="inline h-3 w-3 text-green-500" /> {activeSubscriptions} paying subscribers
+              {activeSubscriptions > 0 ? (
+                <><TrendingUp className="inline h-3 w-3 text-green-500" /> {activeSubscriptions} paying subscribers</>
+              ) : (
+                'No active subscriptions yet'
+              )}
             </p>
           </CardContent>
         </Card>
@@ -169,7 +153,7 @@ const SubscriptionsTab = () => {
           <CardContent>
             <div className="text-2xl font-bold">{activeSubscriptions}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              At €24.99/month each
+              {monthlyRecurring > 0 ? `Avg ${formatEuro(monthlyRecurring / activeSubscriptions)}/month` : 'No revenue yet'}
             </p>
           </CardContent>
         </Card>
@@ -182,7 +166,7 @@ const SubscriptionsTab = () => {
           <CardContent>
             <div className="text-2xl font-bold">{trialUsers}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Potential: {formatEuro(trialUsers * MONTHLY_PRICE)}/mo
+              {trialUsers > 0 ? `Converting to paid plans` : 'No trial users'}
             </p>
           </CardContent>
         </Card>
@@ -242,20 +226,20 @@ const SubscriptionsTab = () => {
                 ) : (
                   subscriptions.map((subscription) => (
                     <TableRow key={subscription.id}>
-                      <TableCell className="font-medium">{subscription.userName}</TableCell>
-                      <TableCell>{subscription.email}</TableCell>
+                      <TableCell className="font-medium">{subscription.userName || 'User'}</TableCell>
+                      <TableCell>{subscription.email || 'N/A'}</TableCell>
                       <TableCell>{getPlanBadge(subscription.plan)}</TableCell>
                       <TableCell>{getStatusBadge(subscription.status)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          {new Date(subscription.startDate).toLocaleDateString()}
+                          {subscription.startDate}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          {new Date(subscription.nextBillingDate).toLocaleDateString()}
+                          {subscription.nextBillingDate}
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-medium">

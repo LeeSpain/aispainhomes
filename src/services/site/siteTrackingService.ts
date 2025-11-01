@@ -1,3 +1,8 @@
+/**
+ * @deprecated This service uses localStorage and is being phased out.
+ * Use websiteTrackingService.ts instead which uses the Supabase database.
+ * This file is kept for backward compatibility only.
+ */
 
 import { toast } from 'sonner';
 

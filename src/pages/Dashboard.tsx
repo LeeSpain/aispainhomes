@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
 import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Menu, Star, FileText, Briefcase, AlertCircle } from 'lucide-react';
+import { alertsService } from '@/services/alertsService';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -32,6 +33,7 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('properties');
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
+  const [unreadAlertCount, setUnreadAlertCount] = useState(0);
   
   // Use comprehensive dashboard initialization hook
   const { 
@@ -43,11 +45,21 @@ const Dashboard = () => {
     hasCompletedQuestionnaire
   } = useDashboardInit(user?.id);
   
-  // Debug logging
+  // Load unread alert count
   useEffect(() => {
-    console.log('Dashboard - Current user:', user);
-    console.log('Dashboard - User preferences:', userPreferences);
-  }, [user, userPreferences]);
+    if (!user?.id) return;
+
+    const loadAlertCount = async () => {
+      try {
+        const count = await alertsService.getUnreadCount(user.id);
+        setUnreadAlertCount(count);
+      } catch (error) {
+        console.error('Error loading alert count:', error);
+      }
+    };
+
+    loadAlertCount();
+  }, [user?.id]);
   
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -117,7 +129,7 @@ const Dashboard = () => {
     { id: 'properties', label: 'Properties', icon: Home },
     { id: 'profile', label: 'My Profile', icon: User },
     { id: 'favorites', label: 'Favorites', icon: Star, badge: favorites.length > 0 ? favorites.length : undefined },
-    { id: 'alerts', label: 'Alerts', icon: AlertCircle, badge: 3 },
+    { id: 'alerts', label: 'Alerts', icon: AlertCircle, badge: unreadAlertCount > 0 ? unreadAlertCount : undefined },
     { 
       id: 'services', 
       label: 'Services', 

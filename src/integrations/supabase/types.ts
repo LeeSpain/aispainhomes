@@ -482,6 +482,42 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          monthly_price: number
+          next_billing_date: string | null
+          plan: string
+          start_date: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          monthly_price?: number
+          next_billing_date?: string | null
+          plan: string
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          monthly_price?: number
+          next_billing_date?: string | null
+          plan?: string
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tracked_websites: {
         Row: {
           category: string
@@ -532,6 +568,45 @@ export type Database = {
           name?: string
           updated_at?: string | null
           url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          metadata: Json | null
+          property_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          property_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          property_id?: string | null
+          title?: string
           user_id?: string
         }
         Relationships: []
