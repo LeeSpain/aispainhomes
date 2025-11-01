@@ -26,20 +26,30 @@ const QuestionnaireContainer = () => {
           .from('questionnaire_responses')
           .upsert({
             user_id: user.id,
-            service_type: formData.service,
+            service_type: 'full_service',
             property_type: formData.purpose,
             property_types: formData.propertyTypes,
+            personal_info: formData.personalInfo,
+            relocation_timeline: formData.relocationTimeline,
             location_preferences: { location: formData.location },
             budget_range: {
               min: formData.priceRange[0],
               max: formData.priceRange[1]
             },
             household_details: {
+              ...formData.household,
               bedrooms: formData.bedrooms,
               bathrooms: formData.bathrooms,
               minArea: formData.minArea
             },
             amenities_required: formData.selectedAmenities,
+            employment_status: formData.employment.status,
+            legal_documentation: formData.legalDocs,
+            lifestyle_preferences: formData.lifestyle,
+            services_needed: formData.servicesNeeded,
+            additional_notes: formData.additionalInfo.specialRequests,
+            referral_source: formData.additionalInfo.referralSource,
+            relocation_budget_range: { budget: formData.additionalInfo.relocationBudget },
             updated_at: new Date().toISOString(),
           });
 

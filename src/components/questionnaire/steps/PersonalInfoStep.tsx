@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface PersonalInfoStepProps {
   personalInfo: {
     fullName: string;
+    email: string;
     currentCountry: string;
     nationality: string;
     phone: string;
@@ -17,8 +18,8 @@ interface PersonalInfoStepProps {
 const PersonalInfoStep = ({ personalInfo, onPersonalInfoChange }: PersonalInfoStepProps) => {
   return (
     <QuestionnaireStep
-      title="Let's start with some basic information"
-      description="This helps us personalize your relocation experience"
+      title="Let's get started"
+      description="Tell us about yourself to help us personalize your Spanish relocation journey."
     >
       <div className="space-y-6">
         <div>
@@ -28,6 +29,18 @@ const PersonalInfoStep = ({ personalInfo, onPersonalInfoChange }: PersonalInfoSt
             value={personalInfo.fullName}
             onChange={(e) => onPersonalInfoChange('fullName', e.target.value)}
             placeholder="Enter your full name"
+            className="mt-2"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="email">Email Address *</Label>
+          <Input
+            id="email"
+            type="email"
+            value={personalInfo.email}
+            onChange={(e) => onPersonalInfoChange('email', e.target.value)}
+            placeholder="your.email@example.com"
             className="mt-2"
           />
         </div>

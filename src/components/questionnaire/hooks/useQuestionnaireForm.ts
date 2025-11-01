@@ -3,11 +3,10 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export interface QuestionnaireFormData {
-  service: 'property' | 'guardian';
-  
   // Personal Information
   personalInfo: {
     fullName: string;
+    email: string;
     currentCountry: string;
     nationality: string;
     phone: string;
@@ -21,9 +20,9 @@ export interface QuestionnaireFormData {
     visitedSpain: boolean;
   };
   
-  // Property Search (existing + enhanced)
+  // Property Preferences
   propertyTypes: string[];
-  purpose: 'buy' | 'rent';
+  purpose: 'buy' | 'rent' | 'both';
   location: string;
   priceRange: [number, number];
   bedrooms: number;
@@ -87,10 +86,9 @@ export interface QuestionnaireFormData {
 export const useQuestionnaireForm = () => {
   const location = useLocation();
   const [formData, setFormData] = useState<QuestionnaireFormData>({
-    service: 'property',
-    
     personalInfo: {
       fullName: '',
+      email: '',
       currentCountry: '',
       nationality: '',
       phone: '',
@@ -104,7 +102,7 @@ export const useQuestionnaireForm = () => {
     },
     
     propertyTypes: [],
-    purpose: 'buy',
+    purpose: 'both',
     location: '',
     priceRange: [100000, 500000],
     bedrooms: 2,
@@ -158,14 +156,6 @@ export const useQuestionnaireForm = () => {
       relocationBudget: ''
     }
   });
-  
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const serviceParam = params.get('service');
-    if (serviceParam === 'guardian') {
-      setFormData(prev => ({ ...prev, service: 'guardian' }));
-    }
-  }, [location]);
   
   const handleChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });

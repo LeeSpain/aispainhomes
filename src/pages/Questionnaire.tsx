@@ -6,7 +6,11 @@ const Questionnaire = () => {
   return (
     <>
       <Helmet>
-        <title>Find Your Perfect Home in Spain | AI Homes Spain</title>
+        <title>Spanish Relocation Questionnaire | Find Your Perfect Home & Services</title>
+        <meta 
+          name="description" 
+          content="Complete our comprehensive questionnaire to receive personalized property matches and relocation services for your move to Spain. Get AI-powered recommendations tailored to your needs."
+        />
       </Helmet>
       <QuestionnaireContainer />
     </>
