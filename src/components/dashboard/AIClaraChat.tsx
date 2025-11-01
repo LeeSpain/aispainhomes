@@ -60,7 +60,7 @@ const AIClaraChat = ({ user }: AIClaraChatProps) => {
         const firstName = user.name.split(' ')[0];
         setMessages([{
           id: '1',
-          content: `Hello ${firstName}, I'm Clara, your AI assistant. I have access to 100+ official Spanish government resources to help with your relocation and property needs.`,
+          content: `Hello ${firstName}, I'm Clara, your AI assistant. I'm here to answer any questions about moving to Spain!`,
           sender: 'assistant',
           timestamp: new Date(),
           citedResources: []
