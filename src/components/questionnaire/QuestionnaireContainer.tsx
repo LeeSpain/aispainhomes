@@ -21,6 +21,19 @@ const QuestionnaireContainer = () => {
     // Check if user has active subscription
     if (user?.id) {
       try {
+        // Check rate limit (1 submission per hour)
+        const { data: canSubmit, error: rateLimitError } = await supabase.rpc(
+          'check_questionnaire_rate_limit',
+          { p_user_id: user.id }
+        );
+
+        if (rateLimitError) {
+          console.error('Error checking rate limit:', rateLimitError);
+        } else if (canSubmit === false) {
+          toast.error('Please wait at least 1 hour between questionnaire submissions to allow Clara time to curate your recommendations.');
+          return;
+        }
+
         // Save questionnaire responses to database
         // Format lifestyle preferences to ensure arrays are properly structured
         const lifestylePrefs = {

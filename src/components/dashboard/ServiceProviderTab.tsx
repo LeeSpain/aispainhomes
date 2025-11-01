@@ -47,7 +47,19 @@ const ServiceProviderTab = ({
         </Card>
       )}
 
-      <ServiceProviderList providers={providers} matchReasons={matchReasons} />
+      {providers.length === 0 ? (
+        <Card className="p-8 text-center space-y-4">
+          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold">Clara is Finding the Best {title}</h3>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Our AI is researching local service providers in your area. Personalized recommendations will appear here soon.
+          </p>
+        </Card>
+      ) : (
+        <ServiceProviderList providers={providers} matchReasons={matchReasons} />
+      )}
     </div>
   );
 };

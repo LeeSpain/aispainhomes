@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Star, FileText, Briefcase, AlertCircle, CreditCard } from 'lucide-react';
 import { alertsService } from '@/services/alertsService';
 import MobileNavMenu from '@/components/common/MobileNavMenu';
+import ClaraLoadingState from '@/components/common/ClaraLoadingState';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -66,6 +67,7 @@ const Dashboard = () => {
     matchScores, 
     matchReasons, 
     isLoading: isLoadingProperties,
+    isClaraProcessing,
     questionnaireData,
     hasCompletedQuestionnaire,
     claraServiceRecommendations
@@ -356,22 +358,31 @@ const Dashboard = () => {
           
             {/* Main Content Area */}
             <main className="lg:col-span-8">
-              <DashboardContent
-                user={user}
-                userPreferences={userPreferences}
-                properties={properties}
-                favoriteProperties={favoriteProperties}
-                isLoadingProperties={isLoadingProperties}
-                isLoadingFavorites={isLoadingFavorites}
-                onLogout={handleLogout}
-                activeTab={activeTab}
-                activeSubTab={activeSubTab}
-                matchScores={matchScores}
-                matchReasons={matchReasons}
-                hasCompletedQuestionnaire={hasCompletedQuestionnaire}
-                questionnaireData={questionnaireData}
-                claraServiceRecommendations={claraServiceRecommendations}
-              />
+              {isClaraProcessing && activeTab === 'properties' ? (
+                <div className="mt-6">
+                  <ClaraLoadingState 
+                    title="Clara is Curating Your Properties"
+                    message="Finding the perfect properties that match your preferences. This usually takes 20-30 seconds."
+                  />
+                </div>
+              ) : (
+                <DashboardContent
+                  user={user}
+                  userPreferences={userPreferences}
+                  properties={properties}
+                  favoriteProperties={favoriteProperties}
+                  isLoadingProperties={isLoadingProperties}
+                  isLoadingFavorites={isLoadingFavorites}
+                  onLogout={handleLogout}
+                  activeTab={activeTab}
+                  activeSubTab={activeSubTab}
+                  matchScores={matchScores}
+                  matchReasons={matchReasons}
+                  hasCompletedQuestionnaire={hasCompletedQuestionnaire}
+                  questionnaireData={questionnaireData}
+                  claraServiceRecommendations={claraServiceRecommendations}
+                />
+              )}
             </main>
           </div>
         </div>

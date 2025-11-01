@@ -103,10 +103,29 @@ const PropertiesTab = ({
       {/* Property Grid with Match Scores */}
       <div className="space-y-4">
         {!isLoading && properties.length === 0 && (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">
-              No properties match your criteria yet. Complete your profile to get personalized recommendations.
-            </p>
+          <Card className="p-8 text-center space-y-4">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <HomeIcon className="h-8 w-8 text-primary" />
+            </div>
+            {hasCompletedQuestionnaire ? (
+              <>
+                <h3 className="text-lg font-semibold">Clara is Searching for Your Perfect Property</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Our AI is analyzing properties across Spain to find matches for your preferences. 
+                  Check back in a few minutes - new recommendations appear regularly!
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold">Get Personalized Property Matches</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Complete the questionnaire to receive AI-curated property recommendations tailored to your needs.
+                </p>
+                <Button onClick={() => navigate('/questionnaire')} className="mt-4">
+                  Start Questionnaire
+                </Button>
+              </>
+            )}
           </Card>
         )}
         <PropertyGrid 

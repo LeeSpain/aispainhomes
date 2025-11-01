@@ -1014,6 +1014,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_questionnaire_rate_limit: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       generate_invitation_code: { Args: never; Returns: string }
       has_role: {
         Args: {

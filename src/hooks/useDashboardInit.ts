@@ -4,13 +4,14 @@ import { Property } from '@/components/properties/PropertyCard';
 import { scrapedPropertiesService } from '@/services/scrapedPropertiesService';
 import { toast } from 'sonner';
 
-interface DashboardInitData {
+export interface DashboardInitData {
   properties: Property[];
   matchScores: Map<string, number>;
   matchReasons: Map<string, string[]>;
   questionnaireData: any;
   profileData: any;
   isLoading: boolean;
+  isClaraProcessing: boolean;
   hasCompletedQuestionnaire: boolean;
   claraPropertyRecommendations: any[];
   claraServiceRecommendations: any[];
@@ -24,6 +25,7 @@ export const useDashboardInit = (userId: string | undefined) => {
     questionnaireData: null,
     profileData: null,
     isLoading: true,
+    isClaraProcessing: false,
     hasCompletedQuestionnaire: false,
     claraPropertyRecommendations: [],
     claraServiceRecommendations: [],
@@ -75,6 +77,13 @@ export const useDashboardInit = (userId: string | undefined) => {
         const hasCompletedQuestionnaire = !!questionnaireData;
         const claraPropertyRecommendations = claraProperties.data || [];
         const claraServiceRecommendations = claraServices.data || [];
+
+        // Check if questionnaire was recently completed (within last 2 minutes) and Clara hasn't returned results yet
+        const recentlyCompleted = questionnaireData?.completed_at && 
+          (new Date().getTime() - new Date(questionnaireData.completed_at).getTime()) < 120000;
+        const isClaraProcessing = recentlyCompleted && 
+          claraPropertyRecommendations.length === 0 && 
+          claraServiceRecommendations.length === 0;
 
         // Prioritize Clara's curated properties, then fallback to scraped properties
         const allProperties: Property[] = claraPropertyRecommendations.length > 0 
@@ -204,6 +213,7 @@ export const useDashboardInit = (userId: string | undefined) => {
               questionnaireData,
               profileData,
               isLoading: false,
+              isClaraProcessing,
               hasCompletedQuestionnaire: true,
               claraPropertyRecommendations,
               claraServiceRecommendations,
@@ -219,6 +229,7 @@ export const useDashboardInit = (userId: string | undefined) => {
               questionnaireData,
               profileData,
               isLoading: false,
+              isClaraProcessing: false,
               hasCompletedQuestionnaire: false,
               claraPropertyRecommendations,
               claraServiceRecommendations,
