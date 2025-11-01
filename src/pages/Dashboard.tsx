@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, Home, Menu, Star, FileText, Briefcase, AlertCircle } from 'lucide-react';
+import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Menu, Star, FileText, Briefcase, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -128,9 +128,12 @@ const Dashboard = () => {
       .slice(0, 2);
   };
 
+  const favorites = userPreferences?.favorites || [];
+
   const navItems = [
     { id: 'properties', label: 'Properties', icon: Home },
-    { id: 'favorites', label: 'Favorites', icon: Star },
+    { id: 'profile', label: 'My Profile', icon: User },
+    { id: 'favorites', label: 'Favorites', icon: Star, badge: favorites.length > 0 ? favorites.length : undefined },
     { id: 'alerts', label: 'Alerts', icon: AlertCircle, badge: 3 },
     { 
       id: 'services', 

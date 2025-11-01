@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropertiesTab from '@/components/dashboard/PropertiesTab';
+import ProfileTab from '@/components/dashboard/ProfileTab';
 import FavoritesTab from '@/components/dashboard/FavoritesTab';
 import AlertsTab from '@/components/dashboard/AlertsTab';
 import DocumentsTab from '@/components/dashboard/DocumentsTab';
@@ -66,6 +67,8 @@ const DashboardContent = ({
     switch (activeTab) {
       case 'properties':
         return <PropertiesTab properties={properties} isLoading={isLoadingProperties} />;
+      case 'profile':
+        return <ProfileTab />;
       case 'favorites':
         return <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />;
       case 'alerts':

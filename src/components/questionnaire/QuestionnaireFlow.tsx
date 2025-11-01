@@ -2,15 +2,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QuestionnaireLayout from './QuestionnaireLayout';
+import PersonalInfoStep from './steps/PersonalInfoStep';
+import RelocationTimelineStep from './steps/RelocationTimelineStep';
 import ServiceSelectionStep from './steps/ServiceSelectionStep';
 import PropertyTypeStep from './steps/PropertyTypeStep';
-import RelocationPlansStep from './steps/RelocationPlansStep';
 import LocationStep from './steps/LocationStep';
-import HouseholdDetailsStep from './steps/HouseholdDetailsStep';
 import BudgetStep from './steps/BudgetStep';
-import EmploymentStep from './steps/EmploymentStep';
 import AmenitiesStep from './steps/AmenitiesStep';
-import GuardianServiceStep from './steps/GuardianServiceStep';
+import LegalDocumentationStep from './steps/LegalDocumentationStep';
+import LifestylePreferencesStep from './steps/LifestylePreferencesStep';
+import ServicesNeededStep from './steps/ServicesNeededStep';
+import AdditionalInfoStep from './steps/AdditionalInfoStep';
 import { QuestionnaireFormData } from './hooks/useQuestionnaireForm';
 import { cities, propertyTypes, amenities } from './utils/sampleData';
 
@@ -31,7 +33,7 @@ const QuestionnaireFlow = ({
 }: QuestionnaireFlowProps) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 9; // Increased to 9 steps for comprehensive questionnaire
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -52,10 +54,14 @@ const QuestionnaireFlow = ({
   const isNextDisabled = () => {
     switch (currentStep) {
       case 1:
-        return !formData.service || (formData.service === 'property' && !formData.purpose);
+        return !formData.personalInfo.fullName || !formData.personalInfo.currentCountry;
       case 2:
-        return formData.service === 'property' && formData.propertyTypes.length === 0;
+        return !formData.relocationTimeline.timeframe;
       case 3:
+        return !formData.service || (formData.service === 'property' && !formData.purpose);
+      case 4:
+        return formData.service === 'property' && formData.propertyTypes.length === 0;
+      case 5:
         return formData.service === 'property' && !formData.location;
       default:
         return false;
@@ -72,7 +78,28 @@ const QuestionnaireFlow = ({
       isBackDisabled={currentStep === 1}
       isLastStep={currentStep === totalSteps}
     >
+      {/* Step 1: Personal Information */}
       {currentStep === 1 && (
+        <PersonalInfoStep
+          personalInfo={formData.personalInfo}
+          onPersonalInfoChange={(field, value) => 
+            onFormChange('personalInfo', { ...formData.personalInfo, [field]: value })
+          }
+        />
+      )}
+      
+      {/* Step 2: Relocation Timeline */}
+      {currentStep === 2 && (
+        <RelocationTimelineStep
+          relocationTimeline={formData.relocationTimeline}
+          onTimelineChange={(field, value) =>
+            onFormChange('relocationTimeline', { ...formData.relocationTimeline, [field]: value })
+          }
+        />
+      )}
+      
+      {/* Step 3: Service Selection */}
+      {currentStep === 3 && (
         <ServiceSelectionStep
           selectedService={formData.service}
           selectedPurpose={formData.purpose}
@@ -81,7 +108,8 @@ const QuestionnaireFlow = ({
         />
       )}
       
-      {currentStep === 2 && formData.service === 'property' && (
+      {/* Step 4: Property Type (for property service) */}
+      {currentStep === 4 && formData.service === 'property' && (
         <PropertyTypeStep
           propertyTypes={propertyTypes}
           selectedPropertyTypes={formData.propertyTypes}
@@ -89,11 +117,18 @@ const QuestionnaireFlow = ({
         />
       )}
 
-      {currentStep === 2 && formData.service === 'guardian' && (
-        <RelocationPlansStep />
+      {/* Step 4: Legal Documentation (for guardian service) */}
+      {currentStep === 4 && formData.service === 'guardian' && (
+        <LegalDocumentationStep
+          legalDocs={formData.legalDocs}
+          onLegalDocsChange={(field, value) =>
+            onFormChange('legalDocs', { ...formData.legalDocs, [field]: value })
+          }
+        />
       )}
       
-      {currentStep === 3 && formData.service === 'property' && (
+      {/* Step 5: Location (for property service) */}
+      {currentStep === 5 && formData.service === 'property' && (
         <LocationStep
           cities={cities}
           selectedLocation={formData.location}
@@ -101,11 +136,18 @@ const QuestionnaireFlow = ({
         />
       )}
 
-      {currentStep === 3 && formData.service === 'guardian' && (
-        <HouseholdDetailsStep />
+      {/* Step 5: Lifestyle Preferences (for guardian service) */}
+      {currentStep === 5 && formData.service === 'guardian' && (
+        <LifestylePreferencesStep
+          lifestyle={formData.lifestyle}
+          onLifestyleChange={(field, value) =>
+            onFormChange('lifestyle', { ...formData.lifestyle, [field]: value })
+          }
+        />
       )}
       
-      {currentStep === 4 && formData.service === 'property' && (
+      {/* Step 6: Budget & Requirements (for property service) */}
+      {currentStep === 6 && formData.service === 'property' && (
         <BudgetStep
           purpose={formData.purpose}
           priceRange={formData.priceRange}
@@ -119,11 +161,18 @@ const QuestionnaireFlow = ({
         />
       )}
 
-      {currentStep === 4 && formData.service === 'guardian' && (
-        <EmploymentStep />
+      {/* Step 6: Services Needed (for guardian service) */}
+      {currentStep === 6 && formData.service === 'guardian' && (
+        <ServicesNeededStep
+          servicesNeeded={formData.servicesNeeded}
+          onServicesChange={(field, value) =>
+            onFormChange('servicesNeeded', { ...formData.servicesNeeded, [field]: value })
+          }
+        />
       )}
       
-      {currentStep === 5 && formData.service === 'property' && (
+      {/* Step 7: Amenities (for property service) */}
+      {currentStep === 7 && formData.service === 'property' && (
         <AmenitiesStep
           amenities={amenities}
           selectedAmenities={formData.selectedAmenities}
@@ -131,8 +180,44 @@ const QuestionnaireFlow = ({
         />
       )}
 
-      {currentStep === 5 && formData.service === 'guardian' && (
-        <GuardianServiceStep />
+      {/* Step 7: Legal Documentation (for guardian service) */}
+      {currentStep === 7 && formData.service === 'guardian' && (
+        <LegalDocumentationStep
+          legalDocs={formData.legalDocs}
+          onLegalDocsChange={(field, value) =>
+            onFormChange('legalDocs', { ...formData.legalDocs, [field]: value })
+          }
+        />
+      )}
+
+      {/* Step 8: Legal Documentation (for property service) */}
+      {currentStep === 8 && formData.service === 'property' && (
+        <LegalDocumentationStep
+          legalDocs={formData.legalDocs}
+          onLegalDocsChange={(field, value) =>
+            onFormChange('legalDocs', { ...formData.legalDocs, [field]: value })
+          }
+        />
+      )}
+
+      {/* Step 8: Lifestyle Preferences (for guardian service) */}
+      {currentStep === 8 && formData.service === 'guardian' && (
+        <LifestylePreferencesStep
+          lifestyle={formData.lifestyle}
+          onLifestyleChange={(field, value) =>
+            onFormChange('lifestyle', { ...formData.lifestyle, [field]: value })
+          }
+        />
+      )}
+
+      {/* Step 9: Additional Information (both services) */}
+      {currentStep === 9 && (
+        <AdditionalInfoStep
+          additionalInfo={formData.additionalInfo}
+          onAdditionalInfoChange={(field, value) =>
+            onFormChange('additionalInfo', { ...formData.additionalInfo, [field]: value })
+          }
+        />
       )}
     </QuestionnaireLayout>
   );

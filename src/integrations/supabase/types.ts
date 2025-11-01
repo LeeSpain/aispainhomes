@@ -374,11 +374,19 @@ export type Database = {
           guardian_service_tier: string | null
           household_details: Json | null
           id: string
+          legal_documentation: Json | null
+          lifestyle_preferences: Json | null
           location_preferences: Json | null
+          personal_info: Json | null
           property_type: string | null
           property_types: string[] | null
+          referral_source: string | null
+          relocation_budget_range: Json | null
           relocation_date: string | null
+          relocation_timeline: Json | null
           service_type: string
+          services_needed: Json | null
+          special_requirements: string | null
           updated_at: string | null
           user_id: string
         }
@@ -392,11 +400,19 @@ export type Database = {
           guardian_service_tier?: string | null
           household_details?: Json | null
           id?: string
+          legal_documentation?: Json | null
+          lifestyle_preferences?: Json | null
           location_preferences?: Json | null
+          personal_info?: Json | null
           property_type?: string | null
           property_types?: string[] | null
+          referral_source?: string | null
+          relocation_budget_range?: Json | null
           relocation_date?: string | null
+          relocation_timeline?: Json | null
           service_type: string
+          services_needed?: Json | null
+          special_requirements?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -410,11 +426,19 @@ export type Database = {
           guardian_service_tier?: string | null
           household_details?: Json | null
           id?: string
+          legal_documentation?: Json | null
+          lifestyle_preferences?: Json | null
           location_preferences?: Json | null
+          personal_info?: Json | null
           property_type?: string | null
           property_types?: string[] | null
+          referral_source?: string | null
+          relocation_budget_range?: Json | null
           relocation_date?: string | null
+          relocation_timeline?: Json | null
           service_type?: string
+          services_needed?: Json | null
+          special_requirements?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -511,6 +535,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_questionnaire_history: {
+        Row: {
+          changed_at: string | null
+          field_changed: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          questionnaire_response_id: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string | null
+          field_changed: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          questionnaire_response_id?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string | null
+          field_changed?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          questionnaire_response_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_questionnaire_history_questionnaire_response_id_fkey"
+            columns: ["questionnaire_response_id"]
+            isOneToOne: false
+            referencedRelation: "questionnaire_responses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
