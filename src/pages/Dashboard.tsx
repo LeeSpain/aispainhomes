@@ -25,14 +25,9 @@ const Dashboard = () => {
     }
   }, [user, authLoading, navigate]);
   
-  // Don't render anything until auth check is complete
-  if (authLoading || !user || !userPreferences) {
-    return null;
-  }
-  
   // Load recommended properties once when auth is ready
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !user) return;
     
     let mounted = true;
     setIsLoadingProperties(true);
@@ -56,13 +51,13 @@ const Dashboard = () => {
       });
     
     return () => { mounted = false; };
-  }, [authLoading]);
+  }, [authLoading, user]);
   
   // Load favorite properties when favorites list changes
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading || !user || !userPreferences) return;
     
-    const favoriteIds = userPreferences?.favorites || [];
+    const favoriteIds = userPreferences.favorites || [];
     
     if (favoriteIds.length === 0) {
       setFavoriteProperties([]);
@@ -100,6 +95,11 @@ const Dashboard = () => {
     await logout();
     navigate('/');
   };
+  
+  // Don't render until auth check is complete
+  if (authLoading || !user || !userPreferences) {
+    return null;
+  }
   
   return (
     <DashboardLayout title="Dashboard">
