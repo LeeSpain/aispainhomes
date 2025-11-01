@@ -25,7 +25,6 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
-  const [users, setUsers] = useState<any[]>([]);
   const [trackedSites, setTrackedSites] = useState<TrackedSite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -68,27 +67,6 @@ const AdminDashboard = () => {
       
       setIsLoading(true);
       try {
-        // Load real users from database
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, user_id, full_name, created_at')
-          .order('created_at', { ascending: false });
-
-        if (profilesError) {
-          console.error('Error loading users:', profilesError);
-        } else {
-          // Transform to match UsersTab interface
-          const transformedUsers = (profilesData || []).map((profile, index) => ({
-            id: index + 1,
-            name: profile.full_name || 'Unknown',
-            email: 'N/A', // Email not stored in profiles
-            role: 'User',
-            status: 'Active',
-            joinedDate: new Date(profile.created_at).toLocaleDateString()
-          }));
-          setUsers(transformedUsers);
-        }
-
         // Load tracked sites from database (not localStorage)
         const { data: sitesData, error: sitesError } = await supabase
           .from('tracked_websites')
@@ -140,7 +118,7 @@ const AdminDashboard = () => {
   const stats = [
     { title: 'Monthly Revenue', value: '€0.00', icon: DollarSign },
     { title: 'Active Subscriptions', value: 0, icon: CreditCard },
-    { title: 'Total Users', value: users.length, icon: Users },
+    { title: 'Total Users', value: '—', icon: Users },
     { title: 'Tracked Websites', value: trackedSites.length, icon: Globe },
   ];
 
@@ -156,7 +134,7 @@ const AdminDashboard = () => {
       case 'subscriptions':
         return <SubscriptionsTab />;
       case 'users':
-        return <UsersTab users={users} />;
+        return <UsersTab />;
       case 'websites':
         return <AdminWebsiteTrackingTab />;
       case 'resources':
