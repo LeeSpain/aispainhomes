@@ -611,6 +611,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_invitations: {
+        Row: {
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          invitation_code: string
+          invited_by: string | null
+          is_used: boolean
+          metadata: Json | null
+          role: Database["public"]["Enums"]["app_role"]
+          subscription_plan: string | null
+          subscription_type: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          expires_at: string
+          id?: string
+          invitation_code: string
+          invited_by?: string | null
+          is_used?: boolean
+          metadata?: Json | null
+          role?: Database["public"]["Enums"]["app_role"]
+          subscription_plan?: string | null
+          subscription_type?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invitation_code?: string
+          invited_by?: string | null
+          is_used?: boolean
+          metadata?: Json | null
+          role?: Database["public"]["Enums"]["app_role"]
+          subscription_plan?: string | null
+          subscription_type?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       user_questionnaire_history: {
         Row: {
           changed_at: string | null
@@ -775,6 +823,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_invitation_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -9,7 +9,8 @@ import {
   Server,
   Menu,
   X,
-  FileText
+  FileText,
+  Mail
 } from 'lucide-react';
 import {
   Sidebar,
@@ -36,6 +37,7 @@ const menuItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
   { id: 'users', label: 'Users', icon: Users },
+  { id: 'invitations', label: 'Invitations', icon: Mail },
   { id: 'websites', label: 'Website Tracking', icon: Globe },
   { id: 'resources', label: 'Official Resources', icon: FileText },
   { id: 'ai', label: 'AI Settings', icon: Bot },
