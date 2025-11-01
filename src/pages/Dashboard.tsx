@@ -35,6 +35,11 @@ const Dashboard = () => {
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [unreadAlertCount, setUnreadAlertCount] = useState(0);
   
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
+  
   // Use comprehensive dashboard initialization hook
   const { 
     properties, 
