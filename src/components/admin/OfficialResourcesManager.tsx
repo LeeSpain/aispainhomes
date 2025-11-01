@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ExternalLink, CheckCircle, AlertCircle, Search, TrendingUp, Globe, Database, Link2 } from 'lucide-react';
+import { ExternalLink, CheckCircle, AlertCircle, Search, TrendingUp, Globe, Database, Link2, FileText } from 'lucide-react';
 import { officialResourcesService, OfficialResource } from '@/services/officialResources/officialResourcesService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const OfficialResourcesManager = () => {
   const [resources, setResources] = useState<OfficialResource[]>([]);
@@ -31,18 +32,30 @@ const OfficialResourcesManager = () => {
   }, []);
 
   useEffect(() => {
+    filterResources();
+  }, [searchTerm, activeCategory, resources]);
+
+  const filterResources = () => {
+    let filtered = resources;
+
+    // Filter by category
+    if (activeCategory !== 'all') {
+      filtered = filtered.filter(r => r.category === activeCategory);
+    }
+
+    // Filter by search term
     if (searchTerm) {
-      const filtered = resources.filter(r => 
+      filtered = filtered.filter(r => 
         r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.subcategory && r.subcategory.toLowerCase().includes(searchTerm.toLowerCase()))
+        (r.subcategory && r.subcategory.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        r.authority.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredResources(filtered);
-    } else {
-      setFilteredResources(resources);
     }
-  }, [searchTerm, resources]);
+
+    setFilteredResources(filtered);
+  };
 
   const loadResources = async () => {
     try {
@@ -144,26 +157,42 @@ const OfficialResourcesManager = () => {
     }
   };
 
-  const getCategoryResources = (category: string) => {
-    if (category === 'all') return filteredResources;
-    return filteredResources.filter(r => r.category === category);
-  };
-
   const getSubcategoryGroups = (categoryResources: OfficialResource[]) => {
     const groups: Record<string, OfficialResource[]> = {};
     categoryResources.forEach(resource => {
-      const subcat = resource.subcategory || 'other';
+      const subcat = resource.subcategory || 'general';
       if (!groups[subcat]) groups[subcat] = [];
       groups[subcat].push(resource);
     });
     return groups;
   };
 
-  const categories = Array.from(new Set(resources.map(r => r.category)));
+  const categories = [
+    { value: 'all', label: 'All Resources', icon: FileText },
+    { value: 'property_websites', label: 'Property Websites', icon: Globe },
+    { value: 'property', label: 'Property & Housing', icon: '🏠' },
+    { value: 'immigration', label: 'Immigration & Visas', icon: '🛂' },
+    { value: 'finance', label: 'Finance & Banking', icon: '💰' },
+    { value: 'healthcare', label: 'Healthcare', icon: '🏥' },
+    { value: 'education', label: 'Education', icon: '🎓' },
+    { value: 'utilities', label: 'Utilities', icon: '⚡' },
+    { value: 'transport', label: 'Transport', icon: '🚗' },
+    { value: 'work', label: 'Work & Employment', icon: '💼' },
+    { value: 'integration', label: 'Integration & Culture', icon: '🤝' },
+    { value: 'lifestyle', label: 'Lifestyle', icon: '🎨' },
+  ];
 
   if (loading) {
     return <div>Loading official resources...</div>;
   }
+
+  const displayResources = filteredResources.filter(r => 
+    activeCategory === 'all' || r.category === activeCategory
+  );
+
+  const subcategoryGroups = activeCategory !== 'all' 
+    ? getSubcategoryGroups(displayResources)
+    : { general: displayResources };
 
   return (
     <div className="space-y-6">
@@ -208,7 +237,7 @@ const OfficialResourcesManager = () => {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
+            <div className="text-2xl font-bold">{Object.keys(stats.byCategory).length}</div>
             <p className="text-xs text-muted-foreground">Resource categories</p>
           </CardContent>
         </Card>
@@ -238,75 +267,91 @@ const OfficialResourcesManager = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search resources..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <div className="grid md:grid-cols-[250px_1fr] gap-6">
+            {/* Category Sidebar */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Filter by Category</label>
+                <Select value={activeCategory} onValueChange={setActiveCategory}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        <div className="flex items-center gap-2">
+                          <span>{typeof cat.icon === 'string' ? cat.icon : null}</span>
+                          <span>{cat.label}</span>
+                          {activeCategory !== 'all' && (
+                            <Badge variant="secondary" className="ml-auto">
+                              {stats.byCategory[cat.value] || 0}
+                            </Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-            <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${categories.length + 1}, minmax(0, 1fr))` }}>
-              <TabsTrigger value="all">
-                All ({filteredResources.length})
-              </TabsTrigger>
-              {categories.map(cat => (
-                <TabsTrigger key={cat} value={cat}>
-                  <span className="mr-1">{officialResourcesService.getCategoryIcon(cat)}</span>
-                  <span className="hidden sm:inline capitalize">
-                    {cat === 'property_websites' ? 'Property Sites' : cat}
-                  </span>
-                  <span className="ml-1">({stats.byCategory[cat] || 0})</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+              {/* Category List */}
+              <ScrollArea className="h-[500px]">
+                <div className="space-y-1">
+                  {categories.map(cat => (
+                    <Button
+                      key={cat.value}
+                      variant={activeCategory === cat.value ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => setActiveCategory(cat.value)}
+                    >
+                      <span className="mr-2">{typeof cat.icon === 'string' ? cat.icon : <cat.icon className="h-4 w-4" />}</span>
+                      <span className="flex-1 text-left truncate">{cat.label}</span>
+                      <Badge variant="outline" className="ml-2">
+                        {cat.value === 'all' ? stats.total : (stats.byCategory[cat.value] || 0)}
+                      </Badge>
+                    </Button>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
 
-            <TabsContent value="all" className="mt-6">
-              <ResourceTable 
-                resources={filteredResources}
-                onVerify={handleVerify}
-                onToggleActive={handleToggleActive}
-              />
-            </TabsContent>
+            {/* Resources List */}
+            <div className="space-y-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search resources..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
 
-            {categories.map(cat => {
-              const categoryResources = getCategoryResources(cat);
-              const subcategoryGroups = getSubcategoryGroups(categoryResources);
-              
-              return (
-                <TabsContent key={cat} value={cat} className="mt-6 space-y-6">
-                  {cat === 'property_websites' ? (
-                    // Special layout for property websites with subcategory groups
-                    Object.entries(subcategoryGroups).map(([subcat, resources]) => (
-                      <div key={subcat}>
-                        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                          <Globe className="h-5 w-5" />
-                          {officialResourcesService.getSubcategoryLabel(subcat)}
-                          <Badge variant="secondary">{resources.length}</Badge>
-                        </h3>
-                        <ResourceTable 
-                          resources={resources}
-                          onVerify={handleVerify}
-                          onToggleActive={handleToggleActive}
-                          compact
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    // Standard table for other categories
-                    <ResourceTable 
-                      resources={categoryResources}
-                      onVerify={handleVerify}
-                      onToggleActive={handleToggleActive}
-                    />
+              {Object.entries(subcategoryGroups).map(([subcat, resources]) => (
+                <div key={subcat}>
+                  {activeCategory !== 'all' && subcat !== 'general' && (
+                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                      {activeCategory === 'property_websites' && <Globe className="h-5 w-5" />}
+                      {officialResourcesService.getSubcategoryLabel(subcat)}
+                      <Badge variant="secondary">{resources.length}</Badge>
+                    </h3>
                   )}
-                </TabsContent>
-              );
-            })}
-          </Tabs>
+                  <ResourceTable 
+                    resources={resources}
+                    onVerify={handleVerify}
+                    onToggleActive={handleToggleActive}
+                    showCategory={activeCategory === 'all'}
+                  />
+                </div>
+              ))}
+
+              {displayResources.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  No resources found matching your criteria
+                </div>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -317,16 +362,16 @@ interface ResourceTableProps {
   resources: OfficialResource[];
   onVerify: (id: string) => void;
   onToggleActive: (id: string, currentStatus: boolean) => void;
-  compact?: boolean;
+  showCategory?: boolean;
 }
 
-const ResourceTable = ({ resources, onVerify, onToggleActive, compact = false }: ResourceTableProps) => {
+const ResourceTable = ({ resources, onVerify, onToggleActive, showCategory = false }: ResourceTableProps) => {
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            {!compact && <TableHead>Category</TableHead>}
+            {showCategory && <TableHead>Category</TableHead>}
             <TableHead>Title</TableHead>
             <TableHead>Authority</TableHead>
             <TableHead>Status</TableHead>
@@ -337,14 +382,14 @@ const ResourceTable = ({ resources, onVerify, onToggleActive, compact = false }:
         <TableBody>
           {resources.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={compact ? 5 : 6} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={showCategory ? 6 : 5} className="text-center text-muted-foreground py-8">
                 No resources found
               </TableCell>
             </TableRow>
           ) : (
             resources.map((resource) => (
               <TableRow key={resource.id}>
-                {!compact && (
+                {showCategory && (
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span>{officialResourcesService.getCategoryIcon(resource.category)}</span>
