@@ -10,7 +10,6 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PreDeployment from './pages/PreDeployment';
 import PropertyDetails from './pages/PropertyDetails';
-import PropertySearch from './pages/PropertySearch';
 import Questionnaire from './pages/Questionnaire';
 import Subscription from './pages/Subscription';
 import PasswordRecovery from './pages/PasswordRecovery';
@@ -60,8 +59,6 @@ function AppContent() {
           <Route path="/site-tracking" element={<SiteTracking />} />
           <Route path="/website-tracking" element={<WebsiteTracking />} />
           <Route path="/official-resources" element={<OfficialResources />} />
-          <Route path="/property-search" element={<PropertySearch />} />
-          <Route path="/search" element={<PropertySearch />} />
           <Route path="/property/:id" element={<PropertyDetails />} />
           <Route path="/property" element={<Property />} />
           <Route path="/questionnaire" element={<Questionnaire />} />

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Home } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import heroImage from "@/assets/hero-main.jpg";
 
@@ -36,16 +36,16 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/register" className="flex-1 sm:flex-initial">
+              <Link to="/questionnaire">
                 <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
                   Get Started Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link to="/property-search" className="flex-1 sm:flex-initial">
+              <Link to="/clara">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 py-6 text-base">
-                  Browse Properties
-                  <Home className="ml-2 w-5 h-5" />
+                  Meet Clara AI
+                  <Sparkles className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
