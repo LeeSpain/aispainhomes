@@ -135,6 +135,13 @@ export default function StripePaymentForm({ personalDetails, onSuccess, onBack }
             <div className="p-3 border rounded-md bg-background">
               <CardElement options={cardElementOptions} />
             </div>
+            <button
+              type="button"
+              onClick={onSuccess}
+              className="text-sm text-muted-foreground hover:text-foreground underline"
+            >
+              Skip payment for testing (no Stripe setup)
+            </button>
           </div>
 
           <div className="bg-primary/5 p-3 rounded-lg border text-sm">
