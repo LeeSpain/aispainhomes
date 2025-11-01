@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Home as HomeIcon, DollarSign, FileQuestion } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ManualClaraButton from "./ManualClaraButton";
+import { useAuth } from "@/contexts/auth/useAuth";
 
 interface PropertiesTabProps {
   properties: Property[];
@@ -24,6 +26,7 @@ const PropertiesTab = ({
   hasCompletedQuestionnaire = false
 }: PropertiesTabProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // Show user's key preferences if available
   const showPreferences = questionnaireData && (
@@ -109,11 +112,11 @@ const PropertiesTab = ({
             </div>
             {hasCompletedQuestionnaire ? (
               <>
-                <h3 className="text-lg font-semibold">Clara is Searching for Your Perfect Property</h3>
+                <h3 className="text-lg font-semibold">No Properties Yet</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  Our AI is analyzing properties across Spain to find matches for your preferences. 
-                  Check back in a few minutes - new recommendations appear regularly!
+                  Clara needs to curate your personalized property recommendations. Click the button below to start the search.
                 </p>
+                {user && <ManualClaraButton userId={user.id} />}
               </>
             ) : (
               <>
