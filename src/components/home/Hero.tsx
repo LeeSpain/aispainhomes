@@ -1,64 +1,83 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Search, Shield, UserPlus } from "lucide-react";
+import { ArrowRight, Sparkles, Home } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
+import heroImage from "@/assets/hero-main.jpg";
 
 const Hero = () => {
   const { user } = useAuth();
   
   return (
-    <div className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/10 overflow-hidden pt-16 md:pt-24">
-      {/* Background pattern */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(155,135,245,0.05),transparent_70%)]"></div>
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom_left,rgba(155,135,245,0.05),transparent_70%)]"></div>
+    <div className="relative min-h-screen flex items-center overflow-hidden bg-background">
+      {/* Gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-primary/10 to-transparent blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-accent/10 to-transparent blur-3xl"></div>
       
-      <div className="container mx-auto px-4 z-10 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="max-w-3xl">
-            <div className="flex gap-4 mb-6">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
-                <Search className="w-4 h-4 mr-2" />
-                <span className="text-xs font-medium uppercase tracking-wider">AI-Powered Property Search</span>
-              </div>
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent">
-                <Shield className="w-4 h-4 mr-2" />
-                <span className="text-xs font-medium uppercase tracking-wider">Relocation Guardian</span>
-              </div>
+      <div className="container mx-auto px-4 py-20 z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Content */}
+          <div className="space-y-8 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">AI-Powered Platform</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-balance">
-              Find Your <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Perfect Spanish Home</span> with Complete Relocation Support
+            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
+              Your Dream
+              <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                Spanish Home
+              </span>
+              Awaits
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-8 text-balance">
-              Our AI matches you with your ideal Spanish property and guides you through every step of your relocation journey with personalized recommendations and expert assistance.
+            <p className="text-xl text-muted-foreground leading-relaxed">
+              Discover perfect properties with AI-powered matching and get complete relocation support from our intelligent Guardian platform.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/register">
-                <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent w-full sm:w-auto flex items-center gap-2">
-                  <UserPlus className="w-5 h-5" />
-                  Join Now
+              <Link to="/register" className="flex-1 sm:flex-initial">
+                <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
+                  Get Started Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link to="/ai-guardian">
-                <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto">
-                  Explore AI Guardian
+              <Link to="/property-search" className="flex-1 sm:flex-initial">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 py-6 text-base">
+                  Browse Properties
+                  <Home className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
+            
+            <div className="flex items-center gap-8 pt-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-foreground">500+</div>
+                <div className="text-sm text-muted-foreground">Properties</div>
+              </div>
+              <div className="h-12 w-px bg-border"></div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-foreground">24/7</div>
+                <div className="text-sm text-muted-foreground">AI Support</div>
+              </div>
+              <div className="h-12 w-px bg-border"></div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-foreground">95%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction</div>
+              </div>
+            </div>
           </div>
           
-          <div className="hidden lg:flex justify-end">
-            <div className="relative w-full max-w-[110%]">
-              {/* Image with decorative elements */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl opacity-50 transform rotate-6"></div>
+          {/* Hero Image */}
+          <div className="relative lg:h-[600px]">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-3xl blur-3xl"></div>
+            <div className="relative h-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
               <img 
-                src="/lovable-uploads/4d7c55a0-c0b7-4960-a703-74b71a326897.png" 
-                alt="AI assistant showing Spanish coastal properties with holographic interface" 
-                className="relative rounded-2xl shadow-2xl w-[110%] object-cover aspect-[4/3] border border-white/10"
+                src={heroImage}
+                alt="Luxury Spanish villa with infinity pool overlooking Mediterranean coast at sunset"
+                className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
             </div>
           </div>
         </div>

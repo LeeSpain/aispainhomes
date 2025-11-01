@@ -1,121 +1,146 @@
-
 import React from "react";
 import { 
-  Building2, Search, Globe, Mail, Scale, Tv, TruckIcon, 
-  GraduationCap, Heart, BellRing, BarChart3, Sun, Palmtree,
-  ShieldCheck, Landmark, HeartPulse, Briefcase, Car
+  Search, Scale, TruckIcon, GraduationCap, Globe, Tv,
+  ShieldCheck, Landmark, HeartPulse, Briefcase, Car, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import featuresImage from "@/assets/features-bg.jpg";
 
 const features = [
   {
-    icon: <Search className="h-12 w-12 text-primary" />,
-    title: "AI-Powered Property Search",
-    description: "Our advanced AI analyzes your preferences to find your ideal Spanish property, filtering through thousands of listings to match your exact criteria.",
+    icon: Search,
+    title: "AI Property Matching",
+    description: "Advanced AI analyzes your preferences to find your perfect Spanish property from thousands of listings.",
   },
   {
-    icon: <ShieldCheck className="h-12 w-12 text-primary" />,
-    title: "Complete Relocation Guardian",
-    description: "Your AI Guardian provides personalized guidance through every step of your Spanish relocation journey, from property search to settling in.",
+    icon: ShieldCheck,
+    title: "Relocation Guardian",
+    description: "Your AI assistant guides you through every step of your Spanish relocation journey.",
   },
   {
-    icon: <Scale className="h-12 w-12 text-primary" />,
-    title: "Legal & Documentation Support",
-    description: "Navigate Spanish bureaucracy with ease through our guidance on NIE applications, visa support, document translations, and legal requirements.",
+    icon: Scale,
+    title: "Legal Support",
+    description: "Navigate NIE applications, visas, document translations, and legal requirements with ease.",
   },
   {
-    icon: <Landmark className="h-12 w-12 text-primary" />,
-    title: "Financial Planning Assistance",
-    description: "Get help with Spanish bank accounts, mortgage comparisons, currency exchange monitoring, and understanding tax implications for expats.",
+    icon: Landmark,
+    title: "Financial Planning",
+    description: "Get help with Spanish bank accounts, mortgages, currency exchange, and expat tax guidance.",
   },
   {
-    icon: <TruckIcon className="h-12 w-12 text-primary" />,
-    title: "Relocation Logistics",
-    description: "Compare moving companies, understand customs regulations, find temporary accommodation, and create a personalized moving timeline and checklist.",
+    icon: TruckIcon,
+    title: "Moving Logistics",
+    description: "Compare moving companies, customs guidance, and personalized relocation timelines.",
   },
   {
-    icon: <Tv className="h-12 w-12 text-primary" />,
-    title: "Utilities & Home Setup",
-    description: "Simplify setting up electricity, water, internet, mobile plans, and home security with provider comparisons and registration assistance.",
+    icon: Tv,
+    title: "Utilities Setup",
+    description: "Simplified setup for electricity, water, internet, mobile plans, and home security.",
   },
   {
-    icon: <HeartPulse className="h-12 w-12 text-primary" />,
+    icon: HeartPulse,
     title: "Healthcare Navigation",
-    description: "Access guidance on healthcare registration, insurance options, finding English-speaking medical professionals, and emergency services.",
+    description: "Healthcare registration, insurance options, and English-speaking medical professionals.",
   },
   {
-    icon: <GraduationCap className="h-12 w-12 text-primary" />,
+    icon: GraduationCap,
     title: "Education Resources",
-    description: "Find schools and universities with our filters for language, curriculum, and fees, plus guidance on enrollment and credential validation.",
+    description: "Find schools with filters for language, curriculum, fees, and enrollment guidance.",
   },
   {
-    icon: <Globe className="h-12 w-12 text-primary" />,
+    icon: Globe,
     title: "Community Integration",
-    description: "Connect with expat communities, discover local events, find language exchange partners, and access cultural adaptation resources.",
+    description: "Connect with expat communities, local events, and cultural adaptation resources.",
   },
   {
-    icon: <Car className="h-12 w-12 text-primary" />,
-    title: "Transportation Guidance",
-    description: "Navigate public transport, understand driver's license requirements, and explore vehicle purchase options and regional travel planning.",
+    icon: Car,
+    title: "Transportation",
+    description: "Public transport guidance, license requirements, and vehicle purchase assistance.",
   },
   {
-    icon: <Briefcase className="h-12 w-12 text-primary" />,
-    title: "Work & Business Support",
-    description: "Access information on coworking spaces, business formation, digital nomad visas, and professional certification transfers.",
+    icon: Briefcase,
+    title: "Work & Business",
+    description: "Coworking spaces, business formation, digital nomad visas, and professional certifications.",
   },
   {
-    icon: <Heart className="h-12 w-12 text-primary" />,
-    title: "Lifestyle Support",
-    description: "Discover shopping resources, restaurant recommendations, childcare services, pet care options, and seasonal events in your new area.",
+    icon: Home,
+    title: "Lifestyle Integration",
+    description: "Shopping, restaurants, childcare, pet care, and discover local seasonal events.",
   },
 ];
 
 const Features = () => {
   return (
-    <div className="py-24 bg-gradient-to-b from-background to-secondary/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full bg-primary/10 border border-primary/20 text-primary">
-            <ShieldCheck className="w-4 h-4 mr-2" />
-            <span className="text-xs font-medium uppercase tracking-wider">Complete Relocation Services</span>
+    <div className="relative py-32 overflow-hidden">
+      {/* Background image with overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={featuresImage}
+          alt="AI property network visualization"
+          className="w-full h-full object-cover opacity-5"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-primary/10 border border-primary/20">
+            <ShieldCheck className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Complete Relocation Platform</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
-            Your Comprehensive Solution for Spanish Relocation
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+            Everything You Need for
+            <span className="block mt-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Your Spanish Journey
+            </span>
           </h2>
-          <p className="mt-4 text-xl text-muted-foreground text-balance">
-            From finding your dream property to settling into your new Spanish lifestyle, our AI platform provides personalized guidance every step of the way.
+          <p className="text-xl text-muted-foreground">
+            From property search to settling in, our AI-powered platform guides you every step of the way.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-white/80 dark:bg-black/60 backdrop-blur-sm border border-primary/10 p-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 flex flex-col"
-            >
-              <div className="mb-5">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground flex-grow">{feature.description}</p>
-            </div>
-          ))}
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={index}
+                className="group relative p-8 rounded-2xl bg-card/50 backdrop-blur-sm border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1"
+              >
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative">
+                  <div className="mb-4 inline-flex p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        <div className="mt-16 text-center">
-          <div className="max-w-3xl mx-auto mb-8">
-            <p className="text-xl text-muted-foreground mb-3">
-              All these services are included in one simple subscription for just €24.99/month, providing you with comprehensive support throughout your Spanish property search and relocation journey.
+        {/* CTA Section */}
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="p-8 md:p-12 rounded-3xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 border border-primary/20">
+            <h3 className="text-3xl md:text-4xl font-bold mb-4">
+              All This for Just €24.99/Month
+            </h3>
+            <p className="text-lg text-muted-foreground mb-6">
+              One simple subscription includes unlimited access to all features, AI-powered property matching, daily alerts, and complete relocation support.
             </p>
-            <p className="text-accent-foreground font-medium">
-              Start with a 7-day free trial! We'll ask for your card details, but you won't be charged until the trial ends.
-            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-accent/20 border border-accent/30">
+              <span className="text-sm font-semibold text-accent-foreground">🎉 7-Day Free Trial • No card required until trial ends</span>
+            </div>
+            <Link to="/register">
+              <Button size="lg" className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
+                Start Your Free Trial
+              </Button>
+            </Link>
           </div>
-          
-          <Link to="/register">
-            <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-accent">
-              Try AI Guardian Free for 7 Days
-            </Button>
-          </Link>
         </div>
       </div>
     </div>
