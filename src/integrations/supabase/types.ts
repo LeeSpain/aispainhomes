@@ -306,6 +306,120 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          created_at: string | null
+          current_country: string | null
+          full_name: string | null
+          has_pets: boolean | null
+          household_size: number | null
+          id: string
+          moving_reason: string | null
+          nationality: string | null
+          phone: string | null
+          preferred_locations: string[] | null
+          property_type_preference: string | null
+          relocation_timeline: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string | null
+          current_country?: string | null
+          full_name?: string | null
+          has_pets?: boolean | null
+          household_size?: number | null
+          id?: string
+          moving_reason?: string | null
+          nationality?: string | null
+          phone?: string | null
+          preferred_locations?: string[] | null
+          property_type_preference?: string | null
+          relocation_timeline?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string | null
+          current_country?: string | null
+          full_name?: string | null
+          has_pets?: boolean | null
+          household_size?: number | null
+          id?: string
+          moving_reason?: string | null
+          nationality?: string | null
+          phone?: string | null
+          preferred_locations?: string[] | null
+          property_type_preference?: string | null
+          relocation_timeline?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      questionnaire_responses: {
+        Row: {
+          additional_notes: string | null
+          amenities_required: string[] | null
+          budget_range: Json | null
+          completed_at: string | null
+          created_at: string | null
+          employment_status: string | null
+          guardian_service_tier: string | null
+          household_details: Json | null
+          id: string
+          location_preferences: Json | null
+          property_type: string | null
+          property_types: string[] | null
+          relocation_date: string | null
+          service_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          amenities_required?: string[] | null
+          budget_range?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          employment_status?: string | null
+          guardian_service_tier?: string | null
+          household_details?: Json | null
+          id?: string
+          location_preferences?: Json | null
+          property_type?: string | null
+          property_types?: string[] | null
+          relocation_date?: string | null
+          service_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          amenities_required?: string[] | null
+          budget_range?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          employment_status?: string | null
+          guardian_service_tier?: string | null
+          household_details?: Json | null
+          id?: string
+          location_preferences?: Json | null
+          property_type?: string | null
+          property_types?: string[] | null
+          relocation_date?: string | null
+          service_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       resource_content_snapshots: {
         Row: {
           change_detected: boolean | null
@@ -394,6 +508,27 @@ export type Database = {
           name?: string
           updated_at?: string | null
           url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -503,10 +638,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -633,6 +774,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

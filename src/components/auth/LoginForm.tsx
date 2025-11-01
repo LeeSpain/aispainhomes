@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FormErrors {
   email?: string;
@@ -63,7 +64,25 @@ const LoginForm = () => {
     
     try {
       await login(email, password);
-      navigate(redirectUrl);
+      
+      // Check if user is admin
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // @ts-ignore - Type will be available after database types regenerate
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
+        
+        // Redirect to admin dashboard if admin, otherwise normal dashboard
+        if (isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate(redirectUrl);
+        }
+      } else {
+        navigate(redirectUrl);
+      }
     } catch (error) {
       console.error("Login failed:", error);
       setGeneralError(
