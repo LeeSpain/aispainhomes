@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import aiLogo from '@/assets/ai-logo-icon.png';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -9,9 +10,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div>
             <Link to="/" className="inline-flex items-center mb-4">
-              <span className="bg-primary text-white w-8 h-8 flex items-center justify-center rounded-md mr-2">
-                AI
-              </span>
+              <img 
+                src={aiLogo} 
+                alt="AI Homes Spain Logo" 
+                className="w-8 h-8 rounded-md mr-2"
+              />
               <span className="text-xl font-semibold">AI Homes Spain</span>
             </Link>
             <p className="text-muted-foreground mt-2 max-w-xs">
