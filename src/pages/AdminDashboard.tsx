@@ -13,7 +13,7 @@ import AdminWebsiteTrackingTab from '@/components/admin/AdminWebsiteTrackingTab'
 import AISettingsTab from '@/components/admin/AISettingsTab';
 import SystemSettingsTab from '@/components/admin/SystemSettingsTab';
 import OfficialResourcesManager from '@/components/admin/OfficialResourcesManager';
-import InvitationsTab from '@/components/admin/InvitationsTab';
+
 import { siteTrackingService, TrackedSite } from '@/services/site/siteTrackingService';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
@@ -156,8 +156,6 @@ const AdminDashboard = () => {
         return <SubscriptionsTab />;
       case 'users':
         return <UsersTab users={users} />;
-      case 'invitations':
-        return <InvitationsTab />;
       case 'websites':
         return <AdminWebsiteTrackingTab />;
       case 'resources':
@@ -176,7 +174,6 @@ const AdminDashboard = () => {
       overview: 'Dashboard Overview',
       subscriptions: 'Subscription Management',
       users: 'User Management',
-      invitations: 'User Invitations',
       websites: 'Website Tracking',
       resources: 'Official Resources',
       ai: 'AI Settings',
@@ -189,8 +186,7 @@ const AdminDashboard = () => {
     const descriptions: Record<string, string> = {
       overview: 'Monitor your business metrics and system health',
       subscriptions: 'Manage user subscriptions and billing',
-      users: 'View and manage registered users',
-      invitations: 'Create and manage user invitations',
+      users: 'View and manage registered users and invitations',
       websites: 'Track and monitor website performance',
       resources: 'Manage official government resources',
       ai: 'Configure AI assistant settings',
