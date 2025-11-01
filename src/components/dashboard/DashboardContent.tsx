@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import PropertiesTab from '@/components/dashboard/PropertiesTab';
 import FavoritesTab from '@/components/dashboard/FavoritesTab';
@@ -49,76 +48,87 @@ const DashboardContent = ({
   };
   
   return (
-    <div>
-      <DashboardHeader user={user} variant="simple" />
-      
-      <div className="mt-8">
-        <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>
-          <TabsContent value="properties">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <PropertiesTab properties={properties} isLoading={isLoadingProperties} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="favorites">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="alerts">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <AlertsTab />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="lawyers">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <ServiceProviderTab title="Legal Services" providers={lawyers} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="utilities">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <ServiceProviderTab title="Utility Services" providers={utilities} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="movers">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <ServiceProviderTab title="Moving Services" providers={movers} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="schools">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <ServiceProviderTab title="Education Services" providers={schools} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="healthcare">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <ServiceProviderTab title="Healthcare Services" providers={healthcare} />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="documents">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <DocumentsTab />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="settings">
-            <div className="bg-background rounded-lg p-4 sm:p-6 border shadow-sm">
-              <SettingsTab
-                user={user}
-                userPreferences={userPreferences}
-                onLogout={onLogout}
-              />
-            </div>
-          </TabsContent>
-        </DashboardTabs>
+    <div className="space-y-6">
+      {/* Welcome Card */}
+      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-xl border p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold">
+              Welcome back, <span className="text-primary">{user.name}</span>
+            </h2>
+            <p className="text-muted-foreground mt-1">
+              Your AI Guardian is monitoring your property search and relocation needs
+            </p>
+          </div>
+        </div>
       </div>
+
+      {/* Dashboard Tabs */}
+      <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>
+        <TabsContent value="properties" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <PropertiesTab properties={properties} isLoading={isLoadingProperties} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="favorites" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="alerts" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <AlertsTab />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="lawyers" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <ServiceProviderTab title="Legal Services" providers={lawyers} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="utilities" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <ServiceProviderTab title="Utility Services" providers={utilities} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="movers" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <ServiceProviderTab title="Moving Services" providers={movers} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="schools" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <ServiceProviderTab title="Education Services" providers={schools} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="healthcare" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <ServiceProviderTab title="Healthcare Services" providers={healthcare} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="documents" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <DocumentsTab />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="settings" className="mt-0">
+          <div className="bg-background rounded-xl p-6 border shadow-sm">
+            <SettingsTab
+              user={user}
+              userPreferences={userPreferences}
+              onLogout={onLogout}
+            />
+          </div>
+        </TabsContent>
+      </DashboardTabs>
     </div>
   );
 };

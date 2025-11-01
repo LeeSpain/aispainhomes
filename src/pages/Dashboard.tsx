@@ -1,8 +1,20 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import { Bell, LogOut, Settings, User as UserIcon, Home, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useAuth } from '@/contexts/auth/useAuth';
@@ -17,6 +29,7 @@ const Dashboard = () => {
   const [favoriteProperties, setFavoriteProperties] = useState<Property[]>([]);
   const [isLoadingProperties, setIsLoadingProperties] = useState(true);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -96,36 +109,128 @@ const Dashboard = () => {
     navigate('/');
   };
   
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    return user.name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+  
   // Don't render until auth check is complete
   if (authLoading || !user || !userPreferences) {
     return null;
   }
   
   return (
-    <DashboardLayout title="Dashboard">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left side - AIGuardian Chat */}
-        <div className="lg:col-span-4 xl:col-span-3 space-y-6">
-          <DashboardSidebar 
-            user={user} 
-            subscription={userPreferences.subscription} 
-          />
-        </div>
+    <>
+      <Helmet>
+        <title>Dashboard | AI Spain Homes</title>
+      </Helmet>
       
-        {/* Right side - Dashboard Content */}
-        <div className="lg:col-span-8 xl:col-span-9">
-          <DashboardContent
-            user={user}
-            userPreferences={userPreferences}
-            properties={properties}
-            favoriteProperties={favoriteProperties}
-            isLoadingProperties={isLoadingProperties}
-            isLoadingFavorites={isLoadingFavorites}
-            onLogout={handleLogout}
-          />
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        {/* Top Navigation Bar */}
+        <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
+          <div className="container flex h-16 items-center justify-between px-4">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <Home className="h-6 w-6 text-primary" />
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  AI Spain Homes
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Notifications */}
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
+                  3
+                </Badge>
+              </Button>
+
+              {/* User Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 gap-2 px-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden md:inline-block font-medium">
+                      {user.name}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-background" align="end">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/profile-settings')}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/subscription')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Subscription
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 dark:text-red-400">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Dashboard Layout */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            {/* AI Guardian Sidebar */}
+            <aside className={`xl:col-span-4 ${!sidebarOpen && 'hidden lg:block'}`}>
+              <div className="sticky top-24">
+                <DashboardSidebar 
+                  user={user} 
+                  subscription={userPreferences.subscription} 
+                />
+              </div>
+            </aside>
+          
+            {/* Main Content Area */}
+            <main className="xl:col-span-8">
+              <DashboardContent
+                user={user}
+                userPreferences={userPreferences}
+                properties={properties}
+                favoriteProperties={favoriteProperties}
+                isLoadingProperties={isLoadingProperties}
+                isLoadingFavorites={isLoadingFavorites}
+                onLogout={handleLogout}
+              />
+            </main>
+          </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 
