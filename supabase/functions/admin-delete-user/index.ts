@@ -70,51 +70,39 @@ serve(async (req) => {
     // Delete all related data in order (most dependent to least dependent)
     // The ON DELETE CASCADE should handle most of this, but we'll be explicit
     
-    // 1. Delete AI conversations and citations
+    // 1. Get tracked website IDs first (needed for cascading deletes)
+    const { data: trackedWebsites } = await supabase
+      .from('tracked_websites')
+      .select('id')
+      .eq('user_id', userId);
+    
+    const websiteIds = trackedWebsites?.map(w => w.id) || [];
+    
+    // 2. Delete tracked website related data if any websites exist
+    if (websiteIds.length > 0) {
+      await supabase.from('extracted_items').delete().in('tracked_website_id', websiteIds);
+      await supabase.from('website_scrape_results').delete().in('tracked_website_id', websiteIds);
+    }
+    
+    // 3. Delete user-specific data
     await supabase.from('ai_response_citations').delete().eq('user_id', userId);
     await supabase.from('ai_conversations').delete().eq('user_id', userId);
-    
-    // 2. Delete property and service recommendations
     await supabase.from('property_recommendations').delete().eq('user_id', userId);
     await supabase.from('service_recommendations').delete().eq('user_id', userId);
-    
-    // 3. Delete tracked websites and related data
-    await supabase.from('extracted_items').delete().in('tracked_website_id', 
-      supabase.from('tracked_websites').select('id').eq('user_id', userId)
-    );
-    await supabase.from('website_scrape_results').delete().in('tracked_website_id',
-      supabase.from('tracked_websites').select('id').eq('user_id', userId)
-    );
     await supabase.from('website_notifications').delete().eq('user_id', userId);
     await supabase.from('tracked_websites').delete().eq('user_id', userId);
-    
-    // 4. Delete questionnaire data
     await supabase.from('user_questionnaire_history').delete().eq('user_id', userId);
     await supabase.from('questionnaire_responses').delete().eq('user_id', userId);
-    
-    // 5. Delete alerts and notifications
     await supabase.from('user_alerts').delete().eq('user_id', userId);
-    
-    // 6. Delete AI settings and usage
     await supabase.from('ai_usage_metrics').delete().eq('user_id', userId);
     await supabase.from('ai_client_instructions').delete().eq('user_id', userId);
     await supabase.from('ai_settings').delete().eq('user_id', userId);
-    
-    // 7. Delete rate limits
     await supabase.from('rate_limits').delete().eq('user_id', userId);
-    
-    // 8. Delete payment history and subscriptions
     await supabase.from('payment_history').delete().eq('user_id', userId);
     await supabase.from('subscriptions').delete().eq('user_id', userId);
-    
-    // 9. Delete invitations
     await supabase.from('user_invitations').delete().eq('invited_by', userId);
     await supabase.from('user_invitations').delete().eq('used_by', userId);
-    
-    // 10. Delete user roles (important for security)
     await supabase.from('user_roles').delete().eq('user_id', userId);
-    
-    // 11. Delete profile
     await supabase.from('profiles').delete().eq('user_id', userId);
     
     // 12. Finally, delete the auth user (this should cascade delete any remaining foreign key references)
