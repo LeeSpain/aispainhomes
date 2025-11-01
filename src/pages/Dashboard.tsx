@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Menu, Star, FileText, Briefcase, AlertCircle } from 'lucide-react';
+import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Menu, Star, FileText, Briefcase, AlertCircle, CreditCard } from 'lucide-react';
 import { alertsService } from '@/services/alertsService';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -153,6 +153,7 @@ const Dashboard = () => {
     { id: 'profile', label: 'My Profile', icon: User },
     { id: 'favorites', label: 'Favorites', icon: Star, badge: favorites.length > 0 ? favorites.length : undefined },
     { id: 'alerts', label: 'Alerts', icon: AlertCircle, badge: unreadAlertCount > 0 ? unreadAlertCount : undefined },
+    { id: 'billing', label: 'Billing', icon: CreditCard },
     { 
       id: 'services', 
       label: 'Services', 

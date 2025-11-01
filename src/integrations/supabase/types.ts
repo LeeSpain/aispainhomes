@@ -306,6 +306,59 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          invoice_pdf: string | null
+          payment_date: string | null
+          status: string
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          invoice_pdf?: string | null
+          payment_date?: string | null
+          status: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          invoice_pdf?: string | null
+          payment_date?: string | null
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           budget_max: number | null
@@ -484,6 +537,8 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean | null
+          cancelled_at: string | null
           created_at: string | null
           id: string
           monthly_price: number
@@ -491,10 +546,16 @@ export type Database = {
           plan: string
           start_date: string
           status: string
+          stripe_customer_id: string | null
+          stripe_payment_method_id: string | null
+          stripe_subscription_id: string | null
+          trial_end_date: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean | null
+          cancelled_at?: string | null
           created_at?: string | null
           id?: string
           monthly_price?: number
@@ -502,10 +563,16 @@ export type Database = {
           plan: string
           start_date?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_method_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end_date?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean | null
+          cancelled_at?: string | null
           created_at?: string | null
           id?: string
           monthly_price?: number
@@ -513,6 +580,10 @@ export type Database = {
           plan?: string
           start_date?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_method_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end_date?: string | null
           updated_at?: string | null
           user_id?: string
         }

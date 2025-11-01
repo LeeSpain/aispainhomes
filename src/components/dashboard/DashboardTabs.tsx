@@ -11,7 +11,8 @@ import {
   School,
   HeartPulse,
   Star,
-  Layers
+  Layers,
+  CreditCard
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -27,6 +28,7 @@ const DashboardTabs = ({ activeTab, onTabChange, children }: DashboardTabsProps)
     { value: "favorites", label: "Favorites", icon: Star },
     { value: "alerts", label: "Alerts", icon: Bell },
     { value: "documents", label: "Documents", icon: FileText },
+    { value: "billing", label: "Billing", icon: CreditCard },
     { value: "lawyers", label: "Lawyers", icon: Users },
     { value: "utilities", label: "Utilities", icon: Tv },
     { value: "movers", label: "Movers", icon: Truck },

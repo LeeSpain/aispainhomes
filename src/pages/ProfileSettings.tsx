@@ -223,11 +223,9 @@ const ProfileSettings = () => {
                       <div className="p-4 border rounded-lg">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                           <div>
-                            <p className="font-semibold capitalize">{currentPlan} Plan</p>
+                            <p className="font-semibold">AI Guardian Plan</p>
                             <p className="text-sm text-muted-foreground">
-                              {currentPlan === 'basic' 
-                                ? 'Free plan' 
-                                : `€${currentPlan === 'premium' ? '9.99' : '19.99'}/month • Next billing date: ${nextBillingDate}`}
+                              €24.99/month • Next billing date: {nextBillingDate}
                             </p>
                           </div>
                           <Button

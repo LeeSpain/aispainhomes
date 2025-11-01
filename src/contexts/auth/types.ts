@@ -6,11 +6,15 @@ export interface User {
 }
 
 export interface Subscription {
-  plan: string;
+  plan: 'guardian';
   status: 'active' | 'cancelled' | 'expired' | 'trial' | 'inactive';
   startDate: string;
-  nextBillingDate: string;
   trialEndDate?: string;
+  nextBillingDate: string;
+  cancelAtPeriodEnd?: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  lastFourDigits?: string;
 }
 
 export interface UserPreferences {

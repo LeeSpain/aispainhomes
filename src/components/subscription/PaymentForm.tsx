@@ -101,7 +101,7 @@ const PaymentForm = ({ selectedPlan, onSuccess, onCancel }: PaymentFormProps) =>
       // Update user subscription and profile in context
       updateUserPreferences({
         subscription: {
-          plan: selectedPlan,
+          plan: 'guardian',
           status: 'trial',
           startDate: new Date().toISOString(),
           trialEndDate: trialEndDate.toISOString(),

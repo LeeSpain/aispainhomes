@@ -13,8 +13,8 @@ export const defaultUserPreferences: UserPreferences = {
     promotionalOffers: false,
   },
   subscription: {
-    plan: 'basic',
-    status: 'active',
+    plan: 'guardian',
+    status: 'inactive',
     startDate: new Date().toISOString(),
     nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
   },

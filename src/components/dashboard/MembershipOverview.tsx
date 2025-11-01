@@ -56,23 +56,17 @@ const MembershipOverview = ({ subscription }: MembershipOverviewProps) => {
     }
   };
 
-  const planFeatures = {
-    basic: [
-      "Clara - Your AI Assistant",
-      "Property Matching",
-      "Service Provider Access"
-    ],
-    premium: [
-      "Clara - Your AI Assistant",
-      "Priority Property Matching",
-      "Full Service Provider Network",
-      "Document Storage",
-      "Weekly Market Updates"
-    ]
-  };
+  const guardianFeatures = [
+    "Clara - Your AI Assistant",
+    "Priority Property Matching",
+    "Full Service Provider Network",
+    "Document Storage & Management",
+    "Weekly Market Updates",
+    "7-Day Free Trial"
+  ];
 
-  const plan = subscription?.plan || "basic";
-  const features = plan === "premium" ? planFeatures.premium : planFeatures.basic;
+  const plan = subscription?.plan || "guardian";
+  const features = guardianFeatures;
 
   return (
     <Card className="bg-white shadow-sm">
@@ -90,7 +84,8 @@ const MembershipOverview = ({ subscription }: MembershipOverviewProps) => {
       <CardContent className="pt-4">
         <div className="space-y-4">
           <div>
-            <h3 className="text-xl font-semibold">{formatPlanName(subscription?.plan)} Plan</h3>
+            <h3 className="text-xl font-semibold">AI Guardian Plan</h3>
+            <p className="text-2xl font-bold text-primary mt-1">€24.99/month</p>
             
             <div className="mt-3 space-y-2">
               {features.map((feature, index) => (
@@ -102,15 +97,26 @@ const MembershipOverview = ({ subscription }: MembershipOverviewProps) => {
             </div>
           </div>
 
-          {subscription?.nextBillingDate && (
+          {subscription?.status === 'trial' && subscription?.trialEndDate && (
+            <div className="text-sm text-muted-foreground flex items-center">
+              <Calendar className="h-4 w-4 mr-1" />
+              Trial ends: {formatDate(subscription.trialEndDate)}
+            </div>
+          )}
+
+          {subscription?.status === 'active' && subscription?.nextBillingDate && (
             <div className="text-sm text-muted-foreground flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               Next billing: {formatDate(subscription.nextBillingDate)}
             </div>
           )}
 
-          <Button className="w-full" variant={plan === "premium" ? "outline" : "default"}>
-            {plan === "premium" ? "Manage Subscription" : "Upgrade to Premium"}
+          <Button 
+            className="w-full" 
+            variant="outline"
+            onClick={() => window.location.href = '/dashboard?tab=billing'}
+          >
+            Manage Billing
           </Button>
         </div>
       </CardContent>

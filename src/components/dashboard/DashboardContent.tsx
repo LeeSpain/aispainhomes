@@ -8,6 +8,7 @@ import AlertsTab from '@/components/dashboard/AlertsTab';
 import DocumentsTab from '@/components/dashboard/DocumentsTab';
 import ServiceProviderTab from '@/components/dashboard/ServiceProviderTab';
 import SettingsTab from '@/components/dashboard/SettingsTab';
+import BillingTab from '@/components/dashboard/BillingTab';
 import { Property } from '@/components/properties/PropertyCard';
 import { User, UserPreferences } from '@/contexts/auth/types';
 import { filterServicesByUserNeeds } from '@/services/serviceFilter';
@@ -140,6 +141,8 @@ const DashboardContent = ({
         return <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />;
       case 'alerts':
         return <AlertsTab />;
+      case 'billing':
+        return <BillingTab />;
       case 'documents':
         return <DocumentsTab />;
       case 'settings':
