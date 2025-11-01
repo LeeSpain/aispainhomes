@@ -88,7 +88,7 @@ const Dashboard = () => {
   
   // Redirect guards: login -> email verification -> questionnaire -> dashboard
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || isLoadingProperties) return;
     
     // 1. Not authenticated -> login
     if (!user) {
