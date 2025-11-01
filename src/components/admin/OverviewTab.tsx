@@ -1,62 +1,123 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { HomeIcon, Users, Building2, AlertTriangle, CheckSquare } from 'lucide-react';
 import StatsCards from './StatsCards';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const OverviewTab = () => {
-  const [completionProgress, setCompletionProgress] = useState(68);
-  const [userGrowth, setUserGrowth] = useState(0);
+  const [completionProgress, setCompletionProgress] = useState(0);
+  const [stats, setStats] = useState([
+    { title: "Monthly Revenue", value: "€0.00", icon: Building2 },
+    { title: "Active Users", value: "0", icon: Users },
+    { title: "Active Subscriptions", value: "0", icon: HomeIcon },
+    { title: "Free Trials", value: "0", icon: AlertTriangle }
+  ]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [conversionRate, setConversionRate] = useState('0.0');
+  const [avgPrice, setAvgPrice] = useState('€0.00');
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Simulate progress update
-    const timer = setTimeout(() => {
-      setCompletionProgress(75);
-    }, 2000);
-    
-    // Simulate user growth counter
-    const counter = setInterval(() => {
-      setUserGrowth(prev => {
-        if (prev < 12) return prev + 1;
-        clearInterval(counter);
-        return prev;
-      });
-    }, 200);
-    
-    return () => {
-      clearTimeout(timer);
-      clearInterval(counter);
+    const loadStats = async () => {
+      try {
+        // Load real users count
+        const { count: userCount } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+
+        // Load real subscriptions
+        const { data: subscriptions } = await supabase
+          .from('subscriptions')
+          .select('*');
+
+        const activeSubscriptions = subscriptions?.filter(s => s.status === 'active') || [];
+        const trialUsers = subscriptions?.filter(s => s.status === 'trial') || [];
+        
+        // Calculate MRR from active subscriptions
+        const monthlyRevenue = activeSubscriptions.reduce((sum, sub) => 
+          sum + Number(sub.monthly_price), 0
+        );
+
+        // Calculate conversion rate
+        const totalPotential = activeSubscriptions.length + trialUsers.length;
+        const conversion = totalPotential > 0 
+          ? ((activeSubscriptions.length / totalPotential) * 100).toFixed(1)
+          : '0.0';
+
+        // Calculate average price
+        const avgPriceCalc = activeSubscriptions.length > 0
+          ? (monthlyRevenue / activeSubscriptions.length)
+          : 0;
+
+        setStats([
+          {
+            title: "Monthly Revenue",
+            value: new Intl.NumberFormat('en-IE', { 
+              style: 'currency', 
+              currency: 'EUR' 
+            }).format(monthlyRevenue),
+            icon: Building2
+          },
+          {
+            title: "Active Users",
+            value: (userCount || 0).toString(),
+            icon: Users
+          },
+          {
+            title: "Active Subscriptions",
+            value: activeSubscriptions.length.toString(),
+            icon: HomeIcon
+          },
+          {
+            title: "Free Trials",
+            value: trialUsers.length.toString(),
+            icon: AlertTriangle
+          }
+        ]);
+
+        setConversionRate(conversion);
+        setAvgPrice(new Intl.NumberFormat('en-IE', { 
+          style: 'currency', 
+          currency: 'EUR' 
+        }).format(avgPriceCalc));
+
+        // Calculate completion progress from checklist
+        const { count: trackedSites } = await supabase
+          .from('tracked_websites')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_active', true);
+
+        const { count: extractedItems } = await supabase
+          .from('extracted_items')
+          .select('*', { count: 'exact', head: true });
+
+        // Simple progress calculation based on key metrics
+        let progress = 0;
+        if (userCount && userCount > 0) progress += 20;
+        if (trackedSites && trackedSites > 0) progress += 20;
+        if (extractedItems && extractedItems > 0) progress += 30;
+        if (activeSubscriptions.length > 0) progress += 15;
+        if (extractedItems && extractedItems >= 50) progress += 15;
+
+        setCompletionProgress(progress);
+      } catch (error) {
+        console.error('Error loading overview stats:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
+
+    loadStats();
   }, []);
-  
-  const stats = [
-    {
-      title: "Monthly Revenue",
-      value: "€74.97",
-      icon: Building2
-    },
-    {
-      title: "Active Users",
-      value: "6",
-      icon: Users
-    },
-    {
-      title: "Active Subscriptions",
-      value: "3",
-      icon: HomeIcon
-    },
-    {
-      title: "Free Trials",
-      value: "2",
-      icon: AlertTriangle
-    }
-  ];
+
+  if (isLoading) {
+    return <div className="flex justify-center p-8">Loading overview...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -107,25 +168,27 @@ const OverviewTab = () => {
                   <p className="text-sm font-medium leading-none">
                     Trial Conversions
                   </p>
-                  <p className="text-2xl font-bold">60.0%</p>
+                  <p className="text-2xl font-bold">{conversionRate}%</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    Churn Rate
+                    Completion
                   </p>
-                  <p className="text-2xl font-bold">16.7%</p>
+                  <p className="text-2xl font-bold">{completionProgress}%</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    Price
+                    Avg. Price
                   </p>
-                  <p className="text-2xl font-bold">€24.99</p>
+                  <p className="text-2xl font-bold">{avgPrice}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    Avg. LTV
+                    Status
                   </p>
-                  <p className="text-2xl font-bold">€300</p>
+                  <p className="text-2xl font-bold">
+                    {completionProgress >= 85 ? '✅' : '⚠️'}
+                  </p>
                 </div>
               </div>
             </div>
