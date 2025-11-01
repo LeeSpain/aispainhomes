@@ -162,6 +162,64 @@ serve(async (req) => {
       if (questionnaireData.guardian_service_tier) {
         systemPrompt += `Guardian Service Tier: ${questionnaireData.guardian_service_tier}\n`;
       }
+      
+      // Add new JSONB fields
+      if (questionnaireData.personal_info) {
+        const personalInfo = questionnaireData.personal_info;
+        systemPrompt += '\n=== PERSONAL INFORMATION ===\n';
+        systemPrompt += `Full Name: ${personalInfo.fullName || 'Not specified'}\n`;
+        systemPrompt += `Phone: ${personalInfo.phone || 'Not specified'}\n`;
+        systemPrompt += `Current Country: ${personalInfo.currentCountry || 'Not specified'}\n`;
+        systemPrompt += `Nationality: ${personalInfo.nationality || 'Not specified'}\n`;
+        systemPrompt += `Preferred Language: ${personalInfo.preferredLanguage || 'Not specified'}\n`;
+      }
+      
+      if (questionnaireData.relocation_timeline) {
+        const timeline = questionnaireData.relocation_timeline;
+        systemPrompt += '\n=== RELOCATION TIMELINE ===\n';
+        systemPrompt += `Relocation Timeframe: ${timeline.relocateWhen || 'Not specified'}\n`;
+        systemPrompt += `Move Type: ${timeline.moveType || 'Not specified'}\n`;
+        systemPrompt += `Visited Spain: ${timeline.visitedSpain || 'Not specified'}\n`;
+      }
+      
+      if (questionnaireData.legal_documentation) {
+        const legal = questionnaireData.legal_documentation;
+        systemPrompt += '\n=== LEGAL & DOCUMENTATION STATUS ===\n';
+        systemPrompt += `NIE Number: ${legal.hasNIE ? 'Yes' : 'No'}\n`;
+        systemPrompt += `Visa Assistance Needed: ${legal.needsVisa ? 'Yes' : 'No'}\n`;
+        systemPrompt += `Spanish Bank Account: ${legal.hasBankAccount ? 'Yes' : 'No'}\n`;
+        systemPrompt += `Health Insurance: ${legal.healthInsurance || 'Not specified'}\n`;
+      }
+      
+      if (questionnaireData.lifestyle_preferences) {
+        const lifestyle = questionnaireData.lifestyle_preferences;
+        systemPrompt += '\n=== LIFESTYLE PREFERENCES ===\n';
+        systemPrompt += `Climate Preference: ${lifestyle.climatePreference || 'Not specified'}\n`;
+        systemPrompt += `Area Type: ${lifestyle.areaType || 'Not specified'}\n`;
+        systemPrompt += `Community Preference: ${lifestyle.communityPreference || 'Not specified'}\n`;
+        if (lifestyle.proximityPriorities && lifestyle.proximityPriorities.length > 0) {
+          systemPrompt += `Proximity Priorities: ${lifestyle.proximityPriorities.join(', ')}\n`;
+        }
+      }
+      
+      if (questionnaireData.services_needed) {
+        const services = questionnaireData.services_needed;
+        systemPrompt += '\n=== SERVICES NEEDED ===\n';
+        systemPrompt += `Legal Assistance: ${services.legalAssistance || 'Not specified'}\n`;
+        systemPrompt += `Utilities Setup: ${services.utilitiesSetup || 'Not specified'}\n`;
+        systemPrompt += `Moving Services: ${services.movingServices || 'Not specified'}\n`;
+        systemPrompt += `Education Needs: ${services.educationNeeds || 'Not specified'}\n`;
+        systemPrompt += `Healthcare Preference: ${services.healthcarePreference || 'Not specified'}\n`;
+        systemPrompt += `Language Learning: ${services.languageLearning || 'Not specified'}\n`;
+      }
+      
+      if (questionnaireData.special_requirements) {
+        systemPrompt += `\nSpecial Requirements: ${questionnaireData.special_requirements}\n`;
+      }
+      
+      if (questionnaireData.referral_source) {
+        systemPrompt += `Referral Source: ${questionnaireData.referral_source}\n`;
+      }
     }
     
     if (instructions && instructions.length > 0) {
@@ -185,6 +243,13 @@ serve(async (req) => {
       systemPrompt += '"⚖️ Legal Disclaimer: This information is for general guidance only and does not constitute legal advice. Always consult qualified professionals or official authorities."\n';
     }
 
+    systemPrompt += '\n\n=== AI ASSISTANT GUIDELINES ===\n';
+    systemPrompt += '1. Use the user\'s complete profile when making recommendations\n';
+    systemPrompt += '2. Consider their legal status (NIE, visa) when discussing property options\n';
+    systemPrompt += '3. Factor in their lifestyle preferences (climate, area type, community)\n';
+    systemPrompt += '4. Suggest relevant services based on their stated needs\n';
+    systemPrompt += '5. Be mindful of their relocation timeline when advising on urgency\n';
+    systemPrompt += '6. Consider family composition (children, pets) in all recommendations\n';
     systemPrompt += `\n\nIMPORTANT: When answering questions, prioritize official resources first. Only use web_search for topics not covered by official resources.`;
 
     const openaiMessages = [

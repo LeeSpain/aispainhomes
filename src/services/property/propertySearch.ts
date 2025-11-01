@@ -204,6 +204,168 @@ export const propertySearch = {
   },
   
   /**
+   * Get AI-enhanced properties based on comprehensive user profile
+   * Considers legal status, lifestyle, family needs, and services
+   */
+  getAIEnhancedProperties: async (userId: string, questionnaireData: any): Promise<Property[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Calculate advanced match scores
+    const propertiesWithScores = sampleProperties.map(property => {
+      let score = 0;
+      const factors: string[] = [];
+      
+      // Legal status considerations (10 points)
+      if (questionnaireData?.legal_documentation?.hasNIE === false) {
+        // Prioritize rentals (easier without NIE)
+        if (property.type === 'rental' || property.isForRent) {
+          score += 10;
+          factors.push('Rental property (easier without NIE)');
+        }
+      }
+      
+      // Lifestyle matching (25 points)
+      if (questionnaireData?.lifestyle_preferences) {
+        const lifestyle = questionnaireData.lifestyle_preferences;
+        
+        // Climate match
+        if (lifestyle.climatePreference === 'warm' && 
+            (property.location.includes('Costa del Sol') || 
+             property.location.includes('Valencia') ||
+             property.location.includes('Alicante'))) {
+          score += 10;
+          factors.push('Matches warm climate preference');
+        }
+        
+        if (lifestyle.climatePreference === 'moderate' &&
+            (property.location.includes('Barcelona') ||
+             property.location.includes('Madrid'))) {
+          score += 10;
+          factors.push('Matches moderate climate preference');
+        }
+        
+        // Area type match
+        if (lifestyle.areaType === 'coastal' && 
+            (property.location.includes('Costa') || property.location.includes('Beach'))) {
+          score += 10;
+          factors.push('Coastal location as preferred');
+        }
+        
+        if (lifestyle.areaType === 'city center' && property.type === 'apartment') {
+          score += 5;
+          factors.push('City center apartment');
+        }
+        
+        // Proximity priorities
+        if (lifestyle.proximityPriorities?.includes('schools') && 
+            property.features?.some(f => f.toLowerCase().includes('school'))) {
+          score += 5;
+          factors.push('Near schools');
+        }
+        
+        if (lifestyle.proximityPriorities?.includes('beach') &&
+            property.features?.some(f => f.toLowerCase().includes('beach'))) {
+          score += 5;
+          factors.push('Near beach');
+        }
+      }
+      
+      // Family considerations (15 points)
+      if (questionnaireData?.household_details) {
+        const household = questionnaireData.household_details;
+        
+        if (household.children && household.children.length > 0) {
+          if (property.features?.some(f => 
+            f.toLowerCase().includes('garden') || 
+            f.toLowerCase().includes('playground') ||
+            f.toLowerCase().includes('park'))) {
+            score += 10;
+            factors.push('Family-friendly amenities');
+          }
+          
+          // Prefer houses over apartments for families
+          if (property.type === 'villa' || property.type === 'house') {
+            score += 5;
+            factors.push('House suitable for family');
+          }
+        }
+        
+        if (household.pets && property.features?.some(f => 
+          f.toLowerCase().includes('pet') || f.toLowerCase().includes('garden'))) {
+          score += 5;
+          factors.push('Pet-friendly');
+        }
+      }
+      
+      // Services needed consideration (10 points)
+      if (questionnaireData?.services_needed) {
+        const services = questionnaireData.services_needed;
+        
+        if (services.utilitiesSetup === 'yes' && 
+            property.features?.some(f => f.toLowerCase().includes('utilities'))) {
+          score += 5;
+          factors.push('Utilities included');
+        }
+        
+        if (services.movingServices === 'yes' && 
+            property.features?.some(f => f.toLowerCase().includes('furnished'))) {
+          score += 5;
+          factors.push('Furnished (easier move)');
+        }
+      }
+      
+      // Urgency factor (10 points)
+      if (questionnaireData?.relocation_timeline?.relocateWhen === 'immediate' ||
+          questionnaireData?.relocation_timeline?.relocateWhen === '1-3 months') {
+        if (property.features?.some(f => f.toLowerCase().includes('available'))) {
+          score += 10;
+          factors.push('Available immediately');
+        }
+      }
+      
+      // Standard property matching (30 points)
+      if (questionnaireData?.location_preferences?.[0] &&
+          property.location.toLowerCase().includes(
+            questionnaireData.location_preferences[0].toLowerCase()
+          )) {
+        score += 15;
+        factors.push('Matches preferred location');
+      }
+      
+      if (questionnaireData?.budget_range) {
+        const { min, max } = questionnaireData.budget_range;
+        if (property.price >= min && property.price <= max) {
+          score += 10;
+          factors.push('Within budget');
+        }
+      }
+      
+      if (questionnaireData?.property_types?.includes(property.type.toLowerCase())) {
+        score += 5;
+        factors.push('Preferred property type');
+      }
+      
+      return {
+        property: {
+          ...property,
+          matchFactors: factors,
+        },
+        score
+      };
+    });
+    
+    return propertiesWithScores
+      .sort((a, b) => b.score - a.score)
+      .filter(item => item.score > 0)
+      .slice(0, 12)
+      .map(item => ({
+        ...item.property,
+        matchScore: Math.round(item.score)
+      }));
+  },
+  
+  /**
    * Get properties that match the user's questionnaire results
    * This provides an AI-like matching algorithm based on weighted preferences
    */

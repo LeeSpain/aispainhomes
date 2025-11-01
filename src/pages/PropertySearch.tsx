@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Home, UserPlus } from 'lucide-react';
+import { Search, Home, UserPlus, Sparkles } from 'lucide-react';
 import { PropertyService } from '@/services/PropertyService';
 import PropertyGrid from '@/components/properties/PropertyGrid';
 import { Property } from '@/components/properties/PropertyCard';
@@ -13,6 +13,7 @@ import SearchCard from '@/components/properties/search/SearchCard';
 import SearchEmptyState from '@/components/properties/search/SearchEmptyState';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 const PropertySearch = () => {
   const { user } = useAuth();
@@ -24,6 +25,8 @@ const PropertySearch = () => {
   const [propertyType, setPropertyType] = useState<string>('');
   const [location, setLocation] = useState<string>('');
   const [bedrooms, setBedrooms] = useState<string>('');
+  const [bathrooms, setBathrooms] = useState<string>('');
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('search');
   
   useEffect(() => {
@@ -78,12 +81,42 @@ const PropertySearch = () => {
     }
   };
   
+  const handleAutoFillFromProfile = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-property-search');
+      
+      if (error) throw error;
+      
+      if (data?.searchCriteria) {
+        setPriceRange([data.searchCriteria.minPrice, data.searchCriteria.maxPrice]);
+        setPropertyType(data.searchCriteria.propertyType || '');
+        setLocation(data.searchCriteria.location || '');
+        setBedrooms(data.searchCriteria.bedrooms?.toString() || '');
+        setBathrooms(data.searchCriteria.bathrooms?.toString() || '');
+        setSelectedAmenities(data.searchCriteria.amenities || []);
+        
+        toast.success('Search filters auto-filled from your profile');
+        
+        // Automatically trigger search
+        setTimeout(() => handleSearch(), 500);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      toast.error('Failed to load profile data. Please complete the questionnaire first.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const handleClearFilters = () => {
     setSearchQuery('');
     setPriceRange([0, 1000000]);
     setPropertyType('');
     setLocation('');
     setBedrooms('');
+    setBathrooms('');
+    setSelectedAmenities([]);
     
     // Load all properties again if user is logged in
     if (user) {
@@ -139,6 +172,18 @@ const PropertySearch = () => {
         </TabsList>
         
         <TabsContent value="search" className="space-y-6">
+          <div className="flex justify-end mb-4">
+            <Button 
+              onClick={handleAutoFillFromProfile}
+              disabled={isLoading}
+              variant="outline"
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              Auto-Fill from My Profile
+            </Button>
+          </div>
+          
           <SearchCard 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
