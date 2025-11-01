@@ -22,6 +22,10 @@ export interface Property {
   type: string;
   status: 'forSale' | 'forRent' | 'sold' | 'rented';
   createdAt: string;
+  currency?: string;
+  isForRent?: boolean;
+  yearBuilt?: number;
+  imageUrl?: string;
   agent?: {
     id: string;
     name: string;
