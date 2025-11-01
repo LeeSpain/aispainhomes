@@ -172,116 +172,145 @@ const Features = () => {
           </div>
         </div>
 
-        {/* Combined Services & Roadmap Section */}
+        {/* Enhanced Services Section */}
         <div className="mb-16">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">
+          <div className="text-center mb-16">
+            <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
               Your Complete Relocation Roadmap
             </h3>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Access comprehensive services at every stage of your Spanish journey - all in one integrated platform.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Expert guidance and comprehensive services at every stage of your Spanish journey.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Timeline Visual - Smaller and on the side */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl blur-2xl"></div>
-                  <div className="relative p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border">
-                    <img 
-                      src={relocationSteps}
-                      alt="Step-by-step relocation journey timeline"
-                      className="w-full h-auto rounded-xl"
-                    />
-                  </div>
+          {/* Featured Services - Large Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            {/* Legal Support - Featured */}
+            <div className="relative group overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-card to-accent/5 border border-primary/20 p-8 hover:shadow-2xl transition-all duration-500">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-white mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Scale className="h-8 w-8" />
+                </div>
+                <h4 className="text-2xl font-bold mb-3">Legal & Documentation</h4>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Navigate Spanish bureaucracy with confidence. Get expert guidance on NIE applications, visa requirements, document translations, and all legal necessities for your relocation.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 rounded-full bg-primary/10 text-xs font-medium">NIE Applications</span>
+                  <span className="px-3 py-1 rounded-full bg-primary/10 text-xs font-medium">Visa Support</span>
+                  <span className="px-3 py-1 rounded-full bg-primary/10 text-xs font-medium">Translations</span>
                 </div>
               </div>
             </div>
 
-            {/* Service Cards Grid */}
-            <div className="lg:col-span-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Scale className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Legal Support</h4>
-                  <p className="text-sm text-muted-foreground">NIE, visas & documentation assistance</p>
+            {/* Financial Planning - Featured */}
+            <div className="relative group overflow-hidden rounded-3xl bg-gradient-to-br from-accent/5 via-card to-primary/5 border border-accent/20 p-8 hover:shadow-2xl transition-all duration-500">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent/80 text-white mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Landmark className="h-8 w-8" />
                 </div>
+                <h4 className="text-2xl font-bold mb-3">Financial Planning</h4>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  Comprehensive financial support for your move. From opening Spanish bank accounts to understanding mortgages, currency exchange, and expat tax implications.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 rounded-full bg-accent/10 text-xs font-medium">Bank Accounts</span>
+                  <span className="px-3 py-1 rounded-full bg-accent/10 text-xs font-medium">Mortgages</span>
+                  <span className="px-3 py-1 rounded-full bg-accent/10 text-xs font-medium">Tax Guidance</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Landmark className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Financial Planning</h4>
-                  <p className="text-sm text-muted-foreground">Bank accounts, mortgages & taxes</p>
+          {/* Secondary Services Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <TruckIcon className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Moving Logistics</h4>
+                <p className="text-sm text-muted-foreground">Compare movers, customs guidance & timeline planning</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <TruckIcon className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Moving Logistics</h4>
-                  <p className="text-sm text-muted-foreground">Compare movers & plan timeline</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Tv className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Utilities Setup</h4>
+                <p className="text-sm text-muted-foreground">Electricity, water, internet & mobile plan assistance</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Tv className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Utilities Setup</h4>
-                  <p className="text-sm text-muted-foreground">Electricity, internet & mobile plans</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <HeartPulse className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Healthcare</h4>
+                <p className="text-sm text-muted-foreground">Registration, insurance & finding doctors</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <HeartPulse className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Healthcare</h4>
-                  <p className="text-sm text-muted-foreground">Registration, insurance & doctors</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <GraduationCap className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Education</h4>
+                <p className="text-sm text-muted-foreground">Schools, enrollment & credential validation</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <GraduationCap className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Education</h4>
-                  <p className="text-sm text-muted-foreground">Schools, enrollment & credentials</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Globe className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Community</h4>
+                <p className="text-sm text-muted-foreground">Connect with expats & local communities</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Globe className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Community</h4>
-                  <p className="text-sm text-muted-foreground">Connect with expats & locals</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Car className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Transportation</h4>
+                <p className="text-sm text-muted-foreground">Transit info, licenses & vehicle options</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Car className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Transportation</h4>
-                  <p className="text-sm text-muted-foreground">Transit, licenses & vehicles</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Briefcase className="h-6 w-6" />
                 </div>
+                <h4 className="font-semibold text-lg mb-2">Work & Business</h4>
+                <p className="text-sm text-muted-foreground">Coworking spaces, visas & setup support</p>
+              </div>
+            </div>
 
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Briefcase className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Work & Business</h4>
-                  <p className="text-sm text-muted-foreground">Coworking, visas & setup</p>
+            <div className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Home className="h-6 w-6" />
                 </div>
-
-                <div className="p-6 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Home className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Lifestyle</h4>
-                  <p className="text-sm text-muted-foreground">Shopping, dining & local events</p>
-                </div>
+                <h4 className="font-semibold text-lg mb-2">Lifestyle</h4>
+                <p className="text-sm text-muted-foreground">Shopping, dining & local events guide</p>
               </div>
             </div>
           </div>
