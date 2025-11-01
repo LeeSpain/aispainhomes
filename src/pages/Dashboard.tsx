@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
 import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Menu, Star, FileText, Briefcase, AlertCircle } from 'lucide-react';
@@ -28,6 +28,7 @@ import { useDashboardInit } from '@/hooks/useDashboardInit';
 const Dashboard = () => {
   const { user, userPreferences, isLoading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [favoriteProperties, setFavoriteProperties] = useState<Property[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -35,10 +36,12 @@ const Dashboard = () => {
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [unreadAlertCount, setUnreadAlertCount] = useState(0);
   
-  // Scroll to top on component mount
+  // Force scroll to top whenever dashboard route is accessed
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, []);
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname]);
   
   // Use comprehensive dashboard initialization hook
   const { 
