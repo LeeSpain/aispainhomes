@@ -1,13 +1,14 @@
 
 import { CheckCircle } from "lucide-react";
+import propertyAiSearch from "@/assets/property-ai-search.jpg";
 
 const IntelligentMatching = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
       <div>
         <img 
-          src="/lovable-uploads/8b9ed673-fe42-4f92-b569-6f15b35e35f4.png" 
-          alt="AI property search visualization showing a robot assistant displaying Spanish properties" 
+          src={propertyAiSearch} 
+          alt="AI property search visualization showing Spanish properties with data analytics" 
           className="rounded-xl shadow-xl border border-white/10"
         />
       </div>

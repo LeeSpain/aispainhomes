@@ -1,5 +1,6 @@
 
 import { Shield } from "lucide-react";
+import familyRelocation from "@/assets/family-relocation-spain.jpg";
 
 const RelocationAssistance = () => {
   return (
@@ -41,8 +42,8 @@ const RelocationAssistance = () => {
           <div className="relative rounded-xl overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-accent/30 blur-3xl opacity-50 transform -rotate-6"></div>
             <img 
-              src="/lovable-uploads/45a17b57-e992-4ce6-8c46-32718953261a.png" 
-              alt="AI Guardian helping a family relocate to Spain with holographic interface" 
+              src={familyRelocation} 
+              alt="Happy family arriving at their new Spanish home" 
               className="relative rounded-xl shadow-xl object-cover aspect-[4/3] border border-white/10"
             />
           </div>
