@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { Toaster } from 'sonner';
 import Index from './pages/Index';
 import Login from './pages/Login';
-import Register from './pages/Register';
+import RegisterAndSubscribe from './pages/RegisterAndSubscribe';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -51,7 +51,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<RegisterAndSubscribe />} />
           <Route path="/about" element={<About />} />
           <Route path="/dashboard" element={<PublicDashboard />} />
           <Route path="/admin" element={<PublicAdminDashboard />} />
