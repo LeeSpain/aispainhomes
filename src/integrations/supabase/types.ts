@@ -49,6 +49,7 @@ export type Database = {
       }
       ai_conversations: {
         Row: {
+          cited_resources: Json | null
           content: string
           created_at: string | null
           id: string
@@ -59,6 +60,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cited_resources?: Json | null
           content: string
           created_at?: string | null
           id?: string
@@ -69,6 +71,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cited_resources?: Json | null
           content?: string
           created_at?: string | null
           id?: string
@@ -79,6 +82,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ai_response_citations: {
+        Row: {
+          cited_at: string | null
+          conversation_id: string
+          id: string
+          query_context: string | null
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          cited_at?: string | null
+          conversation_id: string
+          id?: string
+          query_context?: string | null
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          cited_at?: string | null
+          conversation_id?: string
+          id?: string
+          query_context?: string | null
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_response_citations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "official_resources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_settings: {
         Row: {
@@ -216,6 +254,92 @@ export type Database = {
             columns: ["tracked_website_id"]
             isOneToOne: false
             referencedRelation: "tracked_websites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      official_resources: {
+        Row: {
+          authority: string
+          category: string
+          created_at: string | null
+          description: string
+          id: string
+          is_active: boolean | null
+          last_verified_at: string | null
+          metadata: Json | null
+          subcategory: string | null
+          title: string
+          trust_level: string | null
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          authority: string
+          category: string
+          created_at?: string | null
+          description: string
+          id?: string
+          is_active?: boolean | null
+          last_verified_at?: string | null
+          metadata?: Json | null
+          subcategory?: string | null
+          title: string
+          trust_level?: string | null
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          authority?: string
+          category?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          last_verified_at?: string | null
+          metadata?: Json | null
+          subcategory?: string | null
+          title?: string
+          trust_level?: string | null
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      resource_content_snapshots: {
+        Row: {
+          change_detected: boolean | null
+          change_summary: string | null
+          content_hash: string
+          content_text: string | null
+          id: string
+          resource_id: string
+          snapshot_date: string | null
+        }
+        Insert: {
+          change_detected?: boolean | null
+          change_summary?: string | null
+          content_hash: string
+          content_text?: string | null
+          id?: string
+          resource_id: string
+          snapshot_date?: string | null
+        }
+        Update: {
+          change_detected?: boolean | null
+          change_summary?: string | null
+          content_hash?: string
+          content_text?: string | null
+          id?: string
+          resource_id?: string
+          snapshot_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_content_snapshots_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "official_resources"
             referencedColumns: ["id"]
           },
         ]
