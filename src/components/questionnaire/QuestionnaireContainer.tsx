@@ -76,26 +76,44 @@ const QuestionnaireContainer = () => {
 
         console.log('Questionnaire responses saved successfully');
         
-        // Trigger Clara AI to curate recommendations
-        toast.success('Questionnaire completed! Clara is now finding the best properties and services for you...');
+        // Trigger Clara AI to curate recommendations with better UX
+        toast.success('Questionnaire completed! Clara is curating your recommendations...');
         
-        // Call Clara edge function to curate recommendations
+        // Call Clara edge function with comprehensive error handling
         try {
-          const { error: claraError } = await supabase.functions.invoke('clara-curate-recommendations', {
+          const { data, error: claraError } = await supabase.functions.invoke('clara-curate-recommendations', {
             body: { userId: user.id }
           });
           
           if (claraError) {
             console.error('Clara curation error:', claraError);
-            toast.warning('Your dashboard is ready, but some recommendations may be delayed.');
+            
+            // Handle specific error types
+            const errorMessage = claraError.message || '';
+            if (errorMessage.includes('429') || claraError.status === 429) {
+              toast.warning('Too many requests. Your dashboard is ready, but recommendations will appear shortly.');
+            } else if (errorMessage.includes('402') || claraError.status === 402) {
+              toast.warning('AI service temporarily limited. Your dashboard is ready with available properties.');
+            } else {
+              toast.info('Clara is still working on your recommendations. Check your dashboard in a moment!');
+            }
           } else {
-            toast.success('Clara has curated your personalized recommendations!');
+            console.log('Clara recommendations generated:', data);
+            const propertiesCount = data?.propertiesCount || 0;
+            const servicesCount = data?.servicesCount || 0;
+            
+            if (propertiesCount > 0 || servicesCount > 0) {
+              toast.success(`Clara found ${propertiesCount} properties and ${servicesCount} services for you!`);
+            } else {
+              toast.info('Clara is searching for the best matches. Check your dashboard shortly!');
+            }
           }
         } catch (claraErr) {
-          console.error('Error calling Clara:', claraErr);
+          console.error('Exception calling Clara:', claraErr);
+          toast.info('Your dashboard is ready! Clara will continue searching in the background.');
         }
         
-        // Navigate to dashboard
+        // Always navigate to dashboard - user can see results even if Clara is still processing
         navigate('/dashboard');
       } catch (error) {
         console.error('Error saving questionnaire responses:', error?.message ?? error, error);
