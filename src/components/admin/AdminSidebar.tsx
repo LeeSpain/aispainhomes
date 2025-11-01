@@ -8,7 +8,8 @@ import {
   Settings,
   Server,
   Menu,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import {
   Sidebar,
@@ -36,7 +37,7 @@ const menuItems = [
   { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'websites', label: 'Website Tracking', icon: Globe },
-  { id: 'resources', label: 'Official Resources', icon: Globe },
+  { id: 'resources', label: 'Official Resources', icon: FileText },
   { id: 'ai', label: 'AI Settings', icon: Bot },
   { id: 'system', label: 'System', icon: Settings },
 ];

@@ -106,6 +106,7 @@ class OfficialResourcesService {
   getCategoryIcon(category: string): string {
     const icons: Record<string, string> = {
       property: '🏠',
+      property_websites: '🌐',
       immigration: '🛂',
       finance: '💰',
       utilities: '⚡',
@@ -122,6 +123,7 @@ class OfficialResourcesService {
   getCategoryColor(category: string): string {
     const colors: Record<string, string> = {
       property: 'bg-blue-500',
+      property_websites: 'bg-indigo-500',
       immigration: 'bg-purple-500',
       finance: 'bg-green-500',
       utilities: 'bg-yellow-500',
@@ -133,6 +135,19 @@ class OfficialResourcesService {
       lifestyle: 'bg-teal-500'
     };
     return colors[category] || 'bg-gray-500';
+  }
+
+  getSubcategoryLabel(subcategory: string): string {
+    const labels: Record<string, string> = {
+      spanish_portals: 'Spanish Portals',
+      rural_agricultural: 'Rural & Agricultural',
+      classifieds: 'Classifieds',
+      aggregators: 'Search Aggregators',
+      international: 'International',
+      european: 'European Portals',
+      luxury: 'Luxury & Premium',
+    };
+    return labels[subcategory] || subcategory;
   }
 
   getTrustLevelBadge(trustLevel: string): string {
