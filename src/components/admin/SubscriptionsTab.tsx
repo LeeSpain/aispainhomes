@@ -120,6 +120,14 @@ const SubscriptionsTab = () => {
     .filter(sub => sub.status === 'active')
     .reduce((sum, sub) => sum + sub.revenue, 0);
 
+  const formatEuro = (amount: number) => {
+    return new Intl.NumberFormat('en-IE', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-6">
       {/* Revenue Stats */}
@@ -130,7 +138,7 @@ const SubscriptionsTab = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${monthlyRecurring.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatEuro(monthlyRecurring)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               <TrendingUp className="inline h-3 w-3 text-green-500" /> +12.5% from last month
             </p>
@@ -170,7 +178,7 @@ const SubscriptionsTab = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${(totalRevenue / subscriptions.length).toFixed(2)}
+              {formatEuro(totalRevenue / subscriptions.length)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Across all plans
@@ -237,7 +245,7 @@ const SubscriptionsTab = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        ${subscription.revenue.toFixed(2)}
+                        {formatEuro(subscription.revenue)}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

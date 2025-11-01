@@ -38,7 +38,7 @@ const OverviewTab = () => {
   const stats = [
     {
       title: "Monthly Revenue",
-      value: "$149.95",
+      value: "€149.95",
       icon: Building2
     },
     {
@@ -119,13 +119,13 @@ const OverviewTab = () => {
                   <p className="text-sm font-medium leading-none">
                     ARPU
                   </p>
-                  <p className="text-2xl font-bold">$29.99</p>
+                  <p className="text-2xl font-bold">€29.99</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
                     LTV
                   </p>
-                  <p className="text-2xl font-bold">$360</p>
+                  <p className="text-2xl font-bold">€360</p>
                 </div>
               </div>
             </div>
