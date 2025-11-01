@@ -38,12 +38,12 @@ const OverviewTab = () => {
   const stats = [
     {
       title: "Monthly Revenue",
-      value: "€149.95",
+      value: "€74.97",
       icon: Building2
     },
     {
       title: "Active Users",
-      value: "5",
+      value: "6",
       icon: Users
     },
     {
@@ -52,7 +52,7 @@ const OverviewTab = () => {
       icon: HomeIcon
     },
     {
-      title: "Pending Issues",
+      title: "Free Trials",
       value: "2",
       icon: AlertTriangle
     }
@@ -107,25 +107,25 @@ const OverviewTab = () => {
                   <p className="text-sm font-medium leading-none">
                     Trial Conversions
                   </p>
-                  <p className="text-2xl font-bold">+{userGrowth}%</p>
+                  <p className="text-2xl font-bold">60.0%</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
                     Churn Rate
                   </p>
-                  <p className="text-2xl font-bold">2.1%</p>
+                  <p className="text-2xl font-bold">16.7%</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    ARPU
+                    Price
                   </p>
-                  <p className="text-2xl font-bold">€29.99</p>
+                  <p className="text-2xl font-bold">€24.99</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium leading-none">
-                    LTV
+                    Avg. LTV
                   </p>
-                  <p className="text-2xl font-bold">€360</p>
+                  <p className="text-2xl font-bold">€300</p>
                 </div>
               </div>
             </div>

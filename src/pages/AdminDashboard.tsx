@@ -57,7 +57,7 @@ const AdminDashboard = () => {
   }, []);
   
   const stats = [
-    { title: 'Monthly Revenue', value: '€149.95', icon: DollarSign },
+    { title: 'Monthly Revenue', value: '€74.97', icon: DollarSign },
     { title: 'Active Subscriptions', value: 3, icon: CreditCard },
     { title: 'Total Users', value: users.length, icon: Users },
     { title: 'Tracked Websites', value: trackedSites.length, icon: Globe },
