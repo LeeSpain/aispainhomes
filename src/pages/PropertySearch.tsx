@@ -129,14 +129,14 @@ const PropertySearch = () => {
   // Show login/register prompt if not logged in
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-8 pt-24">
+      <div className="container mx-auto px-4 py-8 pt-20 sm:pt-24">
         <Helmet>
           <title>Property Search | Spanish Home Finder</title>
         </Helmet>
         
-        <div className="max-w-3xl mx-auto text-center py-16">
-          <h1 className="text-4xl font-bold mb-4">Access Premium Property Search</h1>
-          <p className="text-xl text-muted-foreground mb-8">
+        <div className="max-w-3xl mx-auto text-center py-8 sm:py-16">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-4">Access Premium Property Search</h1>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-8">
             To search for properties, you need to create an account or login. Our property search tool helps you find your perfect home in Spain.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -154,7 +154,7 @@ const PropertySearch = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 pt-24">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pt-20 sm:pt-24">
       <Helmet>
         <title>Property Search | Spanish Home Finder</title>
       </Helmet>
@@ -162,7 +162,7 @@ const PropertySearch = () => {
       <SearchHeader />
       
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
+        <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8">
           <TabsTrigger value="search" className="flex items-center gap-2">
             <Search className="h-4 w-4" /> Property Search
           </TabsTrigger>

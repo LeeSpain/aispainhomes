@@ -170,13 +170,13 @@ const DashboardContent = ({
   return (
     <div className="space-y-6">
       {/* Welcome Card */}
-      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-xl border p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-lg sm:rounded-xl border p-4 sm:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-xl sm:text-2xl font-bold">
               Welcome back, <span className="text-primary">{user.name}</span>
             </h2>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Clara is monitoring your property search and relocation needs
             </p>
           </div>
@@ -184,7 +184,7 @@ const DashboardContent = ({
       </div>
 
       {/* Content Area */}
-      <div className="bg-background rounded-xl p-6 border shadow-sm">
+      <div className="bg-background rounded-lg sm:rounded-xl p-4 sm:p-6 border shadow-sm">
         {renderContent()}
       </div>
     </div>

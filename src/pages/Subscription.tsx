@@ -45,11 +45,11 @@ const Subscription = () => {
         <title>Complete Registration | AIHomesSpain</title>
       </Helmet>
       
-      <div className="pt-28 pb-16">
+      <div className="pt-20 sm:pt-28 pb-8 sm:pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-center mb-2">Complete Your Registration</h1>
-            <p className="text-center text-muted-foreground mb-12">
+            <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">Complete Your Registration</h1>
+            <p className="text-sm sm:text-base text-center text-muted-foreground mb-8 sm:mb-12">
               Start your 7-day free trial of AI Guardian
             </p>
             

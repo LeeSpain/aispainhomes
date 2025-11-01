@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Menu, Star, FileText, Briefcase, AlertCircle, CreditCard } from 'lucide-react';
+import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, Star, FileText, Briefcase, AlertCircle, CreditCard } from 'lucide-react';
 import { alertsService } from '@/services/alertsService';
+import MobileNavMenu from '@/components/common/MobileNavMenu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -208,20 +209,29 @@ const Dashboard = () => {
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
         {/* Top Navigation Bar */}
         <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
-          <div className="container flex h-16 items-center justify-between px-4">
-            <div className="flex items-center gap-6">
+          <div className="container flex h-14 sm:h-16 items-center justify-between px-2 sm:px-4">
+            <div className="flex items-center gap-2 sm:gap-6">
+              <MobileNavMenu
+                activeTab={activeTab}
+                activeSubTab={activeSubTab}
+                unreadAlertCount={unreadAlertCount}
+                favoritesCount={favorites.length}
+                onTabChange={setActiveTab}
+                onSubTabChange={setActiveSubTab}
+              />
+              
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="md:hidden lg:hidden xl:block"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
-                <Menu className="h-5 w-5" />
+                <Home className="h-5 w-5" />
               </Button>
               
               <div className="flex items-center gap-2">
-                <Home className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <Home className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                   AI Homes Spain
                 </h1>
               </div>
@@ -331,11 +341,11 @@ const Dashboard = () => {
         </header>
 
         {/* Main Dashboard Layout */}
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             {/* AI Guardian Sidebar */}
-            <aside className={`xl:col-span-4 ${!sidebarOpen && 'hidden lg:block'}`}>
-              <div className="sticky top-24">
+            <aside className={`lg:col-span-4 ${!sidebarOpen && 'hidden lg:block'}`}>
+              <div className="lg:sticky lg:top-24">
                 <DashboardSidebar 
                   user={user} 
                   subscription={userPreferences.subscription} 
@@ -344,7 +354,7 @@ const Dashboard = () => {
             </aside>
           
             {/* Main Content Area */}
-            <main className="xl:col-span-8">
+            <main className="lg:col-span-8">
               <DashboardContent
                 user={user}
                 userPreferences={userPreferences}
