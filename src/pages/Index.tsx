@@ -152,35 +152,6 @@ const Index = () => {
               </div>
             </div>
           </section>
-          
-          {/* CTA Section */}
-          <section className="py-24 relative overflow-hidden bg-gradient-to-br from-primary via-accent to-primary">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent_70%)]"></div>
-            
-            <div className="container mx-auto px-4 text-center relative z-10">
-              <div className="max-w-3xl mx-auto text-white">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-                  Ready to Start Your
-                  <span className="block mt-2">Spanish Adventure?</span>
-                </h2>
-                <p className="text-xl mb-10 text-white/90 leading-relaxed">
-                  Join our AI-powered platform today and discover your perfect Spanish property with personalized support every step of the way.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/register">
-                    <Button size="lg" variant="secondary" className="px-10 py-6 text-lg bg-white text-primary hover:bg-white/90 transition-all">
-                      Start Free Trial
-                    </Button>
-                  </Link>
-                  <Link to="/property-search">
-                    <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-white text-white hover:bg-white/10 transition-all">
-                      Browse Properties
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
         </main>
       </div>
     </>
