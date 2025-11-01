@@ -1,14 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import PropertiesTab from '@/components/dashboard/PropertiesTab';
 import FavoritesTab from '@/components/dashboard/FavoritesTab';
 import AlertsTab from '@/components/dashboard/AlertsTab';
 import DocumentsTab from '@/components/dashboard/DocumentsTab';
 import ServiceProviderTab from '@/components/dashboard/ServiceProviderTab';
 import SettingsTab from '@/components/dashboard/SettingsTab';
-import { TabsContent } from '@/components/ui/tabs';
 import { Property } from '@/components/properties/PropertyCard';
 import { User, UserPreferences } from '@/contexts/auth/types';
 
@@ -29,6 +27,8 @@ interface DashboardContentProps {
   isLoadingProperties: boolean;
   isLoadingFavorites: boolean;
   onLogout: () => void;
+  activeTab: string;
+  activeSubTab: string | null;
 }
 
 const DashboardContent = ({ 
@@ -38,13 +38,51 @@ const DashboardContent = ({
   favoriteProperties, 
   isLoadingProperties,
   isLoadingFavorites,
-  onLogout 
+  onLogout,
+  activeTab,
+  activeSubTab
 }: DashboardContentProps) => {
-  const [activeTab, setActiveTab] = useState('properties');
   
-  // Handle tab change
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
+  const renderContent = () => {
+    // Handle services submenu
+    if (activeTab === 'services' && activeSubTab) {
+      switch (activeSubTab) {
+        case 'lawyers':
+          return <ServiceProviderTab title="Legal Services" providers={lawyers} />;
+        case 'utilities':
+          return <ServiceProviderTab title="Utility Services" providers={utilities} />;
+        case 'movers':
+          return <ServiceProviderTab title="Moving Services" providers={movers} />;
+        case 'schools':
+          return <ServiceProviderTab title="Education Services" providers={schools} />;
+        case 'healthcare':
+          return <ServiceProviderTab title="Healthcare Services" providers={healthcare} />;
+        default:
+          return <ServiceProviderTab title="Legal Services" providers={lawyers} />;
+      }
+    }
+
+    // Handle main tabs
+    switch (activeTab) {
+      case 'properties':
+        return <PropertiesTab properties={properties} isLoading={isLoadingProperties} />;
+      case 'favorites':
+        return <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />;
+      case 'alerts':
+        return <AlertsTab />;
+      case 'documents':
+        return <DocumentsTab />;
+      case 'settings':
+        return (
+          <SettingsTab
+            user={user}
+            userPreferences={userPreferences}
+            onLogout={onLogout}
+          />
+        );
+      default:
+        return <PropertiesTab properties={properties} isLoading={isLoadingProperties} />;
+    }
   };
   
   return (
@@ -63,72 +101,10 @@ const DashboardContent = ({
         </div>
       </div>
 
-      {/* Dashboard Tabs */}
-      <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange}>
-        <TabsContent value="properties" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <PropertiesTab properties={properties} isLoading={isLoadingProperties} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="favorites" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="alerts" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <AlertsTab />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="lawyers" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <ServiceProviderTab title="Legal Services" providers={lawyers} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="utilities" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <ServiceProviderTab title="Utility Services" providers={utilities} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="movers" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <ServiceProviderTab title="Moving Services" providers={movers} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="schools" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <ServiceProviderTab title="Education Services" providers={schools} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="healthcare" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <ServiceProviderTab title="Healthcare Services" providers={healthcare} />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="documents" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <DocumentsTab />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="settings" className="mt-0">
-          <div className="bg-background rounded-xl p-6 border shadow-sm">
-            <SettingsTab
-              user={user}
-              userPreferences={userPreferences}
-              onLogout={onLogout}
-            />
-          </div>
-        </TabsContent>
-      </DashboardTabs>
+      {/* Content Area */}
+      <div className="bg-background rounded-xl p-6 border shadow-sm">
+        {renderContent()}
+      </div>
     </div>
   );
 };

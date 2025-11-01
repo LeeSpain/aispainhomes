@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { toast } from 'sonner';
-import { Bell, LogOut, Settings, User as UserIcon, Home, Menu } from 'lucide-react';
+import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, Home, Menu, Star, FileText, Briefcase, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/auth/useAuth';
 import { Property } from '@/components/properties/PropertyCard';
 import { PropertyService } from '@/services/PropertyService';
 import { UserPreferences } from '@/contexts/auth/types';
+import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
   const { user, userPreferences, isLoading: authLoading, logout } = useAuth();
@@ -30,6 +31,8 @@ const Dashboard = () => {
   const [isLoadingProperties, setIsLoadingProperties] = useState(true);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState('properties');
+  const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   
   // Debug logging
   useEffect(() => {
@@ -124,6 +127,26 @@ const Dashboard = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const navItems = [
+    { id: 'properties', label: 'Properties', icon: Home },
+    { id: 'favorites', label: 'Favorites', icon: Star },
+    { id: 'alerts', label: 'Alerts', icon: AlertCircle, badge: 3 },
+    { 
+      id: 'services', 
+      label: 'Services', 
+      icon: Briefcase,
+      subItems: [
+        { id: 'lawyers', label: 'Legal' },
+        { id: 'utilities', label: 'Utilities' },
+        { id: 'movers', label: 'Moving' },
+        { id: 'schools', label: 'Education' },
+        { id: 'healthcare', label: 'Healthcare' },
+      ]
+    },
+    { id: 'documents', label: 'Documents', icon: FileText },
+    { id: 'settings', label: 'Settings', icon: SettingsIcon },
+  ];
   
   // Don't render until auth check is complete
   if (authLoading || !user || !userPreferences) {
@@ -140,7 +163,7 @@ const Dashboard = () => {
         {/* Top Navigation Bar */}
         <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
           <div className="container flex h-16 items-center justify-between px-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <Button
                 variant="ghost"
                 size="icon"
@@ -156,17 +179,70 @@ const Dashboard = () => {
                   AI Spain Homes
                 </h1>
               </div>
+
+              {/* Main Navigation */}
+              <nav className="hidden md:flex items-center gap-1">
+                {navItems.map((item) => (
+                  item.subItems ? (
+                    <DropdownMenu key={item.id}>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "gap-2",
+                            activeTab === item.id && "bg-primary/10 text-primary"
+                          )}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-background" align="start">
+                        {item.subItems.map((subItem) => (
+                          <DropdownMenuItem
+                            key={subItem.id}
+                            onClick={() => {
+                              setActiveTab(item.id);
+                              setActiveSubTab(subItem.id);
+                            }}
+                            className={cn(
+                              activeSubTab === subItem.id && "bg-primary/10 text-primary"
+                            )}
+                          >
+                            {subItem.label}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Button
+                      key={item.id}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        setActiveSubTab(null);
+                      }}
+                      className={cn(
+                        "gap-2 relative",
+                        activeTab === item.id && "bg-primary/10 text-primary"
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                      {item.badge && (
+                        <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Button>
+                  )
+                ))}
+              </nav>
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Notifications */}
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
-                  3
-                </Badge>
-              </Button>
-
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -194,7 +270,7 @@ const Dashboard = () => {
                     Profile Settings
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/subscription')}>
-                    <Settings className="mr-2 h-4 w-4" />
+                    <SettingsIcon className="mr-2 h-4 w-4" />
                     Subscription
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -231,6 +307,8 @@ const Dashboard = () => {
                 isLoadingProperties={isLoadingProperties}
                 isLoadingFavorites={isLoadingFavorites}
                 onLogout={handleLogout}
+                activeTab={activeTab}
+                activeSubTab={activeSubTab}
               />
             </main>
           </div>
