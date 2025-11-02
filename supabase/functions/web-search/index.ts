@@ -49,10 +49,11 @@ serve(async (req) => {
       });
     }
 
-    console.log(`Searching for: ${query}`);
+    console.log(`🔍 WEB-SEARCH: Query="${query}", numResults=${numResults}`);
 
     // Use DuckDuckGo HTML (free, no API key needed)
     const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    console.log(`🌐 Fetching: ${searchUrl}`);
     
     const response = await fetch(searchUrl, {
       headers: {
@@ -99,7 +100,10 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Found ${results.length} results`);
+    console.log(`✅ WEB-SEARCH: Found ${results.length} results for "${query}"`);
+    if (results.length > 0) {
+      console.log(`📋 First result: ${results[0].title} - ${results[0].url}`);
+    }
 
     return new Response(
       JSON.stringify({

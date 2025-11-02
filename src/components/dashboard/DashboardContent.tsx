@@ -36,6 +36,7 @@ interface DashboardContentProps {
   matchReasons?: Map<string, string[]>;
   questionnaireData?: any;
   hasCompletedQuestionnaire?: boolean;
+  isClaraProcessing?: boolean;
   claraServiceRecommendations?: any[];
 }
 
@@ -53,6 +54,7 @@ const DashboardContent = ({
   matchReasons,
   questionnaireData,
   hasCompletedQuestionnaire = false,
+  isClaraProcessing = false,
   claraServiceRecommendations = []
 }: DashboardContentProps) => {
   
@@ -161,6 +163,7 @@ const DashboardContent = ({
             matchReasons={matchReasons}
             questionnaireData={questionnaireData}
             hasCompletedQuestionnaire={hasCompletedQuestionnaire}
+            isClaraProcessing={isClaraProcessing}
           />
         );
       case 'profile':
@@ -190,6 +193,7 @@ const DashboardContent = ({
             matchReasons={matchReasons}
             questionnaireData={questionnaireData}
             hasCompletedQuestionnaire={hasCompletedQuestionnaire}
+            isClaraProcessing={isClaraProcessing}
           />
         );
     }

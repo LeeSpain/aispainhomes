@@ -30,20 +30,24 @@ async function searchLiveProperties(
   }
 
   const allProperties: any[] = [];
-  const propertyTypeStr = propertyTypes.join(' OR ');
   
   // Search each property website
   for (const website of propertyWebsites) {
     try {
-      console.log(`Searching ${website.authority}...`);
+      console.log(`🌐 Searching ${website.authority} (${website.url})`);
       
-      // Construct search query targeting specific website
-      const searchQuery = `${propertyTypeStr} for sale in ${location} ${budgetMin}-${budgetMax} EUR site:${new URL(website.url).hostname}`;
+      // Simplified search query (DuckDuckGo works better with simple queries)
+      const propertyTypeStr = propertyTypes[0] || 'property'; // Use first type only
+      const searchQuery = `${propertyTypeStr} for sale ${location} site:${new URL(website.url).hostname}`;
+      
+      console.log(`📝 Search query: "${searchQuery}"`);
       
       // Call web-search function
       const searchResponse = await supabase.functions.invoke('web-search', {
         body: { query: searchQuery, numResults: 5 }
       });
+      
+      console.log(`📊 Search response:`, searchResponse.error ? 'ERROR' : 'SUCCESS');
 
       if (searchResponse.error) {
         console.error(`Search error for ${website.authority}:`, searchResponse.error);
@@ -51,11 +55,12 @@ async function searchLiveProperties(
       }
 
       const searchResults = searchResponse.data?.results || [];
-      console.log(`Found ${searchResults.length} results from ${website.authority}`);
+      console.log(`✅ Found ${searchResults.length} search results from ${website.authority}`);
 
       // Extract property URLs from search results
       for (const result of searchResults) {
         const propertyUrl = result.url;
+        console.log(`🔗 Processing property URL: ${propertyUrl}`);
         
         // Try to scrape the property page
         try {
@@ -70,6 +75,7 @@ async function searchLiveProperties(
 
           if (trackedWebsite?.id) {
             websiteId = trackedWebsite.id;
+            console.log(`✅ Found website in tracked_websites: ${websiteId}`);
           } else {
             // Fallback to official_resources if not in tracked_websites
             const { data: officialResource } = await supabase
@@ -80,13 +86,16 @@ async function searchLiveProperties(
               .maybeSingle();
             
             websiteId = officialResource?.id;
+            console.log(`✅ Found website in official_resources: ${websiteId}`);
           }
 
           if (!websiteId) {
-            console.log(`Website not found in any table: ${website.url}`);
+            console.log(`❌ Website not found in any table: ${website.url}`);
             continue;
           }
 
+          console.log(`🔧 Calling scrape-website for ${propertyUrl}...`);
+          
           // Scrape the property page
           const scrapeResponse = await supabase.functions.invoke('scrape-website', {
             body: { 
@@ -95,8 +104,11 @@ async function searchLiveProperties(
             }
           });
 
-          if (!scrapeResponse.error && scrapeResponse.data?.sample_items) {
+          if (scrapeResponse.error) {
+            console.error(`❌ Scrape error for ${propertyUrl}:`, scrapeResponse.error);
+          } else if (scrapeResponse.data?.sample_items) {
             const properties = scrapeResponse.data.sample_items || [];
+            console.log(`✅ Extracted ${properties.length} properties from ${propertyUrl}`);
             properties.forEach((prop: any) => {
               allProperties.push({
                 ...prop,
@@ -104,9 +116,11 @@ async function searchLiveProperties(
                 search_query: searchQuery,
               });
             });
+          } else {
+            console.log(`⚠️ No properties extracted from ${propertyUrl}`);
           }
         } catch (scrapeError) {
-          console.error(`Failed to scrape ${propertyUrl}:`, scrapeError);
+          console.error(`❌ Exception scraping ${propertyUrl}:`, scrapeError);
         }
       }
     } catch (error) {

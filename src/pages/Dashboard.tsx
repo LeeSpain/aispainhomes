@@ -379,6 +379,7 @@ const Dashboard = () => {
                   matchScores={matchScores}
                   matchReasons={matchReasons}
                   hasCompletedQuestionnaire={hasCompletedQuestionnaire}
+                  isClaraProcessing={isClaraProcessing}
                   questionnaireData={questionnaireData}
                   claraServiceRecommendations={claraServiceRecommendations}
                 />

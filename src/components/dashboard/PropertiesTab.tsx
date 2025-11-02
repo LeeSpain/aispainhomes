@@ -10,6 +10,7 @@ import ManualClaraButton from "./ManualClaraButton";
 import { useAuth } from "@/contexts/auth/useAuth";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import ClaraLoadingState from "@/components/common/ClaraLoadingState";
 
 interface PropertiesTabProps {
   properties: Property[];
@@ -18,6 +19,7 @@ interface PropertiesTabProps {
   matchReasons?: Map<string, string[]>;
   questionnaireData?: any;
   hasCompletedQuestionnaire?: boolean;
+  isClaraProcessing?: boolean;
 }
 
 const PropertiesTab = ({ 
@@ -26,7 +28,8 @@ const PropertiesTab = ({
   matchScores, 
   matchReasons,
   questionnaireData,
-  hasCompletedQuestionnaire = false
+  hasCompletedQuestionnaire = false,
+  isClaraProcessing = false
 }: PropertiesTabProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -47,15 +50,19 @@ const PropertiesTab = ({
     setIsRefreshing(true);
     
     try {
+      console.log('🚀 Triggering Clara recommendations for user:', user.id);
+      
       const progressToast = toast.info('🤖 Clara is searching...', {
         description: 'Searching property websites and local services',
         duration: Infinity,
       });
 
+      console.log('📡 Calling clara-curate-recommendations edge function...');
       const { data, error } = await supabase.functions.invoke('clara-curate-recommendations', {
         body: { userId: user.id }
       });
 
+      console.log('📨 Clara response:', error ? 'ERROR' : 'SUCCESS', { data, error });
       toast.dismiss(progressToast);
 
       if (error) {
@@ -102,6 +109,14 @@ const PropertiesTab = ({
 
   return (
     <div className="mt-6 space-y-6">
+      {/* Show Clara loading state */}
+      {isClaraProcessing && (
+        <ClaraLoadingState 
+          title="Clara is Curating Your Matches"
+          message="Clara is searching live property websites and local services for you. This may take 20-30 seconds. Feel free to explore other sections while you wait!"
+        />
+      )}
+      
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold mb-2">Your Property Matches</h2>

@@ -555,8 +555,12 @@ function extractItemsByCategory(
   category: string,
   baseUrl: string
 ): ExtractedItem[] {
+  console.log(`🔍 Extracting items for category: ${category}`);
+  
   switch (category) {
     case 'properties':
+    case 'property_websites':  // Handle property_websites as synonym for properties
+      console.log('✅ Using property extraction logic');
       return extractProperties(document, baseUrl);
     case 'legal_services':
       return extractLegalServices(document, baseUrl);

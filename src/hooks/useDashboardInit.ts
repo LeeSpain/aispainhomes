@@ -85,6 +85,14 @@ export const useDashboardInit = (userId: string | undefined) => {
           claraPropertyRecommendations.length === 0 && 
           claraServiceRecommendations.length === 0;
 
+        console.log('📊 Dashboard data fetched:', {
+          claraProperties: claraPropertyRecommendations.length,
+          scrapedProperties: scrapedProperties.length,
+          claraServices: claraServiceRecommendations.length,
+          hasQuestionnaire: hasCompletedQuestionnaire,
+          isClaraProcessing
+        });
+
         // Prioritize Clara's curated properties, then fallback to scraped properties
         const allProperties: Property[] = claraPropertyRecommendations.length > 0 
           ? claraPropertyRecommendations.map((rec: any) => ({
@@ -105,6 +113,8 @@ export const useDashboardInit = (userId: string | undefined) => {
               createdAt: rec.created_at || new Date().toISOString(),
             }))
           : scrapedProperties;
+        
+        console.log(`✅ Total properties to display: ${allProperties.length}`);
 
         // Calculate match scores if questionnaire exists
         if (hasCompletedQuestionnaire && allProperties.length > 0) {
