@@ -551,18 +551,21 @@ serve(async (req) => {
 
     console.log(`📝 Saving ${topProperties.length} properties and ${liveServices.length} services`);
 
-    // Deactivate previous recommendations so only the newest 6 are active
-    await supabase
-      .from('property_recommendations')
-      .update({ is_active: false })
-      .eq('user_id', userId)
-      .eq('is_active', true);
-
-    await supabase
-      .from('service_recommendations')
-      .update({ is_active: false })
-      .eq('user_id', userId)
-      .eq('is_active', true);
+    // Only proceed if we have properties to save
+    if (topProperties.length === 0) {
+      console.warn('⚠️ No properties to save - keeping existing recommendations active');
+      return new Response(
+        JSON.stringify({
+          success: true,
+          servicesCount: liveServices.length,
+          propertiesCount: 0,
+          message: 'No new properties found. Keeping existing recommendations.',
+          liveSearchUsed: true,
+          searchTimestamp: new Date().toISOString(),
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Save property recommendations with search metadata
     const propertyInserts = topProperties.map(({ property, score, reasons }: any) => {
@@ -608,7 +611,23 @@ serve(async (req) => {
 
     if (propertyError) {
       console.error('Error saving properties:', propertyError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to save property recommendations' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    // Only deactivate old properties AFTER successfully inserting new ones
+    console.log('✅ Successfully saved new properties, now deactivating old ones...');
+    
+    // Deactivate all old property recommendations except the ones we just inserted
+    const newPropertyIds = propertyInserts.map((_, index) => index); // We'll use created_at for this
+    await supabase
+      .from('property_recommendations')
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .lt('created_at', new Date().toISOString()); // Deactivate anything created before this batch
 
     // Save service recommendations with search metadata
     const serviceInserts = liveServices.map((service: any) => ({
@@ -632,6 +651,14 @@ serve(async (req) => {
 
     if (serviceError) {
       console.error('Error saving services:', serviceError);
+    } else if (serviceInserts.length > 0) {
+      // Deactivate old service recommendations after successfully inserting new ones
+      await supabase
+        .from('service_recommendations')
+        .update({ is_active: false })
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .lt('created_at', new Date().toISOString());
     }
 
     console.log(`✅ Clara completed! Saved ${propertyInserts.length} properties and ${serviceInserts.length} services`);
