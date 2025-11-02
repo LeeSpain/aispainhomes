@@ -7,6 +7,7 @@ import { Bell, LogOut, Settings as SettingsIcon, User as UserIcon, User, Home, S
 import { alertsService } from '@/services/alertsService';
 import MobileNavMenu from '@/components/common/MobileNavMenu';
 import ClaraLoadingState from '@/components/common/ClaraLoadingState';
+import GlobalLoading from '@/components/common/GlobalLoading';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -198,9 +199,9 @@ const Dashboard = () => {
     { id: 'settings', label: 'Settings', icon: SettingsIcon },
   ];
   
-  // Don't render until auth check is complete
+  // Show loading state while auth/preferences are loading
   if (authLoading || !user || !userPreferences) {
-    return null;
+    return <GlobalLoading />;
   }
   
   return (
