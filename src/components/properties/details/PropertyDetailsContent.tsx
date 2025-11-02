@@ -70,9 +70,70 @@ const PropertyDetailsContent = ({ property, similarProperties, matchScore, match
       
       <div>
         <h2 className="text-xl font-semibold mb-3">Description</h2>
-        <p className="text-muted-foreground whitespace-pre-line">
-          {property.description}
-        </p>
+        {property.description ? (
+          <p className="text-muted-foreground whitespace-pre-line">
+            {property.description}
+          </p>
+        ) : (
+          <div className="bg-muted p-4 rounded-lg">
+            <p className="text-muted-foreground text-sm">
+              Full description not available. Please view the original listing for complete details.
+            </p>
+            {property.externalUrl && (
+              <a 
+                href={property.externalUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary text-sm font-medium hover:underline mt-2 inline-block"
+              >
+                View original listing →
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+
+      <Separator className="my-6" />
+
+      {/* Property Specifications */}
+      <div>
+        <h2 className="text-xl font-semibold mb-3">Property Specifications</h2>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Property Type</p>
+            <p className="font-medium capitalize">{property.type}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Status</p>
+            <p className="font-medium capitalize">{property.status === 'forSale' ? 'For Sale' : 'For Rent'}</p>
+          </div>
+          {property.referenceNumber && (
+            <div>
+              <p className="text-muted-foreground">Reference</p>
+              <p className="font-medium">{property.referenceNumber}</p>
+            </div>
+          )}
+          {property.yearBuilt && (
+            <div>
+              <p className="text-muted-foreground">Year Built</p>
+              <p className="font-medium">{property.yearBuilt}</p>
+            </div>
+          )}
+          {property.listingDate && (
+            <div>
+              <p className="text-muted-foreground">First Seen</p>
+              <p className="font-medium">
+                {new Date(property.listingDate).toLocaleDateString()}
+              </p>
+            </div>
+          )}
+          {property.sourceWebsite && (
+            <div>
+              <p className="text-muted-foreground">Source</p>
+              <p className="font-medium">{property.sourceWebsite}</p>
+            </div>
+          )}
+        </div>
       </div>
       
       <Separator className="my-6" />

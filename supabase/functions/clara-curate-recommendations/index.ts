@@ -417,28 +417,32 @@ serve(async (req) => {
     console.log(`📝 Saving ${topProperties.length} properties and ${liveServices.length} services`);
 
     // Save property recommendations with search metadata
-    const propertyInserts = topProperties.map(({ property, score, reasons }: any) => ({
-      user_id: userId,
-      property_id: property.id || null,
-      title: property.title || 'Property',
-      description: property.description || '',
-      location: property.location || location,
-      price: Number(property.price) || 0,
-      currency: property.currency || 'EUR',
-      property_type: property.metadata?.type || propertyTypes[0] || 'apartment',
-      bedrooms: Number(property.metadata?.bedrooms) || null,
-      bathrooms: Number(property.metadata?.bathrooms) || null,
-      area_sqm: Number(property.metadata?.area_sqm) || null,
-      features: property.metadata?.features || [],
-      images: property.images || [],
-      source_url: property.url || '',
-      match_score: Math.round(score),
-      match_reasons: reasons,
-      source_website: property.source_website || null,
-      search_query: property.search_query || null,
-      search_timestamp: new Date().toISOString(),
-      search_method: property.source_website ? 'live_search' : 'database_match',
-    }));
+    const propertyInserts = topProperties.map(({ property, score, reasons }: any) => {
+      const metadata = property.metadata || {};
+      
+      return {
+        user_id: userId,
+        property_id: property.id || null,
+        title: property.title || 'Property',
+        description: property.description || '',
+        location: property.location || location,
+        price: Number(property.price) || 0,
+        currency: property.currency || 'EUR',
+        property_type: metadata.type || propertyTypes[0] || 'apartment',
+        bedrooms: Number(metadata.bedrooms || metadata.rooms) || null,
+        bathrooms: Number(metadata.bathrooms) || null,
+        area_sqm: Number(metadata.size_m2 || metadata.area) || null,
+        features: metadata.features || [],
+        images: property.images || [],
+        source_url: property.url || '',
+        match_score: Math.round(score),
+        match_reasons: reasons,
+        source_website: property.source_website || null,
+        search_query: property.search_query || null,
+        search_timestamp: new Date().toISOString(),
+        search_method: property.source_website ? 'live_search' : 'database_match',
+      };
+    });
 
     const { error: propertyError } = await supabase
       .from('property_recommendations')

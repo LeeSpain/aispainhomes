@@ -101,6 +101,7 @@ export const useDashboardInit = (userId: string | undefined) => {
               location: rec.location,
               price: rec.price,
               priceUnit: 'total',
+              currency: rec.currency || 'EUR',
               image: rec.images?.[0] || '/placeholder.svg',
               images: rec.images || [],
               type: rec.property_type || 'apartment',
@@ -111,6 +112,11 @@ export const useDashboardInit = (userId: string | undefined) => {
               description: rec.description || '',
               status: 'forSale' as const,
               createdAt: rec.created_at || new Date().toISOString(),
+              sourceWebsite: rec.source_website || undefined,
+              externalUrl: rec.source_url || undefined,
+              referenceNumber: rec.property_id || undefined,
+              listingDate: rec.search_timestamp || rec.created_at || undefined,
+              lastChecked: rec.search_timestamp || undefined,
             }))
           : scrapedProperties;
         

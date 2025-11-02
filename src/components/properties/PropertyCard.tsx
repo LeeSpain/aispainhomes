@@ -27,6 +27,12 @@ export interface Property {
   isForRent?: boolean;
   yearBuilt?: number;
   imageUrl?: string;
+  sourceWebsite?: string;
+  sourceLogo?: string;
+  externalUrl?: string;
+  listingDate?: string;
+  referenceNumber?: string;
+  lastChecked?: string;
   agent?: {
     id: string;
     name: string;
@@ -80,11 +86,27 @@ const PropertyCard = ({ property, matchScore, matchReasons }: PropertyCardProps)
   };
   
   const formatPrice = (price: number) => {
+    if (!price || price === 0) return 'Contact for Price';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'EUR',
+      currency: property.currency || 'EUR',
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const getStatusBadge = () => {
+    if (property.status === 'forSale') return { text: 'For Sale', variant: 'default' as const };
+    if (property.status === 'forRent') return { text: 'For Rent', variant: 'secondary' as const };
+    return null;
+  };
+
+  const getListingAge = () => {
+    if (!property.listingDate) return null;
+    const days = Math.floor((Date.now() - new Date(property.listingDate).getTime()) / (1000 * 60 * 60 * 24));
+    if (days === 0) return 'Listed today';
+    if (days === 1) return 'Listed yesterday';
+    if (days < 7) return `Listed ${days} days ago`;
+    return null;
   };
   
   return (
@@ -93,9 +115,22 @@ const PropertyCard = ({ property, matchScore, matchReasons }: PropertyCardProps)
         <div className="relative">
           <PropertyImageGallery images={property.images} title={property.title} />
           
-          {displayMatchScore && (
-            <div className="absolute top-2 left-2 z-10 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-              {displayMatchScore}% Match
+          <div className="absolute top-2 left-2 z-10 flex gap-2">
+            {displayMatchScore && (
+              <div className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                {displayMatchScore}% Match
+              </div>
+            )}
+            {getStatusBadge() && (
+              <Badge variant={getStatusBadge()!.variant} className="shadow-lg">
+                {getStatusBadge()!.text}
+              </Badge>
+            )}
+          </div>
+          
+          {property.sourceWebsite && (
+            <div className="absolute bottom-2 left-2 z-10 bg-background/90 backdrop-blur px-2 py-1 rounded text-xs font-medium">
+              From {property.sourceWebsite}
             </div>
           )}
           
@@ -116,23 +151,39 @@ const PropertyCard = ({ property, matchScore, matchReasons }: PropertyCardProps)
             {property.title}
           </h3>
           
-          <p className="text-muted-foreground text-sm mb-3">{property.location}</p>
+          <p className="text-muted-foreground text-sm mb-2">{property.location}</p>
+          
+          {getListingAge() && (
+            <p className="text-xs text-muted-foreground mb-3">{getListingAge()}</p>
+          )}
           
           {matchReasons && matchReasons.length > 0 && (
             <div className="mb-3 space-y-1">
-              {matchReasons.slice(0, 2).map((reason, idx) => (
+              {matchReasons.slice(0, 3).map((reason, idx) => (
                 <div key={idx} className="text-xs text-primary flex items-start gap-1">
                   <span>✓</span>
-                  <span>{reason}</span>
+                  <span className="line-clamp-1">{reason}</span>
                 </div>
               ))}
             </div>
           )}
           
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-            <div>{property.bedrooms} beds</div>
-            <div>{property.bathrooms} baths</div>
-            <div>{property.area} m²</div>
+            {property.bedrooms > 0 ? (
+              <div>{property.bedrooms} beds</div>
+            ) : (
+              <div>TBD</div>
+            )}
+            {property.bathrooms > 0 ? (
+              <div>{property.bathrooms} baths</div>
+            ) : (
+              <div>TBD</div>
+            )}
+            {property.area > 0 ? (
+              <div>{property.area} m²</div>
+            ) : (
+              <div>Area TBD</div>
+            )}
           </div>
           
           <div className="font-semibold text-lg">

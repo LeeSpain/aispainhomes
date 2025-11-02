@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Circle, AlertCircle } from "lucide-react";
 
@@ -24,9 +25,19 @@ const PropertyMatchDetails = ({
     return (
       <Card className="border-muted">
         <CardContent className="pt-6">
-          <div className="text-center text-muted-foreground">
-            <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">Complete your questionnaire to see how well this property matches your needs.</p>
+          <div className="text-center py-6">
+            <div className="bg-muted p-4 rounded-lg mb-4">
+              <p className="text-sm font-medium text-foreground mb-2">
+                🎯 Get Personalized Match Analysis
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Complete our questionnaire to see how well this property matches your specific needs, 
+                budget, and lifestyle preferences.
+              </p>
+            </div>
+            <Button asChild>
+              <a href="/questionnaire">Complete Questionnaire</a>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -143,9 +154,18 @@ const PropertyMatchDetails = ({
             : 'bg-orange-50 border-orange-200 dark:bg-orange-950/20 dark:border-orange-900'
         }`}>
           <p className="text-sm font-medium">
-            {displayScore >= 80 && '🎯 Excellent Match! This property aligns very well with your requirements.'}
-            {displayScore >= 60 && displayScore < 80 && '✨ Good Match! This property meets most of your criteria.'}
-            {displayScore < 60 && '💡 Potential Option. Consider if you\'re flexible on some requirements.'}
+            {displayScore >= 80 && '✨ Excellent Match - Highly recommended based on your preferences'}
+            {displayScore >= 60 && displayScore < 80 && '👍 Good Match - Aligns well with most of your criteria'}
+            {displayScore < 60 && '💡 Worth Considering - May still meet your needs with some compromises'}
+          </p>
+        </div>
+
+        {/* Additional Context */}
+        <div className="bg-muted p-3 rounded-lg text-xs text-muted-foreground">
+          <p>
+            💡 <strong>About match scores:</strong> Our AI analyzes how properties align with your 
+            questionnaire responses including budget, location preferences, household size, and amenities. 
+            Lower scores don't mean bad properties—they might offer unique value not captured in your initial preferences.
           </p>
         </div>
       </CardContent>
