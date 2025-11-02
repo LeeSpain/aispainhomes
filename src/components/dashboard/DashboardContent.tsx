@@ -38,6 +38,8 @@ interface DashboardContentProps {
   hasCompletedQuestionnaire?: boolean;
   isClaraProcessing?: boolean;
   claraServiceRecommendations?: any[];
+  onNavigateToProfileProperty?: () => void;
+  profileInitialTab?: string;
 }
 
 const DashboardContent = ({ 
@@ -55,7 +57,9 @@ const DashboardContent = ({
   questionnaireData,
   hasCompletedQuestionnaire = false,
   isClaraProcessing = false,
-  claraServiceRecommendations = []
+  claraServiceRecommendations = [],
+  onNavigateToProfileProperty,
+  profileInitialTab = 'personal'
 }: DashboardContentProps) => {
   
   // Filter Clara services by category, fallback to mock data
@@ -164,10 +168,11 @@ const DashboardContent = ({
             questionnaireData={questionnaireData}
             hasCompletedQuestionnaire={hasCompletedQuestionnaire}
             isClaraProcessing={isClaraProcessing}
+            onNavigateToProfile={onNavigateToProfileProperty}
           />
         );
       case 'profile':
-        return <ProfileTab />;
+        return <ProfileTab initialTab={profileInitialTab} />;
       case 'favorites':
         return <FavoritesTab favorites={favoriteProperties} isLoading={isLoadingFavorites} />;
       case 'alerts':

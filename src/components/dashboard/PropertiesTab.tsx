@@ -20,6 +20,7 @@ interface PropertiesTabProps {
   questionnaireData?: any;
   hasCompletedQuestionnaire?: boolean;
   isClaraProcessing?: boolean;
+  onNavigateToProfile?: () => void;
 }
 
 const PropertiesTab = ({ 
@@ -29,7 +30,8 @@ const PropertiesTab = ({
   matchReasons,
   questionnaireData,
   hasCompletedQuestionnaire = false,
-  isClaraProcessing = false
+  isClaraProcessing = false,
+  onNavigateToProfile
 }: PropertiesTabProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -178,11 +180,11 @@ const PropertiesTab = ({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate('/questionnaire')}
+                onClick={onNavigateToProfile}
                 className="gap-2"
               >
                 <FileQuestion className="h-4 w-4" />
-                Edit Criteria
+                Edit Property Preferences
               </Button>
             </div>
             <div className="flex flex-wrap gap-2">

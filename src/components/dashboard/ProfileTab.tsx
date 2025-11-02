@@ -13,7 +13,7 @@ import PropertyPreferencesSection from './profile/PropertyPreferencesSection';
 import HouseholdSection from './profile/HouseholdSection';
 import ServicesSection from './profile/ServicesSection';
 
-const ProfileTab = () => {
+const ProfileTab = ({ initialTab = 'personal' }: { initialTab?: string }) => {
   const { user } = useAuth();
   const [questionnaireData, setQuestionnaireData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -141,7 +141,7 @@ const ProfileTab = () => {
       </Card>
 
       {/* Editable Sections */}
-      <Tabs defaultValue="personal" className="w-full">
+      <Tabs defaultValue={initialTab} className="w-full">
         <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
           <TabsTrigger value="personal">
             <User className="w-4 h-4 mr-2" />

@@ -39,7 +39,15 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('properties');
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [unreadAlertCount, setUnreadAlertCount] = useState(0);
+  const [profileInitialTab, setProfileInitialTab] = useState('personal');
   
+  // Reset profile initial tab when navigating away from profile
+  useEffect(() => {
+    if (activeTab !== 'profile') {
+      setProfileInitialTab('personal');
+    }
+  }, [activeTab]);
+
   // Force scroll to top whenever dashboard route is accessed (including same-path navigations)
   useEffect(() => {
     const toTop = () => {
@@ -204,6 +212,11 @@ const Dashboard = () => {
     return <GlobalLoading />;
   }
   
+  const handleNavigateToProfileProperty = () => {
+    setProfileInitialTab('property');
+    setActiveTab('profile');
+  };
+
   return (
     <>
       <Helmet>
@@ -383,6 +396,8 @@ const Dashboard = () => {
                   isClaraProcessing={isClaraProcessing}
                   questionnaireData={questionnaireData}
                   claraServiceRecommendations={claraServiceRecommendations}
+                  onNavigateToProfileProperty={handleNavigateToProfileProperty}
+                  profileInitialTab={profileInitialTab}
                 />
               )}
             </main>
