@@ -17,7 +17,7 @@ export interface DashboardInitData {
   claraServiceRecommendations: any[];
 }
 
-export const useDashboardInit = (userId: string | undefined) => {
+export const useDashboardInit = (userId: string | undefined, refreshKey: number = 0) => {
   const [data, setData] = useState<DashboardInitData>({
     properties: [],
     matchScores: new Map(),
@@ -353,7 +353,7 @@ export const useDashboardInit = (userId: string | undefined) => {
     return () => {
       mounted = false;
     };
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   return data;
 };

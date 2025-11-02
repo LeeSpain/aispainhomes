@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
@@ -114,9 +115,9 @@ const ProfileTab = ({ initialTab = 'personal' }: { initialTab?: string }) => {
         <p className="text-muted-foreground mb-4">
           Complete the questionnaire to set up your relocation profile
         </p>
-        <a href="/questionnaire" className="text-primary hover:underline">
+        <Link to="/questionnaire" className="text-primary hover:underline">
           Start Questionnaire
-        </a>
+        </Link>
       </Card>
     );
   }

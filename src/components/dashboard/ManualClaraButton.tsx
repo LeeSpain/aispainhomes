@@ -72,12 +72,15 @@ const ManualClaraButton = ({ userId, onSuccess }: ManualClaraButtonProps) => {
           description: 'From live search across Spanish property websites',
         });
         
-        // Wait a moment then refresh
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-        
-        onSuccess?.();
+        // Notify parent to refresh UI without full reload when available
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          // Fallback: soft reload after short delay
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        }
       } else {
         toast.warning('Clara is still searching. Check back in a few minutes!');
       }

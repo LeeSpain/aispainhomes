@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Link } from 'react-router-dom';
 
 interface PropertyMatchDetailsProps {
   matchScore?: number;
@@ -36,7 +37,7 @@ const PropertyMatchDetails = ({
               </p>
             </div>
             <Button asChild>
-              <a href="/questionnaire">Complete Questionnaire</a>
+              <Link to="/questionnaire">Complete Questionnaire</Link>
             </Button>
           </div>
         </CardContent>

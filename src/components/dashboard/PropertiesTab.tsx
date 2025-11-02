@@ -21,6 +21,7 @@ interface PropertiesTabProps {
   hasCompletedQuestionnaire?: boolean;
   isClaraProcessing?: boolean;
   onNavigateToProfile?: () => void;
+  onRefreshComplete?: () => void;
 }
 
 const PropertiesTab = ({ 
@@ -31,7 +32,8 @@ const PropertiesTab = ({
   questionnaireData,
   hasCompletedQuestionnaire = false,
   isClaraProcessing = false,
-  onNavigateToProfile
+  onNavigateToProfile,
+  onRefreshComplete
 }: PropertiesTabProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -85,8 +87,8 @@ const PropertiesTab = ({
       console.log('✅ Clara completed successfully:', data);
       toast.success(`Matches updated! Found ${data.propertiesCount || 0} properties and ${data.servicesCount || 0} services.`);
 
-      // Reload the page to show new matches
-      window.location.reload();
+      // Notify parent to refetch data without full reload
+      onRefreshComplete?.();
     } catch (error: any) {
       console.error('❌ Error refreshing matches:', error);
       toast.error(`Failed to refresh matches: ${error.message || "Please try again later."}`);
@@ -225,7 +227,7 @@ const PropertiesTab = ({
                 <p className="text-muted-foreground max-w-md mx-auto">
                   Clara needs to curate your personalized property recommendations. Click the button below to start the search.
                 </p>
-                {user && <ManualClaraButton userId={user.id} />}
+                {user && <ManualClaraButton userId={user.id} onSuccess={onRefreshComplete} />}
               </>
             ) : (
               <>

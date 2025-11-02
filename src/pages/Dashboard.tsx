@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [unreadAlertCount, setUnreadAlertCount] = useState(0);
   const [profileInitialTab, setProfileInitialTab] = useState('personal');
+  const [refreshKey, setRefreshKey] = useState(0);
   
   // Reset profile initial tab when navigating away from profile
   useEffect(() => {
@@ -80,7 +81,7 @@ const Dashboard = () => {
     questionnaireData,
     hasCompletedQuestionnaire,
     claraServiceRecommendations
-  } = useDashboardInit(user?.id);
+  } = useDashboardInit(user?.id, refreshKey);
   
   // Load unread alert count
   useEffect(() => {
@@ -118,11 +119,7 @@ const Dashboard = () => {
         return;
       }
       
-      // 3. Questionnaire not completed -> questionnaire page
-      if (!hasCompletedQuestionnaire) {
-        navigate('/questionnaire');
-        return;
-      }
+      // Questionnaire completion check intentionally removed to avoid false redirects during data loading
     };
     
     checkEmailVerification();
@@ -215,6 +212,10 @@ const Dashboard = () => {
   const handleNavigateToProfileProperty = () => {
     setProfileInitialTab('property');
     setActiveTab('profile');
+  };
+
+  const handleRefreshComplete = () => {
+    setRefreshKey((k) => k + 1);
   };
 
   return (
@@ -398,6 +399,7 @@ const Dashboard = () => {
                   claraServiceRecommendations={claraServiceRecommendations}
                   onNavigateToProfileProperty={handleNavigateToProfileProperty}
                   profileInitialTab={profileInitialTab}
+                  onRefreshComplete={handleRefreshComplete}
                 />
               )}
             </main>
