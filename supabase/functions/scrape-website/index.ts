@@ -70,11 +70,86 @@ Deno.serve(async (req) => {
     requestBody = JSON.parse(bodyText);
     const { websiteId, url } = requestBody as ScrapeRequest;
 
-    if (!websiteId) {
+    // Allow ad-hoc scraping without websiteId if URL is provided
+    if (!websiteId && !url) {
       return new Response(
-        JSON.stringify({ error: 'Invalid request parameters' }),
+        JSON.stringify({ error: 'Either websiteId or url must be provided' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Ad-hoc scraping mode (no database tracking)
+    if (!websiteId && url) {
+      console.log('🔧 AD-HOC SCRAPING MODE - No database tracking');
+      console.log(`🌐 Target URL: ${url}`);
+      
+      try {
+        const hostname = new URL(url).hostname.toLowerCase();
+        console.log(`🌐 Hostname: ${hostname}`);
+        
+        // Fetch with retries
+        const maxRetries = 2;
+        let fetchResponse: Response | null = null;
+        
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            fetchResponse = await fetch(url, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+              },
+            });
+            
+            if (fetchResponse.ok) break;
+            if (attempt < maxRetries) await new Promise(resolve => setTimeout(resolve, 1000));
+          } catch (err) {
+            if (attempt === maxRetries) throw err;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+        
+        if (!fetchResponse || !fetchResponse.ok) {
+          throw new Error(`Failed to fetch: ${fetchResponse?.status}`);
+        }
+        
+        const html = await fetchResponse.text();
+        const document = new DOMParser().parseFromString(html, 'text/html');
+        
+        if (!document) {
+          throw new Error('Failed to parse HTML');
+        }
+        
+        // Determine category from hostname
+        let category = 'properties';
+        if (hostname.includes('idealista') || hostname.includes('fotocasa') || 
+            hostname.includes('kyero') || hostname.includes('habitaclia')) {
+          category = 'property_websites';
+        }
+        
+        const items = extractItemsByCategory(document, category, url, hostname);
+        console.log(`✅ Extracted ${items.length} items from ${url}`);
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            items,
+            duration_ms: Date.now() - startTime 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error('❌ Ad-hoc scraping failed:', error);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to scrape URL',
+            details: error instanceof Error ? error.message : 'Unknown error',
+            success: false,
+            items: []
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Validate URL if provided
@@ -609,6 +684,10 @@ function extractItemsByCategory(
       console.log('✅ Using Kyero-specific extractor');
       return extractKyero(document, baseUrl);
     }
+    if (hostname.includes('habitaclia.com')) {
+      console.log('✅ Using Habitaclia-specific extractor');
+      return extractHabitaclia(document, baseUrl);
+    }
     
     console.log('⚠️ No domain-specific extractor found, using generic property extraction');
   }
@@ -641,6 +720,8 @@ function extractProperties(document: any, baseUrl: string): ExtractedItem[] {
     return extractFotocasa(document, baseUrl);
   } else if (baseUrl.includes('kyero.com')) {
     return extractKyero(document, baseUrl);
+  } else if (baseUrl.includes('habitaclia.com')) {
+    return extractHabitaclia(document, baseUrl);
   }
 
   // Fallback to generic property extraction
@@ -965,5 +1046,72 @@ function extractKyero(document: any, baseUrl: string): ExtractedItem[] {
 
   console.log(`🏢 Kyero: Extracted ${items.length} items`);
   return items;
+}
+
+function extractHabitaclia(document: any, baseUrl: string): ExtractedItem[] {
+  const items: ExtractedItem[] = [];
+  
+  // Habitaclia uses different selectors for listing pages
+  const propertyElements = document.querySelectorAll(
+    'article.list-item, .item-multimedia-container, .list-item-info, li.property-item, .property-list-item'
+  );
+  console.log(`🏢 Habitaclia: Found ${propertyElements.length} property elements`);
+
+  propertyElements.forEach((element: any, index: number) => {
+    try {
+      const titleEl = element.querySelector('.item-title, h3 a, .list-item-title a, .property-title');
+      const title = titleEl?.textContent?.trim() || `Property ${index + 1}`;
+      
+      const priceEl = element.querySelector('.list-item-price, .item-price, .property-price, .h3-simulated');
+      const priceText = priceEl?.textContent?.trim();
+      
+      const locationEl = element.querySelector('.item-location, .list-item-location, .property-location');
+      const location = locationEl?.textContent?.trim();
+      
+      const linkEl = element.querySelector('a[href*="/vivienda-"], a[href*="/piso-"], a.item-link');
+      const relativeUrl = linkEl?.getAttribute('href');
+      const url = relativeUrl ? new URL(relativeUrl, baseUrl).href : undefined;
+      
+      const imageEl = element.querySelector('img.item-image, .item-multimedia img, picture img');
+      const imageSrc = imageEl?.getAttribute('src') || imageEl?.getAttribute('data-src') || imageEl?.getAttribute('data-lazy');
+      
+      // Extract property details from metadata
+      const detailsEl = element.querySelector('.item-details, .property-details');
+      const bedsEl = element.querySelector('.item-detail:has([data-icon="bed"]), .item-detail-char');
+      const bathsEl = element.querySelector('.item-detail:has([data-icon="bath"])');
+      const areaEl = element.querySelector('.item-detail:has([data-icon="area"]), .item-surface');
+      
+      const externalId = relativeUrl?.split('/').filter(Boolean).pop()?.split('?')[0] || `habitaclia-${index}`;
+
+      items.push({
+        external_id: externalId,
+        title,
+        price: extractPrice(priceText),
+        currency: 'EUR',
+        location,
+        url,
+        images: imageSrc ? [imageSrc] : [],
+        item_type: 'property',
+        metadata: { 
+          source: 'habitaclia', 
+          raw_price_text: priceText,
+          bedrooms: extractNumber(bedsEl?.textContent),
+          bathrooms: extractNumber(bathsEl?.textContent),
+          area_m2: extractNumber(areaEl?.textContent),
+        },
+      });
+    } catch (error) {
+      console.error(`❌ Error extracting Habitaclia property ${index}:`, error);
+    }
+  });
+
+  console.log(`🏢 Habitaclia: Extracted ${items.length} items`);
+  return items;
+}
+
+function extractNumber(text?: string): number | undefined {
+  if (!text) return undefined;
+  const match = text.match(/\d+/);
+  return match ? parseInt(match[0]) : undefined;
 }
 
