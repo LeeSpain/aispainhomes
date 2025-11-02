@@ -173,7 +173,18 @@ const PropertiesTab = ({
       {showPreferences && (
         <Card className="bg-primary/5 border-primary/20">
           <CardContent className="pt-6">
-            <h3 className="text-sm font-semibold mb-3 text-primary">Your Search Criteria</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-primary">Your Search Criteria</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/questionnaire')}
+                className="gap-2"
+              >
+                <FileQuestion className="h-4 w-4" />
+                Edit Criteria
+              </Button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {questionnaireData.budget_range && (
                 <Badge variant="secondary" className="gap-1">

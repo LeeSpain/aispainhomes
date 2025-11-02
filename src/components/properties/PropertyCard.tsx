@@ -109,8 +109,21 @@ const PropertyCard = ({ property, matchScore, matchReasons }: PropertyCardProps)
     return null;
   };
   
+  // Handle card click - open external URL if available, otherwise internal page
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (property.externalUrl) {
+      e.preventDefault();
+      window.open(property.externalUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const CardWrapper = property.externalUrl ? 'div' : Link;
+  const cardProps = property.externalUrl 
+    ? { onClick: handleCardClick, className: "block h-full group cursor-pointer" }
+    : { to: `/property/${property.id}`, className: "block h-full group" };
+
   return (
-    <Link to={`/property/${property.id}`} className="block h-full group">
+    <CardWrapper {...cardProps as any}>
       <div className="h-full overflow-hidden rounded-lg border bg-background shadow-sm transition-all hover:shadow-md">
         <div className="relative">
           <PropertyImageGallery images={property.images} title={property.title} />
@@ -192,7 +205,7 @@ const PropertyCard = ({ property, matchScore, matchReasons }: PropertyCardProps)
           </div>
         </div>
       </div>
-    </Link>
+    </CardWrapper>
   );
 };
 
