@@ -16,13 +16,22 @@ async function searchLiveProperties(
 ): Promise<any[]> {
   console.log(`🔍 Clara searching for properties in ${location}...`);
   
-  // Get top property websites from official_resources
-  const { data: propertyWebsites } = await supabase
+  // Get top property websites from official_resources, prioritizing supported domains
+  const { data: allPropertyWebsites } = await supabase
     .from('official_resources')
     .select('*')
     .eq('category', 'property_websites')
-    .eq('is_active', true)
-    .limit(5);
+    .eq('is_active', true);
+  
+  // Prioritize domains we have extractors for
+  const supportedDomains = ['idealista.com', 'fotocasa.es', 'kyero.com'];
+  const propertyWebsites = (allPropertyWebsites || [])
+    .sort((a, b) => {
+      const aSupported = supportedDomains.some(d => a.url.includes(d)) ? 0 : 1;
+      const bSupported = supportedDomains.some(d => b.url.includes(d)) ? 0 : 1;
+      return aSupported - bSupported;
+    })
+    .slice(0, 5);
 
   if (!propertyWebsites || propertyWebsites.length === 0) {
     console.log('No property websites configured, using fallback');

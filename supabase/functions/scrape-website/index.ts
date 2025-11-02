@@ -68,6 +68,7 @@ Deno.serve(async (req) => {
     // Parse request body ONCE and store
     bodyText = await req.text();
     requestBody = JSON.parse(bodyText);
+    const { websiteId, url } = requestBody as ScrapeRequest;
 
     if (!websiteId) {
       return new Response(

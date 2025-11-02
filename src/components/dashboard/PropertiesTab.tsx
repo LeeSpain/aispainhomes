@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ManualClaraButton from "./ManualClaraButton";
 import { useAuth } from "@/contexts/auth/useAuth";
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import ClaraLoadingState from "@/components/common/ClaraLoadingState";
 
 interface PropertiesTabProps {
@@ -39,11 +39,7 @@ const PropertiesTab = ({
     console.log('🔄 Refresh Matches clicked');
     
     if (!hasCompletedQuestionnaire) {
-      toast({
-        title: "Complete questionnaire first",
-        description: "Please complete the property questionnaire to get matches.",
-        variant: "destructive",
-      });
+      toast.error("Please complete the property questionnaire to get matches.");
       return;
     }
 
@@ -52,18 +48,11 @@ const PropertiesTab = ({
       
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        toast({
-          title: "Authentication required",
-          description: "Please log in to refresh your matches.",
-          variant: "destructive",
-        });
+        toast.error("Please log in to refresh your matches.");
         return;
       }
 
-      toast({
-        title: "Clara is working",
-        description: "Curating personalized recommendations for you...",
-      });
+      toast.info("Clara is curating personalized recommendations for you...");
 
       console.log('📡 Invoking clara-curate-recommendations edge function...');
       const { data, error } = await supabase.functions.invoke('clara-curate-recommendations', {
@@ -75,22 +64,16 @@ const PropertiesTab = ({
       if (error) {
         console.error('❌ Edge function error:', error);
         
-        // Handle specific error codes
-        if (error.message?.includes('402')) {
-          toast({
-            title: "Payment Required",
-            description: "Please add credits to your Lovable workspace to continue using Clara.",
-            variant: "destructive",
-          });
+        // Handle specific error codes by checking status
+        const errorStatus = (error as any)?.status || (error as any)?.context?.status;
+        
+        if (errorStatus === 402) {
+          toast.error("Payment Required: Please add credits to your Lovable workspace to continue using Clara.");
           return;
         }
         
-        if (error.message?.includes('429')) {
-          toast({
-            title: "Rate Limit Exceeded",
-            description: "Too many requests. Please try again in a few minutes.",
-            variant: "destructive",
-          });
+        if (errorStatus === 429) {
+          toast.error("Rate Limit Exceeded: Too many requests. Please try again in a few minutes.");
           return;
         }
         
@@ -98,20 +81,13 @@ const PropertiesTab = ({
       }
 
       console.log('✅ Clara completed successfully:', data);
-      toast({
-        title: "Matches updated!",
-        description: `Found ${data.propertiesCount || 0} properties and ${data.servicesCount || 0} services.`,
-      });
+      toast.success(`Matches updated! Found ${data.propertiesCount || 0} properties and ${data.servicesCount || 0} services.`);
 
       // Reload the page to show new matches
       window.location.reload();
     } catch (error: any) {
       console.error('❌ Error refreshing matches:', error);
-      toast({
-        title: "Failed to refresh matches",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
+      toast.error(`Failed to refresh matches: ${error.message || "Please try again later."}`);
     } finally {
       setIsRefreshing(false);
     }

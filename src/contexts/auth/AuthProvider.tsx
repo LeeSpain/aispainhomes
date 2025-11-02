@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .select('*')
         .eq('user_id', userId)
         .in('status', ['active', 'trial'])
-        .single();
+        .maybeSingle();
 
       // Fetch profile from database
       const { data: profile } = await supabase
