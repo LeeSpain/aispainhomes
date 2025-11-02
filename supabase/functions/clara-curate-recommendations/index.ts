@@ -59,25 +59,39 @@ async function searchLiveProperties(
         
         // Try to scrape the property page
         try {
-          // Find or create tracked_website entry for scraping
-          let trackedWebsiteId = website.id;
+          // Find website ID in tracked_websites (should exist after migration)
+          let websiteId = null;
           
-          // Check if we have a tracked_website for this
           const { data: trackedWebsite } = await supabase
             .from('tracked_websites')
             .select('id')
             .eq('url', website.url)
             .maybeSingle();
 
-          if (trackedWebsite) {
-            trackedWebsiteId = trackedWebsite.id;
+          if (trackedWebsite?.id) {
+            websiteId = trackedWebsite.id;
+          } else {
+            // Fallback to official_resources if not in tracked_websites
+            const { data: officialResource } = await supabase
+              .from('official_resources')
+              .select('id')
+              .eq('url', website.url)
+              .eq('category', 'property_websites')
+              .maybeSingle();
+            
+            websiteId = officialResource?.id;
+          }
+
+          if (!websiteId) {
+            console.log(`Website not found in any table: ${website.url}`);
+            continue;
           }
 
           // Scrape the property page
           const scrapeResponse = await supabase.functions.invoke('scrape-website', {
             body: { 
-              websiteId: trackedWebsiteId,
-              url: propertyUrl 
+              websiteId: websiteId,
+              url: propertyUrl
             }
           });
 

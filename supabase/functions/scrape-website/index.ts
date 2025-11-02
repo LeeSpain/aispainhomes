@@ -114,15 +114,41 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get website details from database
-    const { data: website, error: websiteError } = await supabase
+    // Get website details from database - try tracked_websites first, then official_resources
+    let website = null;
+    
+    const { data: trackedWebsite, error: trackedError } = await supabase
       .from('tracked_websites')
       .select('*')
       .eq('id', websiteId)
       .single();
 
-    if (websiteError || !website) {
-      console.error('Error fetching website:', websiteError);
+    if (trackedWebsite) {
+      website = trackedWebsite;
+    } else {
+      // Fallback to official_resources for system property websites
+      const { data: officialResource, error: officialError } = await supabase
+        .from('official_resources')
+        .select('*')
+        .eq('id', websiteId)
+        .single();
+      
+      if (officialResource) {
+        // Convert official_resource to tracked_website format
+        website = {
+          id: officialResource.id,
+          url: officialResource.url,
+          name: officialResource.title,
+          category: officialResource.category,
+          user_id: null,
+          is_active: officialResource.is_active,
+          metadata: officialResource.metadata || {},
+        };
+      }
+    }
+
+    if (!website) {
+      console.error('Website not found in tracked_websites or official_resources');
       return new Response(
         JSON.stringify({ error: 'Website not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
