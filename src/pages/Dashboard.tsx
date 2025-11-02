@@ -248,8 +248,12 @@ const Dashboard = () => {
               </Button>
               
               <div className="flex items-center gap-2">
-                <Home className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <img 
+                  src="/src/assets/ai-logo-icon.png" 
+                  alt="AI Homes Spain Logo" 
+                  className="w-8 h-8 rounded-md"
+                />
+                <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
                   AI Homes Spain
                 </h1>
               </div>
