@@ -44,29 +44,101 @@ async function searchLiveProperties(
     try {
       console.log(`🌐 Searching ${website.authority} (${website.url})`);
       
-      // Simplified search query (DuckDuckGo works better with simple queries)
-      const propertyTypeStr = propertyTypes[0] || 'property'; // Use first type only
-      const searchQuery = `${propertyTypeStr} for sale ${location} site:${new URL(website.url).hostname}`;
-      
-      console.log(`📝 Search query: "${searchQuery}"`);
-      
-      // Call web-search function
-      const searchResponse = await supabase.functions.invoke('web-search', {
-        body: { query: searchQuery, numResults: 5 }
-      });
-      
-      console.log(`📊 Search response:`, searchResponse.error ? 'ERROR' : 'SUCCESS');
+      // Language-aware search query with domain-specific heuristics
+      const hostname = new URL(website.url).hostname;
+      const primaryType = (propertyTypes[0] || 'vivienda').toLowerCase();
 
-      if (searchResponse.error) {
-        console.error(`Search error for ${website.authority}:`, searchResponse.error);
+      // Map common property types to Spanish equivalents for ES domains
+      const typeMap: Record<string, string> = {
+        apartment: 'piso',
+        flat: 'piso',
+        condo: 'apartamento',
+        house: 'casa',
+        villa: 'villa',
+        townhouse: 'adosado',
+        penthouse: 'ático',
+        studio: 'estudio',
+        property: 'vivienda',
+      };
+
+      const isSpanishDomain = /idealista\.com|fotocasa\.es|habitaclia\.com/i.test(hostname);
+      const esType = typeMap[primaryType] || 'vivienda';
+
+      const buildQuery = (term: string) => (
+        isSpanishDomain
+          ? `${term} en venta ${location} site:${hostname}`
+          : `${term} for sale ${location} site:${hostname}`
+      );
+
+      const searchQuery = buildQuery(isSpanishDomain ? esType : primaryType);
+      console.log(`📝 Search query: "${searchQuery}"`);
+
+      // Execute primary search
+      const primarySearch = await supabase.functions.invoke('web-search', {
+        body: { query: searchQuery, numResults: 8 }
+      });
+      console.log(`📊 Search response:`, primarySearch.error ? 'ERROR' : 'SUCCESS');
+      if (primarySearch.error) {
+        console.error(`Search error for ${website.authority}:`, primarySearch.error);
         continue;
       }
 
-      const searchResults = searchResponse.data?.results || [];
-      console.log(`✅ Found ${searchResults.length} search results from ${website.authority}`);
+      const rawResults = primarySearch.data?.results || [];
+
+      // Domain-specific URL filtering to prefer listing/detail pages
+      const filterByDomainHeuristics = (url: string) => {
+        try {
+          const u = new URL(url);
+          if (u.hostname !== hostname) return false;
+          const path = u.pathname.toLowerCase();
+          if (hostname.includes('idealista')) {
+            return /inmueble|comprar|venta/.test(path);
+          }
+          if (hostname.includes('fotocasa')) {
+            return /comprar|en-venta|vivienda/.test(path);
+          }
+          if (hostname.includes('kyero')) {
+            return /property|for-sale/.test(path);
+          }
+          if (hostname.includes('habitaclia')) {
+            return /inmueble|comprar|venta/.test(path);
+          }
+          return true;
+        } catch {
+          return false;
+        }
+      };
+
+      let filteredResults = (rawResults as any[]).filter(r => typeof r.url === 'string' && filterByDomainHeuristics(r.url));
+
+      // Fallback: try an alternative Spanish synonym if nothing matched
+      if (filteredResults.length === 0) {
+        const altTerm = isSpanishDomain
+          ? (esType === 'piso' ? 'apartamento' : esType === 'casa' ? 'chalet' : 'vivienda')
+          : (primaryType === 'apartment' ? 'flat' : primaryType);
+        const altQuery = buildQuery(altTerm);
+        console.log(`🔁 No filtered results, trying alt query: "${altQuery}"`);
+        const altSearch = await supabase.functions.invoke('web-search', {
+          body: { query: altQuery, numResults: 8 }
+        });
+        if (!altSearch.error) {
+          const altRaw = altSearch.data?.results || [];
+          filteredResults = (altRaw as any[]).filter((r: any) => typeof r.url === 'string' && filterByDomainHeuristics(r.url));
+        }
+      }
+
+      // Final guard: if still empty, use first few raw results from same hostname
+      if (filteredResults.length === 0) {
+        filteredResults = (rawResults as any[]).filter((r: any) => {
+          try { return new URL(r.url).hostname === hostname; } catch { return false; }
+        });
+      }
+
+      filteredResults = filteredResults.slice(0, 5);
+      console.log(`✅ Using ${filteredResults.length} filtered results from ${website.authority}`);
 
       // Extract property URLs from search results
-      for (const result of searchResults) {
+      for (const result of filteredResults) {
         const propertyUrl = result.url;
         console.log(`🔗 Processing property URL: ${propertyUrl}`);
         
@@ -606,6 +678,7 @@ serve(async (req) => {
         search_query: property.search_query || null,
         search_timestamp: runStartedAt, // Use stable timestamp
         search_method: property.source_website ? 'live_search' : 'database_match',
+        is_active: true,
       };
     });
 
@@ -662,6 +735,7 @@ serve(async (req) => {
       search_query: service.search_query || null,
       search_timestamp: runStartedAt, // Use stable timestamp
       search_method: 'live_search',
+      is_active: true,
     }));
 
     if (serviceInserts.length > 0) {
