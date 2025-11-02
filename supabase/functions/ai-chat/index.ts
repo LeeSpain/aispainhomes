@@ -115,6 +115,31 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
     
+    // Fetch user's favorited properties
+    const { data: favoritedProperties } = await supabase
+      .from('property_recommendations')
+      .select('title, location, price, bedrooms, bathrooms, match_score, source_url')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .order('match_score', { ascending: false })
+      .limit(10);
+    
+    // Fetch user's property match history
+    const { data: propertyMatches } = await supabase
+      .from('property_recommendations')
+      .select('title, location, price, match_score, match_reasons, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    
+    // Fetch saved searches
+    const { data: savedSearches } = await supabase
+      .from('saved_searches')
+      .select('name, search_criteria, is_active, created_at')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .limit(10);
+    
     // Fetch relevant official resources with better matching
     const lastUserMessage = messages[messages.length - 1]?.content || '';
     const searchTerms = lastUserMessage.toLowerCase();
@@ -253,6 +278,51 @@ serve(async (req) => {
       if (profile.property_type_preference) {
         systemPrompt += `Property Type Preference: ${profile.property_type_preference}\n`;
       }
+    }
+    
+    // Add favorited properties context
+    if (favoritedProperties && favoritedProperties.length > 0) {
+      systemPrompt += '\n\n=== USER\'S SAVED PROPERTIES ===\n';
+      systemPrompt += `The user has saved ${favoritedProperties.length} properties:\n\n`;
+      favoritedProperties.forEach((prop: any, idx: number) => {
+        systemPrompt += `${idx + 1}. ${prop.title} - ${prop.location}\n`;
+        systemPrompt += `   Price: €${prop.price.toLocaleString()} | ${prop.bedrooms} beds | ${prop.bathrooms} baths\n`;
+        systemPrompt += `   Match Score: ${prop.match_score}%\n`;
+        if (prop.source_url) systemPrompt += `   URL: ${prop.source_url}\n`;
+        systemPrompt += '\n';
+      });
+    }
+    
+    // Add property match history context
+    if (propertyMatches && propertyMatches.length > 0) {
+      systemPrompt += '\n=== USER\'S PROPERTY MATCH HISTORY ===\n';
+      systemPrompt += `The user has been matched with ${propertyMatches.length} properties recently:\n\n`;
+      const topMatches = propertyMatches.slice(0, 5);
+      topMatches.forEach((prop: any, idx: number) => {
+        systemPrompt += `${idx + 1}. ${prop.title} - ${prop.location} (${prop.match_score}% match)\n`;
+        if (prop.match_reasons && prop.match_reasons.length > 0) {
+          systemPrompt += `   Reasons: ${prop.match_reasons.join(', ')}\n`;
+        }
+      });
+      systemPrompt += '\n';
+    }
+    
+    // Add saved searches context
+    if (savedSearches && savedSearches.length > 0) {
+      systemPrompt += '\n=== USER\'S SAVED PROPERTY SEARCHES ===\n';
+      systemPrompt += `The user has ${savedSearches.length} active property searches:\n\n`;
+      savedSearches.forEach((search: any, idx: number) => {
+        systemPrompt += `${idx + 1}. "${search.name}"\n`;
+        if (search.search_criteria) {
+          const criteria = search.search_criteria;
+          if (criteria.location) systemPrompt += `   Location: ${criteria.location}\n`;
+          if (criteria.minPrice || criteria.maxPrice) {
+            systemPrompt += `   Price Range: €${criteria.minPrice || '0'} - €${criteria.maxPrice || 'unlimited'}\n`;
+          }
+          if (criteria.bedrooms) systemPrompt += `   Bedrooms: ${criteria.bedrooms}\n`;
+        }
+        systemPrompt += '\n';
+      });
     }
     
     // Add questionnaire context

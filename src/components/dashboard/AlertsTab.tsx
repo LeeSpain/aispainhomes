@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { alertsService, UserAlert } from '@/services/alertsService';
 import { useAuth } from '@/contexts/auth/useAuth';
 import { toast } from 'sonner';
 import { Trash2, Check, Bell } from 'lucide-react';
+import PropertyAlertsManager from './PropertyAlertsManager';
+import EmailPreferencesManager from './EmailPreferencesManager';
 
 const AlertsTab = () => {
   const { user } = useAuth();
@@ -79,8 +82,15 @@ const AlertsTab = () => {
   }
 
   return (
-    <div className="mt-6">
-      <div className="flex justify-between items-center mb-6">
+    <Tabs defaultValue="notifications" className="mt-6">
+      <TabsList className="mb-6">
+        <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsTrigger value="property-alerts">Property Alerts</TabsTrigger>
+        <TabsTrigger value="email-preferences">Email Preferences</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="notifications">
+        <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-semibold">Your Alerts</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -153,7 +163,16 @@ const AlertsTab = () => {
           ))}
         </div>
       )}
-    </div>
+      </TabsContent>
+
+      <TabsContent value="property-alerts">
+        <PropertyAlertsManager />
+      </TabsContent>
+
+      <TabsContent value="email-preferences">
+        <EmailPreferencesManager />
+      </TabsContent>
+    </Tabs>
   );
 };
 

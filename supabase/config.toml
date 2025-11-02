@@ -47,3 +47,6 @@ verify_jwt = true
 
 [functions.admin-update-user]
 verify_jwt = true
+
+[functions.send-property-alert]
+verify_jwt = true
