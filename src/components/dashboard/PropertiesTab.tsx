@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ManualClaraButton from "./ManualClaraButton";
 import { useAuth } from "@/contexts/auth/useAuth";
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from "@/hooks/use-toast";
 import ClaraLoadingState from "@/components/common/ClaraLoadingState";
 
 interface PropertiesTabProps {
@@ -36,65 +36,82 @@ const PropertiesTab = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefreshMatches = async () => {
-    if (!user?.id) {
-      toast.error('Please log in to refresh matches');
-      return;
-    }
-
-    if (!hasCompletedQuestionnaire) {
-      toast.warning('Please complete the questionnaire first');
-      navigate('/questionnaire');
-      return;
-    }
-
-    setIsRefreshing(true);
+    console.log('🔄 Refresh Matches clicked');
     
+    if (!hasCompletedQuestionnaire) {
+      toast({
+        title: "Complete questionnaire first",
+        description: "Please complete the property questionnaire to get matches.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      console.log('🚀 Triggering Clara recommendations for user:', user.id);
+      setIsRefreshing(true);
       
-      const progressToast = toast.info('🤖 Clara is searching...', {
-        description: 'Searching property websites and local services',
-        duration: Infinity,
-      });
-
-      console.log('📡 Calling clara-curate-recommendations edge function...');
-      const { data, error } = await supabase.functions.invoke('clara-curate-recommendations', {
-        body: { userId: user.id }
-      });
-
-      console.log('📨 Clara response:', error ? 'ERROR' : 'SUCCESS', { data, error });
-      toast.dismiss(progressToast);
-
-      if (error) {
-        console.error('Clara error:', error);
-        
-        if (error.message?.includes('429')) {
-          toast.error('Rate limit reached. Please wait a moment and try again.');
-        } else if (error.message?.includes('402')) {
-          toast.error('AI service temporarily unavailable. Please try again later.');
-        } else {
-          toast.error('Failed to generate recommendations. Please try again.');
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to refresh your matches.",
+          variant: "destructive",
+        });
         return;
       }
 
-      const propertiesCount = data?.propertiesCount || 0;
-      const servicesCount = data?.servicesCount || 0;
+      toast({
+        title: "Clara is working",
+        description: "Curating personalized recommendations for you...",
+      });
 
-      if (propertiesCount > 0 || servicesCount > 0) {
-        toast.success(`✨ Clara found ${propertiesCount} properties and ${servicesCount} services!`, {
-          description: 'Refreshing your dashboard...',
-        });
+      console.log('📡 Invoking clara-curate-recommendations edge function...');
+      const { data, error } = await supabase.functions.invoke('clara-curate-recommendations', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('❌ Edge function error:', error);
         
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } else {
-        toast.warning('No new matches found. Check back later!');
+        // Handle specific error codes
+        if (error.message?.includes('402')) {
+          toast({
+            title: "Payment Required",
+            description: "Please add credits to your Lovable workspace to continue using Clara.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        if (error.message?.includes('429')) {
+          toast({
+            title: "Rate Limit Exceeded",
+            description: "Too many requests. Please try again in a few minutes.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        throw error;
       }
-    } catch (error) {
-      console.error('Exception triggering Clara:', error);
-      toast.error('Something went wrong. Please try again.');
+
+      console.log('✅ Clara completed successfully:', data);
+      toast({
+        title: "Matches updated!",
+        description: `Found ${data.propertiesCount || 0} properties and ${data.servicesCount || 0} services.`,
+      });
+
+      // Reload the page to show new matches
+      window.location.reload();
+    } catch (error: any) {
+      console.error('❌ Error refreshing matches:', error);
+      toast({
+        title: "Failed to refresh matches",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
     } finally {
       setIsRefreshing(false);
     }

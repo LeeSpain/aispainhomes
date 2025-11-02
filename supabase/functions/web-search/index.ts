@@ -18,6 +18,8 @@ interface SearchResult {
 }
 
 serve(async (req) => {
+  console.log('🔍 === WEB SEARCH STARTED ===');
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -27,6 +29,7 @@ serve(async (req) => {
 
     // Input validation
     if (!query || query.trim().length === 0) {
+      console.error('❌ No search query provided');
       return new Response(JSON.stringify({ error: 'Invalid request parameters' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -49,7 +52,8 @@ serve(async (req) => {
       });
     }
 
-    console.log(`🔍 WEB-SEARCH: Query="${query}", numResults=${numResults}`);
+    console.log(`🔎 Query: "${query}"`);
+    console.log(`📊 Requested results: ${numResults}`);
 
     // Use DuckDuckGo HTML (free, no API key needed)
     const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
@@ -57,23 +61,29 @@ serve(async (req) => {
     
     const response = await fetch(searchUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       },
     });
 
     if (!response.ok) {
+      console.error(`❌ DuckDuckGo returned status ${response.status}: ${response.statusText}`);
       throw new Error(`Search failed: ${response.status}`);
     }
 
     const html = await response.text();
+    console.log(`✅ Fetched ${html.length} bytes of HTML`);
+    
     const document = new DOMParser().parseFromString(html, 'text/html');
 
     if (!document) {
+      console.error('❌ Failed to parse HTML document');
       throw new Error('Failed to parse search results');
     }
 
     const results: SearchResult[] = [];
     const resultElements = document.querySelectorAll('.result');
+    
+    console.log(`📄 Found ${resultElements.length} result elements in HTML`);
 
     for (let i = 0; i < Math.min(resultElements.length, numResults); i++) {
       const el = resultElements[i];
@@ -100,9 +110,9 @@ serve(async (req) => {
       }
     }
 
-    console.log(`✅ WEB-SEARCH: Found ${results.length} results for "${query}"`);
+    console.log(`✅ === WEB SEARCH COMPLETED: ${results.length} results ===`);
     if (results.length > 0) {
-      console.log(`📋 First result: ${results[0].title} - ${results[0].url}`);
+      console.log('Sample results:', results.slice(0, 2).map(r => ({ title: r.title, url: r.url })));
     }
 
     return new Response(
@@ -118,7 +128,8 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Search error:', error);
+    console.error('❌ === WEB SEARCH FAILED ===');
+    console.error('Error details:', error);
     
     return new Response(
       JSON.stringify({

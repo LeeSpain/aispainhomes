@@ -40,8 +40,13 @@ Deno.serve(async (req) => {
   }
 
   const startTime = Date.now();
+  let requestBody: ScrapeRequest | null = null;
+  let bodyText: string = '';
 
   try {
+    console.log('🚀 === SCRAPE-WEBSITE STARTED ===');
+    console.log(`⏰ Timestamp: ${new Date().toISOString()}`);
+    
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -56,11 +61,13 @@ Deno.serve(async (req) => {
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
       if (!authError && user) {
         userId = user.id;
+        console.log(`✅ User authenticated: ${userId}`);
       }
     }
 
-    // Parse request body
-    const { websiteId, url }: ScrapeRequest = await req.json();
+    // Parse request body ONCE and store
+    bodyText = await req.text();
+    requestBody = JSON.parse(bodyText);
 
     if (!websiteId) {
       return new Response(
@@ -246,33 +253,56 @@ Deno.serve(async (req) => {
       );
     }
 
-    const targetUrl = url || website.url;
-    console.log(`Scraping website: ${website.name} (${targetUrl})`);
+    const targetUrl = requestBody.url || website.url;
+    console.log(`🌐 Scraping website: ${website.name} (${targetUrl})`);
+    console.log(`📂 Category: ${website.category}`);
+    
+    // Determine hostname for domain-specific extraction
+    const hostname = new URL(targetUrl).hostname.toLowerCase();
+    console.log(`🌐 Hostname detected: ${hostname}`);
 
-    // Retry logic with exponential backoff
+    // Retry logic with exponential backoff and User-Agent rotation
     let lastError: Error | null = null;
     let fetchResponse: Response | null = null;
     const maxRetries = 3;
+    const userAgents = [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    ];
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`Fetch attempt ${attempt}/${maxRetries} for ${targetUrl}`);
+        const userAgent = userAgents[attempt % userAgents.length];
+        console.log(`🔄 Fetch attempt ${attempt}/${maxRetries} for ${targetUrl}`);
+        console.log(`👤 User-Agent: ${userAgent.substring(0, 50)}...`);
         
         fetchResponse = await fetch(targetUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'User-Agent': userAgent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0',
           },
         });
 
         if (fetchResponse.ok) {
+          console.log(`✅ Successfully fetched ${targetUrl}`);
           break; // Success, exit retry loop
         } else if (fetchResponse.status === 403 || fetchResponse.status === 404) {
+          console.error(`❌ HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
           // Don't retry on these errors
           throw new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
         } else if (attempt < maxRetries) {
           // Retry on other errors with exponential backoff
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-          console.log(`Retrying in ${delay}ms after status ${fetchResponse.status}`);
+          console.log(`⚠️ Status ${fetchResponse.status}, retrying in ${delay}ms`);
           await new Promise(resolve => setTimeout(resolve, delay));
           lastError = new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`);
         } else {
@@ -282,9 +312,10 @@ Deno.serve(async (req) => {
         lastError = err instanceof Error ? err : new Error('Unknown fetch error');
         if (attempt < maxRetries && !err.message.includes('403') && !err.message.includes('404')) {
           const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-          console.log(`Network error, retrying in ${delay}ms:`, err.message);
+          console.log(`⚠️ Network error, retrying in ${delay}ms: ${err.message}`);
           await new Promise(resolve => setTimeout(resolve, delay));
         } else {
+          console.error(`❌ All ${maxRetries} fetch attempts failed`);
           throw lastError;
         }
       }
@@ -295,16 +326,20 @@ Deno.serve(async (req) => {
     }
 
     const html = await fetchResponse.text();
+    console.log(`✅ Fetched ${html.length} bytes of HTML`);
 
     // Parse HTML
     const document = new DOMParser().parseFromString(html, 'text/html');
     if (!document) {
+      console.error('❌ Failed to parse HTML document');
       throw new Error('Failed to parse HTML');
     }
+    console.log('✅ HTML parsed successfully');
 
-    // Extract items based on category
-    const extractedItems = extractItemsByCategory(document, website.category, targetUrl);
-    console.log(`Extracted ${extractedItems.length} items from ${website.name}`);
+    // Extract items based on category and hostname
+    console.log(`🔍 Extracting items for category: ${website.category}`);
+    const extractedItems = extractItemsByCategory(document, website.category, targetUrl, hostname);
+    console.log(`📦 Extracted ${extractedItems.length} items from ${website.name}`);
 
     // Get previous items to detect changes
     const { data: previousItems, error: prevError } = await supabase
@@ -490,8 +525,9 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in scrape-website:', error);
     const duration = Date.now() - startTime;
+    console.error(`❌ === SCRAPE-WEBSITE FAILED after ${duration}ms ===`);
+    console.error('Error details:', error);
     
     // Categorize error for internal logging only
     let errorCategory = 'unknown';
@@ -508,20 +544,19 @@ Deno.serve(async (req) => {
     }
 
     // Log detailed error server-side
-    console.error('Categorized error:', {
+    console.error('📊 Categorized error:', {
       category: errorCategory,
       message: errorMessage,
       duration,
     });
 
-    // Save error state to database
-    try {
-      const { websiteId } = await req.json();
-      if (websiteId) {
+    // Save error state to database using stored body
+    if (requestBody?.websiteId && bodyText) {
+      try {
         await supabase
           .from('scrape_history')
           .insert({
-            tracked_website_id: websiteId,
+            tracked_website_id: requestBody.websiteId,
             user_id: userId,
             status: 'error',
             items_found: 0,
@@ -531,9 +566,10 @@ Deno.serve(async (req) => {
             scrape_duration_ms: duration,
             error_message: `[${errorCategory}] ${errorMessage}`,
           });
+        console.log('✅ Error state saved to database');
+      } catch (dbError) {
+        console.error('❌ Error saving error state:', dbError);
       }
-    } catch (dbError) {
-      console.error('Error saving error state:', dbError);
     }
 
     return new Response(
@@ -553,14 +589,33 @@ Deno.serve(async (req) => {
 function extractItemsByCategory(
   document: any,
   category: string,
-  baseUrl: string
+  baseUrl: string,
+  hostname?: string
 ): ExtractedItem[] {
-  console.log(`🔍 Extracting items for category: ${category}`);
+  // Route to domain-specific extractors for property websites
+  if ((category === 'properties' || category === 'property_websites') && hostname) {
+    console.log(`🎯 Checking for domain-specific extractor for: ${hostname}`);
+    
+    if (hostname.includes('idealista.com')) {
+      console.log('✅ Using Idealista-specific extractor');
+      return extractIdealista(document, baseUrl);
+    }
+    if (hostname.includes('fotocasa.es')) {
+      console.log('✅ Using Fotocasa-specific extractor');
+      return extractFotocasa(document, baseUrl);
+    }
+    if (hostname.includes('kyero.com')) {
+      console.log('✅ Using Kyero-specific extractor');
+      return extractKyero(document, baseUrl);
+    }
+    
+    console.log('⚠️ No domain-specific extractor found, using generic property extraction');
+  }
   
   switch (category) {
     case 'properties':
-    case 'property_websites':  // Handle property_websites as synonym for properties
-      console.log('✅ Using property extraction logic');
+    case 'property_websites':
+      console.log('✅ Using generic property extraction logic');
       return extractProperties(document, baseUrl);
     case 'legal_services':
       return extractLegalServices(document, baseUrl);
@@ -793,6 +848,7 @@ function extractPrice(priceText?: string): number | undefined {
 function extractIdealista(document: any, baseUrl: string): ExtractedItem[] {
   const items: ExtractedItem[] = [];
   const propertyElements = document.querySelectorAll('article.item, .item-info-container');
+  console.log(`🏢 Idealista: Found ${propertyElements.length} property elements`);
 
   propertyElements.forEach((element: any, index: number) => {
     try {
@@ -821,16 +877,18 @@ function extractIdealista(document: any, baseUrl: string): ExtractedItem[] {
         metadata: { source: 'idealista', raw_price_text: priceText },
       });
     } catch (error) {
-      console.error(`Error extracting Idealista property ${index}:`, error);
+      console.error(`❌ Error extracting Idealista property ${index}:`, error);
     }
   });
 
+  console.log(`🏢 Idealista: Extracted ${items.length} items`);
   return items;
 }
 
 function extractFotocasa(document: any, baseUrl: string): ExtractedItem[] {
   const items: ExtractedItem[] = [];
   const propertyElements = document.querySelectorAll('.re-CardPackAdvance, .re-CardPackMinimal, .re-SearchResult');
+  console.log(`🏢 Fotocasa: Found ${propertyElements.length} property elements`);
 
   propertyElements.forEach((element: any, index: number) => {
     try {
@@ -859,16 +917,18 @@ function extractFotocasa(document: any, baseUrl: string): ExtractedItem[] {
         metadata: { source: 'fotocasa', raw_price_text: priceText },
       });
     } catch (error) {
-      console.error(`Error extracting Fotocasa property ${index}:`, error);
+      console.error(`❌ Error extracting Fotocasa property ${index}:`, error);
     }
   });
 
+  console.log(`🏢 Fotocasa: Extracted ${items.length} items`);
   return items;
 }
 
 function extractKyero(document: any, baseUrl: string): ExtractedItem[] {
   const items: ExtractedItem[] = [];
   const propertyElements = document.querySelectorAll('.listing-item, .property-card, article.property');
+  console.log(`🏢 Kyero: Found ${propertyElements.length} property elements`);
 
   propertyElements.forEach((element: any, index: number) => {
     try {
@@ -898,10 +958,11 @@ function extractKyero(document: any, baseUrl: string): ExtractedItem[] {
         metadata: { source: 'kyero', raw_price_text: priceText },
       });
     } catch (error) {
-      console.error(`Error extracting Kyero property ${index}:`, error);
+      console.error(`❌ Error extracting Kyero property ${index}:`, error);
     }
   });
 
+  console.log(`🏢 Kyero: Extracted ${items.length} items`);
   return items;
 }
 

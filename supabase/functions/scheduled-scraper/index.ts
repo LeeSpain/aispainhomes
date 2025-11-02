@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
         console.log(`Triggering scrape for: ${website.name} (${website.url})`);
         
         // Call scrape-website function with service role
-        const { data: scrapeData, error: scrapeError } = await supabase.functions.invoke(
+      const { data: scrapeData, error: scrapeError } = await supabase.functions.invoke(
           'scrape-website',
           {
             body: { websiteId: website.id },
@@ -101,12 +101,17 @@ Deno.serve(async (req) => {
             error: scrapeError.message,
           });
         } else {
-          console.log(`Successfully scraped ${website.name}`);
+          const itemsExtracted = scrapeData?.items_found || 0;
+          if (itemsExtracted === 0) {
+            console.warn(`⚠️ Scraped ${website.name} but found 0 items`);
+          } else {
+            console.log(`✅ Successfully scraped ${website.name}: ${itemsExtracted} items`);
+          }
           scrapeResults.push({
             website_id: website.id,
             website_name: website.name,
             status: 'success',
-            items_found: scrapeData?.items_found || 0,
+            items_found: itemsExtracted,
             new_items: scrapeData?.new_items || 0,
           });
         }
