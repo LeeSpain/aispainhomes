@@ -60,6 +60,7 @@ export const useDashboardInit = (userId: string | undefined) => {
             .select('*')
             .eq('user_id', userId)
             .eq('is_active', true)
+            .order('search_timestamp', { ascending: false })
             .order('match_score', { ascending: false })
             .limit(6),
           supabase
@@ -113,7 +114,7 @@ export const useDashboardInit = (userId: string | undefined) => {
               status: 'forSale' as const,
               createdAt: rec.created_at || new Date().toISOString(),
               sourceWebsite: rec.source_website || undefined,
-              externalUrl: rec.source_url || undefined,
+              externalUrl: rec.external_url || rec.source_url || undefined,
               referenceNumber: rec.property_id || undefined,
               listingDate: rec.search_timestamp || rec.created_at || undefined,
               lastChecked: rec.search_timestamp || undefined,

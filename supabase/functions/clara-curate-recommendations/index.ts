@@ -547,9 +547,22 @@ serve(async (req) => {
     // Get top 10 properties
     const topProperties = scoredProperties
       .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
+      .slice(0, 6);
 
     console.log(`📝 Saving ${topProperties.length} properties and ${liveServices.length} services`);
+
+    // Deactivate previous recommendations so only the newest 6 are active
+    await supabase
+      .from('property_recommendations')
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true);
+
+    await supabase
+      .from('service_recommendations')
+      .update({ is_active: false })
+      .eq('user_id', userId)
+      .eq('is_active', true);
 
     // Save property recommendations with search metadata
     const propertyInserts = topProperties.map(({ property, score, reasons }: any) => {
