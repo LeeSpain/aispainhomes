@@ -126,7 +126,7 @@ const Dashboard = () => {
     };
     
     checkEmailVerification();
-  }, [user, authLoading, hasCompletedQuestionnaire, navigate]);
+  }, [user, authLoading, isLoadingProperties, hasCompletedQuestionnaire, navigate]);
   
   // Properties are now loaded via usePersonalizedDashboard hook
   
