@@ -76,8 +76,25 @@ export const useDashboardInit = (userId: string | undefined) => {
         const questionnaireData = questionnaireResult.data;
         const profileData = profileResult.data;
         const hasCompletedQuestionnaire = !!questionnaireData;
-        const claraPropertyRecommendations = claraProperties.data || [];
+        let claraPropertyRecommendations = claraProperties.data || [];
         const claraServiceRecommendations = claraServices.data || [];
+
+        // Safety net: if no active properties found, fetch latest 6 regardless of is_active
+        if (claraPropertyRecommendations.length === 0) {
+          console.log('⚠️ No active properties found, fetching latest 6 regardless of is_active...');
+          const fallbackResult = await supabase
+            .from('property_recommendations')
+            .select('*')
+            .eq('user_id', userId)
+            .order('search_timestamp', { ascending: false })
+            .order('created_at', { ascending: false })
+            .limit(6);
+          
+          if (fallbackResult.data && fallbackResult.data.length > 0) {
+            console.log(`✅ Fallback found ${fallbackResult.data.length} properties`);
+            claraPropertyRecommendations = fallbackResult.data;
+          }
+        }
 
         // Check if questionnaire was recently completed (within last 2 minutes) and Clara hasn't returned results yet
         const recentlyCompleted = questionnaireData?.completed_at && 

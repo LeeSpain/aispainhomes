@@ -567,6 +567,10 @@ serve(async (req) => {
       );
     }
 
+    // Capture timestamp BEFORE inserts to safely deactivate old rows later
+    const runStartedAt = new Date().toISOString();
+    console.log(`⏰ Run started at: ${runStartedAt}`);
+
     // Save property recommendations with search metadata
     const propertyInserts = topProperties.map(({ property, score, reasons }: any) => {
       const metadata = property.metadata || {};
@@ -592,15 +596,15 @@ serve(async (req) => {
         features: metadata.features || [],
         images: property.images || [],
         source_url: propertyUrl,
-        external_url: propertyUrl, // NEW: Direct link to property listing
-        reference_number: referenceNumber, // NEW: Property reference/ID from URL
-        listing_date: new Date().toISOString(), // NEW: When property was first listed
-        last_checked: new Date().toISOString(), // NEW: When we last verified this property
+        external_url: propertyUrl,
+        reference_number: referenceNumber,
+        listing_date: new Date().toISOString(),
+        last_checked: new Date().toISOString(),
         match_score: Math.round(score),
         match_reasons: reasons,
         source_website: property.source_website || null,
         search_query: property.search_query || null,
-        search_timestamp: new Date().toISOString(),
+        search_timestamp: runStartedAt, // Use stable timestamp
         search_method: property.source_website ? 'live_search' : 'database_match',
       };
     });
@@ -617,17 +621,32 @@ serve(async (req) => {
       );
     }
 
+    console.log(`✅ Successfully inserted ${propertyInserts.length} new properties`);
+
     // Only deactivate old properties AFTER successfully inserting new ones
-    console.log('✅ Successfully saved new properties, now deactivating old ones...');
+    console.log(`🗑️ Deactivating old properties (created before ${runStartedAt})...`);
     
-    // Deactivate all old property recommendations except the ones we just inserted
-    const newPropertyIds = propertyInserts.map((_, index) => index); // We'll use created_at for this
-    await supabase
+    const { error: deactivateError, count: deactivatedCount } = await supabase
       .from('property_recommendations')
       .update({ is_active: false })
       .eq('user_id', userId)
       .eq('is_active', true)
-      .lt('created_at', new Date().toISOString()); // Deactivate anything created before this batch
+      .lt('created_at', runStartedAt); // Only deactivate rows created BEFORE this run
+
+    if (deactivateError) {
+      console.error('Error deactivating old properties:', deactivateError);
+    } else {
+      console.log(`✅ Deactivated ${deactivatedCount || 0} old properties`);
+    }
+
+    // Verify active count
+    const { count: activeCount } = await supabase
+      .from('property_recommendations')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_active', true);
+    
+    console.log(`📊 Active property recommendations after update: ${activeCount || 0}`);
 
     // Save service recommendations with search metadata
     const serviceInserts = liveServices.map((service: any) => ({
@@ -641,24 +660,34 @@ serve(async (req) => {
       why_recommended: service.why_recommended,
       source_url: service.source_url || null,
       search_query: service.search_query || null,
-      search_timestamp: new Date().toISOString(),
+      search_timestamp: runStartedAt, // Use stable timestamp
       search_method: 'live_search',
     }));
 
-    const { error: serviceError } = await supabase
-      .from('service_recommendations')
-      .insert(serviceInserts);
-
-    if (serviceError) {
-      console.error('Error saving services:', serviceError);
-    } else if (serviceInserts.length > 0) {
-      // Deactivate old service recommendations after successfully inserting new ones
-      await supabase
+    if (serviceInserts.length > 0) {
+      const { error: serviceError } = await supabase
         .from('service_recommendations')
-        .update({ is_active: false })
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .lt('created_at', new Date().toISOString());
+        .insert(serviceInserts);
+
+      if (serviceError) {
+        console.error('Error saving services:', serviceError);
+      } else {
+        console.log(`✅ Successfully inserted ${serviceInserts.length} new services`);
+        
+        // Deactivate old service recommendations after successfully inserting new ones
+        const { error: deactivateServiceError, count: deactivatedServiceCount } = await supabase
+          .from('service_recommendations')
+          .update({ is_active: false })
+          .eq('user_id', userId)
+          .eq('is_active', true)
+          .lt('created_at', runStartedAt); // Only deactivate rows created BEFORE this run
+
+        if (deactivateServiceError) {
+          console.error('Error deactivating old services:', deactivateServiceError);
+        } else {
+          console.log(`✅ Deactivated ${deactivatedServiceCount || 0} old services`);
+        }
+      }
     }
 
     console.log(`✅ Clara completed! Saved ${propertyInserts.length} properties and ${serviceInserts.length} services`);
