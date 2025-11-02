@@ -463,16 +463,20 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          external_url: string | null
           features: string[] | null
           id: string
           images: Json | null
           is_active: boolean | null
+          last_checked: string | null
+          listing_date: string | null
           location: string
           match_reasons: string[] | null
           match_score: number | null
           price: number
           property_id: string | null
           property_type: string | null
+          reference_number: string | null
           search_method: string | null
           search_query: string | null
           search_timestamp: string | null
@@ -489,16 +493,20 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          external_url?: string | null
           features?: string[] | null
           id?: string
           images?: Json | null
           is_active?: boolean | null
+          last_checked?: string | null
+          listing_date?: string | null
           location: string
           match_reasons?: string[] | null
           match_score?: number | null
           price: number
           property_id?: string | null
           property_type?: string | null
+          reference_number?: string | null
           search_method?: string | null
           search_query?: string | null
           search_timestamp?: string | null
@@ -515,16 +523,20 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          external_url?: string | null
           features?: string[] | null
           id?: string
           images?: Json | null
           is_active?: boolean | null
+          last_checked?: string | null
+          listing_date?: string | null
           location?: string
           match_reasons?: string[] | null
           match_score?: number | null
           price?: number
           property_id?: string | null
           property_type?: string | null
+          reference_number?: string | null
           search_method?: string | null
           search_query?: string | null
           search_timestamp?: string | null
