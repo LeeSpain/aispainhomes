@@ -187,6 +187,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_preferences: {
+        Row: {
+          created_at: string | null
+          frequency: string | null
+          id: string
+          marketing_emails: boolean | null
+          new_match_alerts: boolean | null
+          price_change_alerts: boolean | null
+          property_alerts: boolean | null
+          updated_at: string | null
+          user_id: string
+          weekly_digest: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          marketing_emails?: boolean | null
+          new_match_alerts?: boolean | null
+          price_change_alerts?: boolean | null
+          property_alerts?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          weekly_digest?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          marketing_emails?: boolean | null
+          new_match_alerts?: boolean | null
+          price_change_alerts?: boolean | null
+          property_alerts?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_digest?: boolean | null
+        }
+        Relationships: []
+      }
       extracted_items: {
         Row: {
           created_at: string | null
@@ -645,6 +684,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_searches: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_checked_at: string | null
+          name: string
+          notification_frequency: string
+          search_criteria: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          name: string
+          notification_frequency?: string
+          search_criteria: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_checked_at?: string | null
+          name?: string
+          notification_frequency?: string
+          search_criteria?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       service_recommendations: {
         Row: {
