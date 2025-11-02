@@ -554,6 +554,12 @@ serve(async (req) => {
     // Save property recommendations with search metadata
     const propertyInserts = topProperties.map(({ property, score, reasons }: any) => {
       const metadata = property.metadata || {};
+      const propertyUrl = property.url || '';
+      
+      // Extract reference number from URL (last segment before query params)
+      const referenceNumber = propertyUrl 
+        ? propertyUrl.split('/').filter(Boolean).pop()?.split('?')[0] || null
+        : null;
       
       return {
         user_id: userId,
@@ -569,7 +575,11 @@ serve(async (req) => {
         area_sqm: Number(metadata.size_m2 || metadata.area) || null,
         features: metadata.features || [],
         images: property.images || [],
-        source_url: property.url || '',
+        source_url: propertyUrl,
+        external_url: propertyUrl, // NEW: Direct link to property listing
+        reference_number: referenceNumber, // NEW: Property reference/ID from URL
+        listing_date: new Date().toISOString(), // NEW: When property was first listed
+        last_checked: new Date().toISOString(), // NEW: When we last verified this property
         match_score: Math.round(score),
         match_reasons: reasons,
         source_website: property.source_website || null,
