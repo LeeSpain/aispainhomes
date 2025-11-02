@@ -34,8 +34,7 @@ async function searchLiveProperties(
     .slice(0, 5);
 
   if (!propertyWebsites || propertyWebsites.length === 0) {
-    console.log('No property websites configured, using fallback');
-    return [];
+    console.log('No property websites configured, trying fallback to extracted_items');
   }
 
   const allProperties: any[] = [];
@@ -73,54 +72,54 @@ async function searchLiveProperties(
         
         // Try to scrape the property page
         try {
-          // Find website ID in tracked_websites (should exist after migration)
-          let websiteId = null;
-          
-          const { data: trackedWebsite } = await supabase
-            .from('tracked_websites')
-            .select('id')
-            .eq('url', website.url)
-            .maybeSingle();
-
-          if (trackedWebsite?.id) {
-            websiteId = trackedWebsite.id;
-            console.log(`✅ Found website in tracked_websites: ${websiteId}`);
-          } else {
-            // Fallback to official_resources if not in tracked_websites
-            const { data: officialResource } = await supabase
-              .from('official_resources')
-              .select('id')
-              .eq('url', website.url)
-              .eq('category', 'property_websites')
-              .maybeSingle();
-            
-            websiteId = officialResource?.id;
-            console.log(`✅ Found website in official_resources: ${websiteId}`);
-          }
-
-          if (!websiteId) {
-            console.log(`❌ Website not found in any table: ${website.url}`);
-            continue;
-          }
-
           console.log(`🔧 Calling scrape-website for ${propertyUrl}...`);
           
-          // Scrape the property page
+          // Scrape the property page - let scraper handle websiteId logic
           const scrapeResponse = await supabase.functions.invoke('scrape-website', {
             body: { 
-              websiteId: websiteId,
+              websiteId: null, // Let scraper determine this
               url: propertyUrl
             }
           });
 
           if (scrapeResponse.error) {
             console.error(`❌ Scrape error for ${propertyUrl}:`, scrapeResponse.error);
-          } else if (scrapeResponse.data?.sample_items) {
-            const properties = scrapeResponse.data.sample_items || [];
-            console.log(`✅ Extracted ${properties.length} properties from ${propertyUrl}`);
-            properties.forEach((prop: any) => {
+            continue;
+          }
+
+          // PHASE 1 FIX: Use the full scraped data from response
+          if (scrapeResponse.data?.items && scrapeResponse.data.items.length > 0) {
+            const scrapedItems = scrapeResponse.data.items;
+            console.log(`✅ Extracted ${scrapedItems.length} properties with FULL DATA from ${propertyUrl}`);
+            
+            scrapedItems.forEach((scrapedItem: any) => {
+              // Validate that we have minimum required data
+              const hasMinimumData = scrapedItem.price > 0 || 
+                                     scrapedItem.metadata?.bedrooms > 0 ||
+                                     scrapedItem.metadata?.rooms > 0;
+              
+              if (!hasMinimumData) {
+                console.warn(`⚠️ Skipping property with incomplete data: ${scrapedItem.title}`);
+                return;
+              }
+
+              // Push property with complete scraped metadata
               allProperties.push({
-                ...prop,
+                title: scrapedItem.title || 'Property',
+                description: scrapedItem.description || '',
+                url: scrapedItem.url || propertyUrl,
+                price: Number(scrapedItem.price) || 0,
+                currency: scrapedItem.currency || 'EUR',
+                location: scrapedItem.location || location,
+                images: scrapedItem.images || [],
+                metadata: {
+                  type: scrapedItem.metadata?.type || scrapedItem.item_type || propertyTypes[0],
+                  bedrooms: Number(scrapedItem.metadata?.bedrooms || scrapedItem.metadata?.rooms) || 0,
+                  bathrooms: Number(scrapedItem.metadata?.bathrooms) || 0,
+                  size_m2: Number(scrapedItem.metadata?.size_m2 || scrapedItem.metadata?.area) || 0,
+                  features: scrapedItem.metadata?.features || [],
+                  ...scrapedItem.metadata
+                },
                 source_website: website.authority,
                 search_query: searchQuery,
               });
@@ -137,7 +136,50 @@ async function searchLiveProperties(
     }
   }
 
-  console.log(`✅ Clara found ${allProperties.length} total properties from live search`);
+  // PHASE 1 FIX: Fallback to extracted_items if live search yielded few results
+  if (allProperties.length < 5) {
+    console.log(`🔄 Only ${allProperties.length} properties from live search, querying extracted_items as fallback...`);
+    
+    try {
+      const { data: extractedProperties, error: extractError } = await supabase
+        .from('extracted_items')
+        .select('*')
+        .eq('item_type', 'property')
+        .eq('is_active', true)
+        .ilike('location', `%${location}%`)
+        .gte('price', budgetMin * 0.7) // Allow 30% below budget
+        .lte('price', budgetMax * 1.2) // Allow 20% above budget
+        .order('created_at', { ascending: false })
+        .limit(15);
+
+      if (!extractError && extractedProperties && extractedProperties.length > 0) {
+        console.log(`✅ Found ${extractedProperties.length} properties from extracted_items`);
+        
+        extractedProperties.forEach((item: any) => {
+          // Only add if has meaningful data
+          const hasData = item.price > 0 || item.metadata?.bedrooms > 0;
+          if (hasData) {
+            allProperties.push({
+              title: item.title || 'Property',
+              description: item.description || '',
+              url: item.url || item.external_id || '',
+              price: Number(item.price) || 0,
+              currency: item.currency || 'EUR',
+              location: item.location || location,
+              images: item.images || [],
+              metadata: item.metadata || {},
+              source_website: 'Database',
+              search_query: null,
+            });
+          }
+        });
+      }
+    } catch (fallbackError) {
+      console.error('Error querying extracted_items fallback:', fallbackError);
+    }
+  }
+
+  console.log(`✅ Clara found ${allProperties.length} total properties (live + fallback)`);
   return allProperties;
 }
 
@@ -350,63 +392,156 @@ serve(async (req) => {
       allCandidateProperties.push(...dbProperties);
     }
 
-    // Score properties
+    // PHASE 2: Enhanced scoring algorithm
     const scoredProperties = allCandidateProperties.map((property: any) => {
       let score = 0;
       const reasons: string[] = [];
 
       const propertyPrice = Number(property.price) || 0;
+      const propertyBedrooms = Number(property.metadata?.bedrooms || property.metadata?.rooms) || 0;
+      const propertyBathrooms = Number(property.metadata?.bathrooms) || 0;
+      const propertyArea = Number(property.metadata?.size_m2 || property.metadata?.area) || 0;
+      const propertyType = property.metadata?.type || property.property_type || '';
+      
+      // Skip properties with no meaningful data
+      if (propertyPrice === 0 && propertyBedrooms === 0) {
+        console.warn(`⚠️ Skipping property with no data: ${property.title}`);
+        return { property, score: 0, reasons: ['Incomplete data'] };
+      }
 
-      // Budget matching (30 points)
-      if (propertyPrice >= budgetMin && propertyPrice <= budgetMax) {
-        score += 30;
-        reasons.push('Within your budget');
-      } else if (propertyPrice < budgetMin) {
-        score += (propertyPrice / budgetMin) * 30;
-        reasons.push('Below budget');
-      } else {
-        const overBudget = ((propertyPrice - budgetMax) / budgetMax) * 100;
-        if (overBudget < 20) {
-          score += 15;
-          reasons.push('Slightly over budget but excellent value');
+      // 1. Budget matching (35 points) - INCREASED
+      if (propertyPrice > 0) {
+        if (propertyPrice >= budgetMin && propertyPrice <= budgetMax) {
+          score += 35;
+          reasons.push(`€${propertyPrice.toLocaleString()} is within your €${budgetMin.toLocaleString()}-€${budgetMax.toLocaleString()} budget`);
+        } else if (propertyPrice < budgetMin) {
+          const percentOfMin = (propertyPrice / budgetMin) * 100;
+          if (percentOfMin >= 70) {
+            score += 30;
+            reasons.push(`€${propertyPrice.toLocaleString()} - Great value below your budget`);
+          } else if (percentOfMin >= 50) {
+            score += 20;
+            reasons.push(`€${propertyPrice.toLocaleString()} - Well below budget`);
+          } else {
+            score += 10;
+            reasons.push(`€${propertyPrice.toLocaleString()} - Significantly below budget`);
+          }
+        } else {
+          const overBudget = ((propertyPrice - budgetMax) / budgetMax) * 100;
+          if (overBudget <= 10) {
+            score += 25;
+            reasons.push(`€${propertyPrice.toLocaleString()} - Slightly over budget but excellent property`);
+          } else if (overBudget <= 20) {
+            score += 15;
+            reasons.push(`€${propertyPrice.toLocaleString()} - Over budget but may be worth it`);
+          } else {
+            score += 5;
+            reasons.push(`€${propertyPrice.toLocaleString()} - Above your budget range`);
+          }
         }
       }
 
-      // Location matching (25 points)
-      if (property.location && property.location.toLowerCase().includes(location.toLowerCase())) {
-        score += 25;
-        reasons.push('In your preferred location');
+      // 2. Location matching (30 points) - INCREASED
+      if (property.location) {
+        const locationLower = property.location.toLowerCase();
+        const targetLocationLower = location.toLowerCase();
+        
+        if (locationLower.includes(targetLocationLower)) {
+          score += 30;
+          reasons.push(`Located in ${property.location} (your preferred area)`);
+        } else if (locationLower.includes('malaga') && targetLocationLower.includes('malaga')) {
+          score += 20;
+          reasons.push(`In the ${property.location} area of your target region`);
+        } else {
+          score += 5;
+          reasons.push(`Located in ${property.location}`);
+        }
       }
 
-      // Property type matching (20 points)
-      if (property.metadata?.type && propertyTypes.includes(property.metadata.type)) {
-        score += 20;
-        reasons.push('Matches your property type preference');
+      // 3. Property type matching (20 points)
+      if (propertyType) {
+        const normalizedType = propertyType.toLowerCase();
+        const matchesType = propertyTypes.some(type => 
+          normalizedType.includes(type.toLowerCase()) || 
+          type.toLowerCase().includes(normalizedType)
+        );
+        
+        if (matchesType) {
+          score += 20;
+          reasons.push(`${propertyType} matches your property type preference`);
+        } else {
+          score += 5;
+          reasons.push(`${propertyType} property type`);
+        }
       }
 
-      // Household size matching (15 points)
-      const totalPeople = (Number(household.adults) || 0) + (Number(household.children) || 0);
-      const bedroomsNeeded = Math.ceil(totalPeople / 2);
-      const propertyBedrooms = Number(property.metadata?.bedrooms) || 0;
-      
-      if (propertyBedrooms >= bedroomsNeeded) {
-        score += 15;
-        reasons.push(`${propertyBedrooms} bedrooms for ${totalPeople} people`);
+      // 4. Bedroom matching (10 points)
+      if (propertyBedrooms > 0) {
+        const totalPeople = (Number(household.adults) || 0) + (Number(household.children) || 0);
+        const bedroomsNeeded = Math.max(Math.ceil(totalPeople / 2), 2);
+        
+        if (propertyBedrooms >= bedroomsNeeded) {
+          score += 10;
+          reasons.push(`${propertyBedrooms} bedrooms - perfect for ${totalPeople} people`);
+        } else if (propertyBedrooms === bedroomsNeeded - 1) {
+          score += 6;
+          reasons.push(`${propertyBedrooms} bedrooms - almost enough space`);
+        } else {
+          score += 3;
+          reasons.push(`${propertyBedrooms} bedrooms available`);
+        }
       }
 
-      // Features matching (10 points)
-      if (property.metadata?.features && Array.isArray(property.metadata.features)) {
-        score += 10;
-        reasons.push('Has desirable features');
+      // 5. Bathroom matching (5 points) - NEW
+      if (propertyBathrooms > 0) {
+        const bathroomsNeeded = Math.ceil((Number(household.adults) || 0) / 2) + 1;
+        if (propertyBathrooms >= bathroomsNeeded) {
+          score += 5;
+          reasons.push(`${propertyBathrooms} bathrooms`);
+        } else {
+          score += 2;
+        }
       }
 
-      // Bonus for live search results
-      if (property.source_website) {
+      // 6. Area/Size matching (5 points) - NEW
+      if (propertyArea > 0) {
+        const minArea = 80; // Reasonable minimum
+        if (propertyArea >= minArea * 1.5) {
+          score += 5;
+          reasons.push(`${propertyArea}m² - very spacious property`);
+        } else if (propertyArea >= minArea) {
+          score += 3;
+          reasons.push(`${propertyArea}m² - good size`);
+        } else {
+          score += 1;
+        }
+      }
+
+      // 7. Features/Amenities matching (10 points)
+      if (property.metadata?.features && Array.isArray(property.metadata.features) && property.metadata.features.length > 0) {
+        const featureScore = Math.min(10, property.metadata.features.length * 2);
+        score += featureScore;
+        const featureList = property.metadata.features.slice(0, 3).join(', ');
+        reasons.push(`Great features: ${featureList}`);
+      }
+
+      // 8. Data completeness bonus (5 points) - NEW
+      if (propertyPrice > 0 && propertyBedrooms > 0 && propertyBathrooms > 0 && propertyArea > 0) {
         score += 5;
-        reasons.push('Fresh from live search');
+        reasons.push('Complete property information available');
       }
 
-      return { property, score, reasons };
+      // 9. Live search freshness bonus (5 points)
+      if (property.source_website && property.source_website !== 'Database') {
+        score += 5;
+        reasons.push('Fresh listing from live search');
+      }
+
+      // TOTAL POSSIBLE: 130 points
+      // Normalize to 100 scale
+      const normalizedScore = Math.min(100, Math.round((score / 130) * 100));
+      
+      return { property, score: normalizedScore, reasons };
     });
 
     // Get top 10 properties

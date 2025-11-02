@@ -122,87 +122,159 @@ export const useDashboardInit = (userId: string | undefined) => {
         
         console.log(`✅ Total properties to display: ${allProperties.length}`);
 
-        // Calculate match scores if questionnaire exists
+        // PHASE 3: Calculate match scores with enhanced algorithm
         if (hasCompletedQuestionnaire && allProperties.length > 0) {
           const scoredProperties = allProperties.map(property => {
-            let score = 0;
-            const reasons: string[] = [];
-
-            // Budget scoring (30 points)
-            if (questionnaireData.budget_range) {
-              const budgetRange = questionnaireData.budget_range as any;
-              const minBudget = Number(budgetRange.min) || 0;
-              const maxBudget = Number(budgetRange.max) || Infinity;
+            // Get stored score from Clara
+            const claraRec = claraPropertyRecommendations.find(rec => rec.id === property.id);
+            const storedScore = claraRec?.match_score || 0;
+            const storedReasons = claraRec?.match_reasons || [];
+            
+            // Recalculate if stored score is low AND property has complete data
+            const hasCompleteData = property.price > 0 && property.bedrooms > 0;
+            const needsRecalculation = storedScore < 30 && hasCompleteData;
+            
+            if (needsRecalculation) {
+              console.log(`🔄 Recalculating score for property: ${property.title}`);
               
-              if (property.price >= minBudget && property.price <= maxBudget) {
-                score += 30;
-                reasons.push('Within your budget');
-              } else if (property.price < minBudget) {
-                const difference = ((property.price / minBudget) * 30);
-                score += difference;
-                reasons.push('Below your budget');
-              } else {
-                const overBudget = property.price - maxBudget;
-                const percentOver = (overBudget / maxBudget) * 100;
-                if (percentOver < 20) {
-                  score += 15;
-                  reasons.push('Slightly over budget but may be worth it');
+              let score = 0;
+              const reasons: string[] = [];
+              
+              const budgetRange = questionnaireData.budget_range as any || {};
+              const household = questionnaireData.household_details as any || {};
+              const budgetMin = Number(budgetRange.min) || 0;
+              const budgetMax = Number(budgetRange.max) || Infinity;
+              
+              // 1. Budget matching (35 points)
+              if (property.price > 0) {
+                if (property.price >= budgetMin && property.price <= budgetMax) {
+                  score += 35;
+                  reasons.push(`€${property.price.toLocaleString()} is within your budget`);
+                } else if (property.price < budgetMin) {
+                  const percentOfMin = (property.price / budgetMin) * 100;
+                  if (percentOfMin >= 70) {
+                    score += 30;
+                    reasons.push(`€${property.price.toLocaleString()} - Great value below your budget`);
+                  } else if (percentOfMin >= 50) {
+                    score += 20;
+                    reasons.push(`€${property.price.toLocaleString()} - Well below budget`);
+                  }
+                } else {
+                  const overBudget = ((property.price - budgetMax) / budgetMax) * 100;
+                  if (overBudget <= 10) {
+                    score += 25;
+                    reasons.push(`€${property.price.toLocaleString()} - Slightly over budget`);
+                  } else if (overBudget <= 20) {
+                    score += 15;
+                    reasons.push('Over budget but may be worth it');
+                  }
                 }
               }
-            }
 
-            // Location scoring (25 points)
-            if (questionnaireData.location_preferences && Array.isArray(questionnaireData.location_preferences)) {
-              const userLocations = questionnaireData.location_preferences;
-              const locationMatch = userLocations.some((loc: string) => 
-                property.location.toLowerCase().includes(loc.toLowerCase())
-              );
-              if (locationMatch) {
-                score += 25;
-                reasons.push('In your preferred location');
+              // 2. Location matching (30 points)
+              if (questionnaireData.location_preferences) {
+                const locPrefs = questionnaireData.location_preferences;
+                let userLocations: string[] = [];
+                
+                if (Array.isArray(locPrefs)) {
+                  userLocations = locPrefs.map(loc => String(loc));
+                } else if (typeof locPrefs === 'object' && locPrefs !== null) {
+                  userLocations = [(locPrefs as any).location || 'Spain'];
+                } else {
+                  userLocations = [String(locPrefs)];
+                }
+                
+                const locationMatch = userLocations.some((loc: string) => 
+                  property.location.toLowerCase().includes(loc.toLowerCase())
+                );
+                if (locationMatch) {
+                  score += 30;
+                  reasons.push(`Located in ${property.location} (your preferred area)`);
+                } else {
+                  score += 5;
+                }
               }
-            }
 
-            // Property type scoring (20 points)
-            if (questionnaireData.property_types && Array.isArray(questionnaireData.property_types)) {
-              if (questionnaireData.property_types.includes(property.type)) {
-                score += 20;
-                reasons.push('Matches your property type preference');
+              // 3. Property type scoring (20 points)
+              if (questionnaireData.property_types && Array.isArray(questionnaireData.property_types)) {
+                if (questionnaireData.property_types.includes(property.type)) {
+                  score += 20;
+                  reasons.push(`${property.type} matches your property type preference`);
+                } else {
+                  score += 5;
+                }
               }
-            }
 
-            // Bedroom/household scoring (15 points)
-            if (questionnaireData.household_details) {
-              const household = questionnaireData.household_details as any;
-              const adults = Number(household.adults) || 0;
-              const children = Number(household.children) || 0;
-              const totalPeople = adults + children;
-              const bedroomsNeeded = Math.ceil(totalPeople / 2);
+              // 4. Bedroom scoring (10 points)
+              if (property.bedrooms > 0) {
+                const totalPeople = (Number(household.adults) || 0) + (Number(household.children) || 0);
+                const bedroomsNeeded = Math.max(Math.ceil(totalPeople / 2), 2);
+                
+                if (property.bedrooms >= bedroomsNeeded) {
+                  score += 10;
+                  reasons.push(`${property.bedrooms} bedrooms - perfect for ${totalPeople} people`);
+                } else if (property.bedrooms === bedroomsNeeded - 1) {
+                  score += 6;
+                  reasons.push(`${property.bedrooms} bedrooms - almost enough space`);
+                }
+              }
+
+              // 5. Bathroom matching (5 points)
+              if (property.bathrooms > 0) {
+                score += 5;
+                reasons.push(`${property.bathrooms} bathrooms`);
+              }
+
+              // 6. Area/Size matching (5 points)
+              if (property.area > 0) {
+                const minArea = 80;
+                if (property.area >= minArea * 1.5) {
+                  score += 5;
+                  reasons.push(`${property.area}m² - very spacious`);
+                } else if (property.area >= minArea) {
+                  score += 3;
+                  reasons.push(`${property.area}m² - good size`);
+                }
+              }
+
+              // 7. Features (10 points)
+              if (property.features && Array.isArray(property.features) && property.features.length > 0) {
+                const featureScore = Math.min(10, property.features.length * 2);
+                score += featureScore;
+                const featureList = property.features.slice(0, 3).join(', ');
+                reasons.push(`Great features: ${featureList}`);
+              }
+
+              // 8. Data completeness bonus (5 points)
+              if (property.price > 0 && property.bedrooms > 0 && property.bathrooms > 0 && property.area > 0) {
+                score += 5;
+                reasons.push('Complete property information');
+              }
+
+              // 9. Live search freshness (5 points)
+              if (property.sourceWebsite && property.sourceWebsite !== 'Database') {
+                score += 5;
+                reasons.push('Fresh listing');
+              }
+
+              // Normalize to 100 scale (total possible: 130)
+              const normalizedScore = Math.min(100, Math.round((score / 130) * 100));
               
-              if (property.bedrooms >= bedroomsNeeded) {
-                score += 15;
-                reasons.push(`${property.bedrooms} bedrooms for ${totalPeople} people`);
-              } else if (property.bedrooms === bedroomsNeeded - 1) {
-                score += 8;
-                reasons.push('Almost enough bedrooms');
-              }
+              return { 
+                property, 
+                score: normalizedScore, 
+                reasons, 
+                wasRecalculated: true 
+              };
             }
-
-            // Amenities scoring (10 points)
-            if (questionnaireData.amenities_required && Array.isArray(questionnaireData.amenities_required) && property.features) {
-              const matchedAmenities = questionnaireData.amenities_required.filter((amenity: string) =>
-                property.features.some(feature => 
-                  feature.toLowerCase().includes(amenity.toLowerCase())
-                )
-              );
-              if (matchedAmenities.length > 0) {
-                const amenityScore = Math.min(10, matchedAmenities.length * 3);
-                score += amenityScore;
-                reasons.push(`Has ${matchedAmenities.length} desired amenities`);
-              }
-            }
-
-            return { property, score, reasons };
+            
+            // Use stored score if it's already good or property lacks data
+            return { 
+              property, 
+              score: storedScore, 
+              reasons: storedReasons,
+              wasRecalculated: false 
+            };
           });
 
           // Sort by score
@@ -210,20 +282,13 @@ export const useDashboardInit = (userId: string | undefined) => {
             .sort((a, b) => b.score - a.score)
             .slice(0, 20);
 
-          // If Clara has recommendations, use those scores/reasons
-          const matchScores = claraPropertyRecommendations.length > 0
-            ? new Map(claraPropertyRecommendations.map((rec: any) => [rec.id, rec.match_score || 0]))
-            : new Map(sortedProperties.map(item => [item.property.id, item.score]));
-          
-          const matchReasons = claraPropertyRecommendations.length > 0
-            ? new Map(claraPropertyRecommendations.map((rec: any) => [rec.id, rec.match_reasons || []]))
-            : new Map(sortedProperties.map(item => [item.property.id, item.reasons]));
+          // Use the recalculated or stored scores
+          const matchScores = new Map(sortedProperties.map(item => [item.property.id, item.score]));
+          const matchReasons = new Map(sortedProperties.map(item => [item.property.id, item.reasons]));
 
           if (mounted) {
             setData({
-              properties: claraPropertyRecommendations.length > 0 
-                ? allProperties 
-                : sortedProperties.map(item => item.property),
+              properties: sortedProperties.map(item => item.property),
               matchScores,
               matchReasons,
               questionnaireData,
