@@ -32,7 +32,11 @@ export const useDashboardInit = (userId: string | undefined) => {
   });
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      // No user - nothing to load for dashboard; allow parent to handle redirects
+      setData(prev => ({ ...prev, isLoading: false }));
+      return;
+    }
 
     let mounted = true;
 
